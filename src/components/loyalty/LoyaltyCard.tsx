@@ -8,7 +8,7 @@ interface LoyaltyCardProps {
   user: User;
   membership: Membership;
   onFlip?: () => void;
-  onAddStamp?: () => void;
+  onAddStamp?: (billAmount?: number) => void;
   ownerPin?: string;
   initialSkin?: CardSkin;
 }
@@ -27,6 +27,7 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
 
   // Café Owner Stamp PIN Authorization States
   const [showPinModal, setShowPinModal] = useState(false);
+  const [billAmount, setBillAmount] = useState<number>(250);
   const [enteredPin, setEnteredPin] = useState('');
   const [pinError, setPinError] = useState(false);
   const [pinSuccess, setPinSuccess] = useState(false);
@@ -70,7 +71,7 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
         setPinSuccess(true);
         setFailedAttempts(0);
         setTimeout(() => {
-          onAddStamp?.();
+          onAddStamp?.(billAmount);
           setShowPinModal(false);
           setEnteredPin('');
           setPinSuccess(false);
@@ -374,9 +375,9 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
               </div>
 
               <h3 className="font-serif text-2xl font-normal text-[#181311]">
-                Owner Stamp PIN
+                Owner Stamp & Bill PIN
               </h3>
-              <p className="text-xs text-[#6E5A52] mt-1 mb-4">
+              <p className="text-xs text-[#6E5A52] mt-1 mb-3">
                 {isLocked ? (
                   <span className="text-red-600 font-bold">⛔ Security Lockout: 5 failed attempts.<br/>Keypad locked for 5 minutes.</span>
                 ) : pinSuccess ? (
@@ -384,9 +385,45 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
                 ) : pinError ? (
                   <span className="text-red-600 font-semibold">✕ Incorrect PIN ({Math.max(0, 5 - failedAttempts)} attempts left before lockout)</span>
                 ) : (
-                  'Please present to the café owner or barista to authorize this stamp.'
+                  'Enter customer\'s bill amount and 4-digit PIN to authorize stamp & points.'
                 )}
               </p>
+
+              {/* Customer Café Bill Amount & Points Conversion */}
+              <div className="bg-[#FAF8F5] border border-[#E8E2D8] rounded-2xl p-3 mb-3 text-center">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#6E5A52] block mb-1">
+                  Customer Café Bill Amount (₹)
+                </label>
+                <div className="flex items-center justify-center gap-1.5 mb-1.5">
+                  <span className="font-serif text-lg font-bold text-[#181311]">₹</span>
+                  <input
+                    type="number"
+                    value={billAmount}
+                    onChange={(e) => setBillAmount(Math.max(0, Number(e.target.value) || 0))}
+                    className="w-24 h-8 text-center font-mono text-base font-bold border border-[#C89D4B] rounded-lg bg-white text-[#181311] outline-none"
+                  />
+                </div>
+                <div className="flex justify-center gap-1 flex-wrap mb-1.5">
+                  {[180, 250, 350, 500, 750, 1000].map(amt => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setBillAmount(amt)}
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-full border transition ${
+                        billAmount === amt
+                          ? 'bg-[#181311] text-white border-[#181311]'
+                          : 'bg-white text-[#6E5A52] border-[#E8E2D8] hover:border-[#C89D4B]'
+                      }`}
+                    >
+                      ₹{amt}
+                    </button>
+                  ))}
+                </div>
+                <div className="inline-flex items-center gap-1.5 bg-[#C89D4B]/10 border border-[#C89D4B]/30 text-[#181311] px-2.5 py-0.5 rounded-full text-[11px] font-semibold">
+                  <span>💎 Converts to <strong>+{Math.floor(billAmount / 10)} Points</strong></span>
+                  <span className="text-[9px] text-[#6E5A52]">(₹10 = 1 pt)</span>
+                </div>
+              </div>
 
               {/* 4 Dots */}
               <div className="flex justify-center items-center gap-3.5 my-4">

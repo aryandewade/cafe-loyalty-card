@@ -13,11 +13,11 @@ function renderProfilePage() {
       <div class="container container-narrow">
         
         <!-- Header -->
-        <div style="margin-bottom: 2.5rem;">
-          <div class="eyebrow eyebrow-accent">Member Identity</div>
-          <h1 style="margin-bottom: 0.5rem;">Profile & Preferences</h1>
-          <p style="color: var(--color-roast-medium); font-size: 0.95rem;">
-            Manage your personal credentials, café preferences, and membership card.
+        <div style="margin-bottom: 1.5rem;">
+          <div class="eyebrow eyebrow-accent">Identity</div>
+          <h1 style="margin-bottom: 0.3rem; font-size: clamp(1.8rem, 4vw, 2.3rem);">Profile</h1>
+          <p style="color: var(--color-roast-medium); font-size: 0.88rem; margin: 0;">
+            Account details & preferences.
           </p>
         </div>
 

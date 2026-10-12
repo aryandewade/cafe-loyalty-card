@@ -48,10 +48,10 @@ function renderActivityPage() {
         
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
           <div>
-            <div class="eyebrow eyebrow-accent">The Ledger</div>
-            <h1 style="margin-bottom: 0.5rem;">Visit & Stamp History</h1>
-            <p style="color: var(--color-roast-medium); font-size: 0.95rem;">
-              Complete record of your coffee orders and privilege redemptions.
+            <div class="eyebrow eyebrow-accent">Ledger</div>
+            <h1 style="margin-bottom: 0.3rem; font-size: clamp(1.8rem, 4vw, 2.3rem);">Activity</h1>
+            <p style="color: var(--color-roast-medium); font-size: 0.88rem; margin: 0;">
+              Visit and redemption history.
             </p>
           </div>
 

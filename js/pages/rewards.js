@@ -95,11 +95,11 @@ function renderRewardsPage() {
       <div class="container">
         
         <!-- Header -->
-        <div style="max-width: 680px; margin-bottom: 2.5rem;">
-          <div class="eyebrow eyebrow-accent">The Reserve Catalog</div>
-          <h1 style="margin-bottom: 0.6rem;">Member Privileges</h1>
-          <p style="color: var(--color-roast-medium); font-size: 1.05rem; line-height: 1.6;">
-            Every visit unlocks tangible rewards, from our signature single-origin extractions to private sensory cuppings with our master roaster.
+        <div style="max-width: 680px; margin-bottom: 1.5rem;">
+          <div class="eyebrow eyebrow-accent">Catalog</div>
+          <h1 style="margin-bottom: 0.3rem; font-size: clamp(1.8rem, 4vw, 2.3rem);">Rewards</h1>
+          <p style="color: var(--color-roast-medium); font-size: 0.88rem; margin: 0;">
+            Claim reserve drinks and bakery perks.
           </p>
         </div>
 

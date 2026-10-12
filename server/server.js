@@ -18,7 +18,7 @@ import {
 // Initialize SQLite tables and seed data (local fallback)
 initDatabase();
 
-const PORT = parseInt(process.env.PORT || '8787', 10);
+const PORT = parseInt(process.env.PORT || '3000', 10);
 const STATIC_ROOT = path.resolve(process.cwd());
 const isBun = typeof process !== 'undefined' && process.versions && !!process.versions.bun;
 
@@ -642,8 +642,8 @@ export async function handleRequest(req) {
     let filePath = path.resolve(STATIC_ROOT, rawRelative);
 
     // Prevent directory traversal attacks (case-insensitive and normalized for Windows)
-    const normalizedFilePath = path.normalize(filePath).toLowerCase();
-    const normalizedStaticRoot = path.normalize(STATIC_ROOT).toLowerCase();
+    const normalizedFilePath = path.resolve(filePath).toLowerCase().replace(/\\/g, '/');
+    const normalizedStaticRoot = path.resolve(STATIC_ROOT).toLowerCase().replace(/\\/g, '/');
     if (!normalizedFilePath.startsWith(normalizedStaticRoot)) {
       return new Response('Forbidden', { status: 403, headers: SECURITY_HEADERS });
     }

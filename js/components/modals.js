@@ -547,31 +547,61 @@ function openOwnerStampModal(options = {}) {
 
   const store = window.AtelierStore;
   const drinkName = options.drinkName || 'Specialty Coffee Order';
+  const initialBillAmount = options.amountSpent !== undefined && options.amountSpent !== null 
+    ? Number(options.amountSpent) 
+    : 250;
+  const rate = store.getRupeesPerPoint();
+  let billAmount = initialBillAmount;
   let enteredPin = '';
   let isChecking = false;
 
   container.innerHTML = `
     <div class="modal-backdrop is-active" id="owner-stamp-backdrop">
-      <div class="modal-card" style="max-width: 360px; padding: 2rem 1.6rem; text-align: center;">
+      <div class="modal-card" style="max-width: 375px; padding: 1.8rem 1.5rem; text-align: center;">
         
         <!-- Header -->
         <div style="display: flex; justify-content: flex-end; margin-bottom: -0.5rem;">
           <button class="btn-text" id="close-owner-stamp-btn" style="font-size: 1.3rem; color: var(--color-roast-muted);">✕</button>
         </div>
 
-        <div style="width: 3.4rem; height: 3.4rem; border-radius: 50%; background: var(--bg-canvas-subtle); border: 1.5px solid var(--color-gold-foil); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.8rem; font-size: 1.4rem;">
+        <div style="width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--bg-canvas-subtle); border: 1.5px solid var(--color-gold-foil); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.6rem; font-size: 1.35rem;">
           🔐
         </div>
 
-        <h3 style="font-family: var(--font-serif); font-size: 1.55rem; margin-bottom: 0.3rem;">
-          Owner Stamp Authorization
+        <h3 style="font-family: var(--font-serif); font-size: 1.45rem; margin-bottom: 0.2rem;">
+          Owner Stamp & Bill Authorization
         </h3>
-        <p id="owner-pin-status-text" style="font-size: 0.82rem; color: var(--color-roast-medium); line-height: 1.4; margin-bottom: 0.5rem;">
-          Please hand your device to the barista or café owner to enter the stamp code.
+        <p id="owner-pin-status-text" style="font-size: 0.8rem; color: var(--color-roast-medium); line-height: 1.35; margin-bottom: 0.75rem;">
+          Enter the customer's bill amount and 4-digit PIN to issue stamp & points.
         </p>
 
+        <!-- Bill Amount Entry & Dynamic Points Conversion -->
+        <div class="owner-bill-box">
+          <label class="owner-bill-label">Customer Café Bill Amount</label>
+          <div class="owner-bill-input-wrap">
+            <span class="owner-bill-currency">₹</span>
+            <input type="number" id="owner-bill-amount-input" class="owner-bill-input" value="${billAmount}" min="0" step="10" placeholder="250">
+          </div>
+          <div class="owner-bill-chips">
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 180 ? 'active' : ''}" data-amt="180">₹180</button>
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 250 ? 'active' : ''}" data-amt="250">₹250</button>
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 350 ? 'active' : ''}" data-amt="350">₹350</button>
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 500 ? 'active' : ''}" data-amt="500">₹500</button>
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 750 ? 'active' : ''}" data-amt="750">₹750</button>
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 1000 ? 'active' : ''}" data-amt="1000">₹1,000</button>
+          </div>
+          <div class="owner-bill-conversion-pill" id="owner-bill-conversion-badge">
+            <span>💎 Converts to <strong id="owner-converted-pts">+${store.calculatePoints(billAmount)} Loyalty Points</strong></span>
+            <span style="font-size: 0.68rem; color: var(--color-roast-muted);">(₹${rate} = 1 pt)</span>
+          </div>
+        </div>
+
+        <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-roast-muted); font-weight: 700; margin-bottom: 0.4rem;">
+          Enter 4-Digit Owner PIN
+        </div>
+
         <!-- 4 PIN Dots -->
-        <div class="pin-display-dots" id="pin-dots-container">
+        <div class="pin-display-dots" id="pin-dots-container" style="margin-bottom: 0.8rem;">
           <div class="pin-dot" id="pindot-0"></div>
           <div class="pin-dot" id="pindot-1"></div>
           <div class="pin-dot" id="pindot-2"></div>
@@ -595,13 +625,51 @@ function openOwnerStampModal(options = {}) {
         </div>
 
         <!-- Demo Hint -->
-        <div style="margin-top: 1.2rem; font-size: 0.72rem; color: var(--color-roast-muted); border-top: 1px dashed var(--color-cream-border); padding-top: 0.8rem;">
+        <div style="margin-top: 1rem; font-size: 0.72rem; color: var(--color-roast-muted); border-top: 1px dashed var(--color-cream-border); padding-top: 0.7rem;">
           ✦ Café Owner Password / PIN: <strong style="color: var(--color-gold-foil); font-family: var(--font-mono); font-size: 0.85rem;">${store.getOwnerStampPin()}</strong>
         </div>
 
       </div>
     </div>
   `;
+
+  // Dynamic bill amount and points calculation listeners
+  const billInput = document.getElementById('owner-bill-amount-input');
+  const ptsBadge = document.getElementById('owner-converted-pts');
+  const chipBtns = container.querySelectorAll('.owner-bill-chip-btn');
+
+  function updatePointsPreview(amt) {
+    billAmount = Math.max(0, Number(amt) || 0);
+    const pts = store.calculatePoints(billAmount);
+    if (ptsBadge) {
+      ptsBadge.textContent = `+${pts} Loyalty Points`;
+    }
+    chipBtns.forEach(btn => {
+      const btnAmt = Number(btn.getAttribute('data-amt'));
+      if (btnAmt === billAmount) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  billInput?.addEventListener('input', (e) => {
+    updatePointsPreview(e.target.value);
+  });
+
+  chipBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const amt = Number(btn.getAttribute('data-amt'));
+      if (billInput) {
+        billInput.value = amt;
+      }
+      updatePointsPreview(amt);
+      if (window.AtelierAudio && window.AtelierAudio.playTap) {
+        window.AtelierAudio.playTap();
+      }
+    });
+  });
 
   function updateDots() {
     for (let i = 0; i < 4; i++) {
@@ -647,11 +715,16 @@ function openOwnerStampModal(options = {}) {
 
   async function validatePin() {
     isChecking = true;
+    const currentBill = Math.max(0, parseFloat(document.getElementById('owner-bill-amount-input')?.value || billAmount) || 0);
+    const convertedPoints = store.calculatePoints(currentBill);
     const statusText = document.getElementById('owner-pin-status-text');
     const keypadBox = document.getElementById('pin-keypad-box');
     const dotsContainer = document.getElementById('pin-dots-container');
 
-    const result = await store.verifyOwnerPin(enteredPin);
+    const result = await store.verifyOwnerPin(enteredPin, {
+      amountSpent: currentBill,
+      productName: drinkName
+    });
     const isValid = result === true || (result && result.success === true);
 
     if (isValid) {
@@ -660,7 +733,7 @@ function openOwnerStampModal(options = {}) {
         document.getElementById(`pindot-${i}`)?.classList.add('success');
       }
       if (statusText) {
-        statusText.innerHTML = '<span style="color: var(--color-forest-roast); font-weight: 600;">✓ PIN Verified (Cryptographically Secured)! Stamping card...</span>';
+        statusText.innerHTML = `<span style="color: var(--color-forest-roast); font-weight: 600;">✓ Verified! Converting ₹${currentBill} bill into +${convertedPoints} points...</span>`;
       }
 
       // Ink stamp sound
@@ -679,13 +752,13 @@ function openOwnerStampModal(options = {}) {
             slotIndex: targetSlotIndex,
             drinkName: drinkName,
             onComplete: () => {
+              const res = store.addStamp(drinkName, currentBill);
               if (options.onSuccess) {
-                options.onSuccess();
+                options.onSuccess(res);
               } else {
-                const res = store.addStamp(drinkName);
-                window.showToast(`✓ Café Owner verified! Stamp #${res.newVisits}/10 collected for ${drinkName} (+25 pts).`);
+                window.showToast(`✓ Café Owner verified! ₹${currentBill} bill converted into +${res.pointsEarned} points. Stamp #${res.newVisits}/10 collected.`);
                 
-                if (res.completed && window.launchAtelierCelebration) {
+                if (res.cardCompleted && window.launchAtelierCelebration) {
                   window.launchAtelierCelebration();
                   if (window.AtelierAudio && window.AtelierAudio.playRewardUnlock) {
                     window.AtelierAudio.playRewardUnlock();
@@ -696,11 +769,11 @@ function openOwnerStampModal(options = {}) {
             }
           });
         } else {
+          const res = store.addStamp(drinkName, currentBill);
           if (options.onSuccess) {
-            options.onSuccess();
+            options.onSuccess(res);
           } else {
-            const res = store.addStamp(drinkName);
-            window.showToast(`✓ Café Owner verified! Stamp #${res.newVisits}/10 collected for ${drinkName}.`);
+            window.showToast(`✓ Café Owner verified! ₹${currentBill} bill converted into +${res.pointsEarned} points. Stamp #${res.newVisits}/10 collected.`);
           }
           window.router.render();
         }
@@ -736,7 +809,7 @@ function openOwnerStampModal(options = {}) {
         if (keypadBox) keypadBox.classList.remove('shake-animation');
         if (dotsContainer) dotsContainer.classList.remove('shake-animation');
         if (statusText && (!result || !result.locked)) {
-          statusText.innerHTML = 'Please hand your device to the barista or café owner to enter the stamp code.';
+          statusText.innerHTML = 'Enter the customer\'s bill amount and 4-digit PIN to issue stamp & points.';
         }
         isChecking = false;
       }, 850);
@@ -759,6 +832,9 @@ function openOwnerStampModal(options = {}) {
 
   // Physical keyboard listener
   const keydownHandler = (e) => {
+    // If typing inside the bill amount input, don't trigger PIN keypad
+    if (e.target && e.target.id === 'owner-bill-amount-input') return;
+
     if (e.key >= '0' && e.key <= '9') {
       handleDigit(e.key);
     } else if (e.key === 'Backspace') {

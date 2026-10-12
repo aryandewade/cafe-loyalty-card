@@ -133,7 +133,7 @@
     // --------------------------------------------------------------------------
     // PIN Verification & Authorization
     // --------------------------------------------------------------------------
-    async verifyOwnerPin(inputPin, currentStoredHashOrPin) {
+    async verifyOwnerPin(inputPin, currentStoredHashOrPin, extraData = {}) {
       // 1. Check rate limiter
       const rateCheck = this.checkRateLimit();
       if (!rateCheck.allowed) {
@@ -156,7 +156,11 @@
           const res = await fetch(`${this.apiBase}/api/stamps/verify-and-add`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pin: inputPin })
+            body: JSON.stringify({
+              pin: inputPin,
+              amountSpent: extraData.amountSpent,
+              productName: extraData.productName
+            })
           });
           const data = await res.json();
           if (res.ok && data.success) {

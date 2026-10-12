@@ -1,6 +1,6 @@
 /* ==========================================================================
    ATELIER CANDY CRUSH SAGA LEVELS & JUICY ANIMATION ENGINE
-   Progression Rule: 1 Full Card (10 Visits / Stamps) = Advance 1 Level
+   Progression Rule: 500 Points = Advance 1 Level (Points converted from Cafe Bills)
    Winding Bézier Road, 3D Candy Gem Nodes, Bobbing Avatar, Star Slams,
    and Web Audio Celebration Fanfare
    ========================================================================== */
@@ -9,18 +9,16 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 1,
     title: "First Sip Initiate",
-    subtitle: "Complete Card #1 (10 visits) to advance to Level 2",
-    cardCycle: 1,
-    visitsRequired: 0,
-    visitsToPass: 10,
-    pointsRequired: 50,
+    subtitle: "Earn 500 points from café bills to advance to Level 2",
+    pointsRequired: 0,
+    pointsToPass: 500,
     reward: "Welcome 50 Bonus Points & Level 2 Status",
     rewardIcon: "✨",
     icon: "☕",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #1", earned: true },
-      { id: 2, label: "Complete all 10 stamps on Card #1", earned: true },
-      { id: 3, label: "Order an espresso or pour-over", earned: true }
+      { id: 1, label: "Earn 250 points in Level 1 (0-500 pts)", earned: true },
+      { id: 2, label: "Reach 500 points to unlock Level 2", earned: false },
+      { id: 3, label: "Maintain a 3-day coffee visit streak", earned: true }
     ],
     xPercent: 50,
     milestone: false
@@ -28,18 +26,16 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 2,
     title: "Crema Apprentice",
-    subtitle: "Complete Card #2 (20 total visits) to advance to Level 3",
-    cardCycle: 2,
-    visitsRequired: 10,
-    visitsToPass: 20,
-    pointsRequired: 100,
+    subtitle: "Earn 1,000 points (500 pts in this tier) to advance to Level 3",
+    pointsRequired: 500,
+    pointsToPass: 1000,
     reward: "Free Vanilla, Hazelnut or Cardamom Shot",
     rewardIcon: "🥛",
     icon: "☕",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #2 (15 total visits)", earned: true },
-      { id: 2, label: "Complete all 10 stamps on Card #2 (20 visits)", earned: true },
-      { id: 3, label: "Try Oatly Barista or A2 desi milk", earned: true }
+      { id: 1, label: "Earn 750 points (250 pts into Level 2)", earned: false },
+      { id: 2, label: "Reach 1,000 points to unlock Level 3", earned: false },
+      { id: 3, label: "Try Oatly Barista or A2 desi milk", earned: false }
     ],
     xPercent: 78,
     milestone: false
@@ -47,17 +43,15 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 3,
     title: "Roastery Regular",
-    subtitle: "Complete Card #3 (30 total visits) to advance to Level 4",
-    cardCycle: 3,
-    visitsRequired: 20,
-    visitsToPass: 30,
-    pointsRequired: 200,
+    subtitle: "Earn 1,500 points (500 pts in this tier) to advance to Level 4",
+    pointsRequired: 1000,
+    pointsToPass: 1500,
     reward: "15% Off Any Hand-Laminated Brioche",
     rewardIcon: "🥐",
     icon: "☕",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #3 (25 total visits)", earned: true },
-      { id: 2, label: "Complete all 10 stamps on Card #3 (30 visits)", earned: false },
+      { id: 1, label: "Earn 1,250 points (250 pts into Level 3)", earned: false },
+      { id: 2, label: "Reach 1,500 points to unlock Level 4", earned: false },
       { id: 3, label: "Maintain a 3-day coffee visit streak", earned: false }
     ],
     xPercent: 50,
@@ -66,17 +60,15 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 4,
     title: "Pour-Over Explorer",
-    subtitle: "Complete Card #4 (40 total visits) to advance to Level 5",
-    cardCycle: 4,
-    visitsRequired: 30,
-    visitsToPass: 40,
-    pointsRequired: 300,
+    subtitle: "Earn 2,000 points (500 pts in this tier) to advance to Level 5",
+    pointsRequired: 1500,
+    pointsToPass: 2000,
     reward: "Complimentary V60 Brew Bar Upgrade",
     rewardIcon: "🧪",
     icon: "🧪",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #4 (35 total visits)", earned: false },
-      { id: 2, label: "Complete all 10 stamps on Card #4 (40 visits)", earned: false },
+      { id: 1, label: "Earn 1,750 points (250 pts into Level 4)", earned: false },
+      { id: 2, label: "Reach 2,000 points to unlock Level 5", earned: false },
       { id: 3, label: "Sample Baba Budangiri harvest", earned: false }
     ],
     xPercent: 22,
@@ -85,17 +77,15 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 5,
     title: "Bronze Cupper Vault",
-    subtitle: "Milestone: 4 Full Cards Completed! Roastery Vault Unlocked",
-    cardCycle: 5,
-    visitsRequired: 40,
-    visitsToPass: 50,
-    pointsRequired: 450,
+    subtitle: "Milestone: 2,000 Points! Roastery Vault Unlocked (500 pts to Lvl 6)",
+    pointsRequired: 2000,
+    pointsToPass: 2500,
     reward: "🎁 Custom Ceramic & Brass Mug + 100 Bonus Pts",
     rewardIcon: "🎁",
     icon: "🎁",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #5 (45 total visits)", earned: false },
-      { id: 2, label: "Complete all 10 stamps on Card #5 (50 visits)", earned: false },
+      { id: 1, label: "Earn 2,250 points (250 pts into Level 5)", earned: false },
+      { id: 2, label: "Reach 2,500 points to unlock Level 6", earned: false },
       { id: 3, label: "Redeem any seasonal reward pass", earned: false }
     ],
     xPercent: 50,
@@ -104,17 +94,15 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 6,
     title: "Cold Drip Alchemist",
-    subtitle: "Complete Card #6 (60 total visits) to advance to Level 7",
-    cardCycle: 6,
-    visitsRequired: 50,
-    visitsToPass: 60,
-    pointsRequired: 600,
+    subtitle: "Earn 3,000 points (500 pts in this tier) to advance to Level 7",
+    pointsRequired: 2500,
+    pointsToPass: 3000,
     reward: "Complimentary Chilled Nitro Cold Brew",
     rewardIcon: "🧊",
     icon: "🧊",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #6 (55 total visits)", earned: false },
-      { id: 2, label: "Complete all 10 stamps on Card #6 (60 visits)", earned: false },
+      { id: 1, label: "Earn 2,750 points (250 pts into Level 6)", earned: false },
+      { id: 2, label: "Reach 3,000 points to unlock Level 7", earned: false },
       { id: 3, label: "Order an Araku Valley cold drip", earned: false }
     ],
     xPercent: 78,
@@ -123,17 +111,15 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 7,
     title: "Artisan Kaapi Master",
-    subtitle: "Complete Card #7 (70 total visits) to advance to Level 8",
-    cardCycle: 7,
-    visitsRequired: 60,
-    visitsToPass: 70,
-    pointsRequired: 750,
+    subtitle: "Earn 3,500 points (500 pts in this tier) to advance to Level 8",
+    pointsRequired: 3000,
+    pointsToPass: 3500,
     reward: "Free Artisanal Davara Kaapi & Sweet Bun",
     rewardIcon: "🏺",
     icon: "🏺",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #7 (65 total visits)", earned: false },
-      { id: 2, label: "Complete all 10 stamps on Card #7 (70 visits)", earned: false },
+      { id: 1, label: "Earn 3,250 points (250 pts into Level 7)", earned: false },
+      { id: 2, label: "Reach 3,500 points to unlock Level 8", earned: false },
       { id: 3, label: "Order traditional brass dabara Kaapi", earned: false }
     ],
     xPercent: 50,
@@ -142,17 +128,15 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 8,
     title: "Micro-Lot Connoisseur",
-    subtitle: "Complete Card #8 (80 total visits) to advance to Level 9",
-    cardCycle: 8,
-    visitsRequired: 70,
-    visitsToPass: 80,
-    pointsRequired: 900,
+    subtitle: "Earn 4,000 points (500 pts in this tier) to advance to Level 9",
+    pointsRequired: 3500,
+    pointsToPass: 4000,
     reward: "Free 250g Araku Valley Whole-Bean Bag",
     rewardIcon: "🫘",
     icon: "🫘",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #8 (75 total visits)", earned: false },
-      { id: 2, label: "Complete all 10 stamps on Card #8 (80 visits)", earned: false },
+      { id: 1, label: "Earn 3,750 points (250 pts into Level 8)", earned: false },
+      { id: 2, label: "Reach 4,000 points to unlock Level 9", earned: false },
       { id: 3, label: "Sample 4 different roast origins", earned: false }
     ],
     xPercent: 22,
@@ -161,17 +145,15 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 9,
     title: "Western Ghats Pioneer",
-    subtitle: "Complete Card #9 (90 total visits) to advance to Level 10",
-    cardCycle: 9,
-    visitsRequired: 80,
-    visitsToPass: 90,
-    pointsRequired: 1050,
+    subtitle: "Earn 4,500 points (500 pts in this tier) to advance to Level 10",
+    pointsRequired: 4000,
+    pointsToPass: 4500,
     reward: "VIP Cupping Masterclass for Two",
     rewardIcon: "✨",
     icon: "✨",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #9 (85 total visits)", earned: false },
-      { id: 2, label: "Complete all 10 stamps on Card #9 (90 visits)", earned: false },
+      { id: 1, label: "Earn 4,250 points (250 pts into Level 9)", earned: false },
+      { id: 2, label: "Reach 4,500 points to unlock Level 10", earned: false },
       { id: 3, label: "5-week uninterrupted visit streak", earned: false }
     ],
     xPercent: 50,
@@ -180,18 +162,16 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 10,
     title: "Legend of Atelier",
-    subtitle: "Grand Summit: 100 Lifetime Visits (10 Completed Cards)",
-    cardCycle: 10,
-    visitsRequired: 90,
-    visitsToPass: 100,
-    pointsRequired: 1200,
+    subtitle: "Grand Summit: 5,000 Lifetime Points Master Roaster",
+    pointsRequired: 4500,
+    pointsToPass: 5000,
     reward: "🏆 Permanent Gold Founder Badge & Engraved Brass Flask",
     rewardIcon: "🏆",
     icon: "🏆",
     stars: [
-      { id: 1, label: "Collect 5 stamps on Card #10 (95 total visits)", earned: false },
-      { id: 2, label: "Complete 100 Lifetime Visits (10 full cards)", earned: false },
-      { id: 3, label: "Accumulate 1,200 lifetime points", earned: false }
+      { id: 1, label: "Earn 4,750 points (250 pts into Level 10)", earned: false },
+      { id: 2, label: "Reach 5,000 Lifetime Points summit", earned: false },
+      { id: 3, label: "Accumulate 5,000 lifetime points", earned: false }
     ],
     xPercent: 50,
     milestone: true
@@ -203,61 +183,83 @@ class CandyLevelsEngine {
     this.levels = ATELIER_CANDY_LEVELS;
   }
 
-  // CORE RULE: Completing 10 visits on a card advances 1 level!
-  // Visits 0-9   (Card 1) -> Level 1 (0 cards completed)
-  // Visits 10-19 (Card 2) -> Level 2 (1 card completed)
-  // Visits 20-29 (Card 3) -> Level 3 (2 cards completed)
-  // Visits 30-39 (Card 4) -> Level 4 (3 cards completed)
+  // CORE RULE: Each level has a difference of 500 points!
+  // Points 0-499   -> Level 1
+  // Points 500-999 -> Level 2
+  // Points 1000-1499 -> Level 3
+  // Points 1500-1999 -> Level 4
   // ...
   calculateCurrentLevel(membership) {
-    const visits = membership.lifetimeVisits || 0;
-    const cardsCompleted = Math.floor(visits / 10);
-    return Math.min(this.levels.length, Math.max(1, cardsCompleted + 1));
+    const points = membership ? (membership.points || 0) : 0;
+    const level = Math.floor(points / 500) + 1;
+    return Math.min(this.levels.length, Math.max(1, level));
   }
 
-  // Get exact card status: current card number, stamps on card (0-10), and stamps left to level up
-  getCardProgress(membership) {
-    const visits = membership.lifetimeVisits || 0;
-    const stampsOnCurrentCard = membership.currentStamps !== undefined 
-      ? membership.currentStamps 
-      : (visits % 10 || 0);
-    const visitsLeftForNextLevel = Math.max(0, 10 - stampsOnCurrentCard);
-    const completedCards = Math.floor(visits / 10);
-    const currentCardNumber = completedCards + 1;
+  // Get exact level progression: current level, points in current level (0-500), and points left to level up
+  getLevelProgress(membership) {
+    const points = membership ? (membership.points || 0) : 0;
+    const currentLevel = this.calculateCurrentLevel(membership);
+    const minPointsForLevel = (currentLevel - 1) * 500;
+    const maxPointsForLevel = currentLevel * 500;
+    const pointsInCurrentLevel = Math.max(0, points - minPointsForLevel);
+    const pointsLeftForNextLevel = currentLevel >= this.levels.length 
+      ? 0 
+      : Math.max(0, maxPointsForLevel - points);
+    const progressPercent = currentLevel >= this.levels.length
+      ? 100
+      : Math.min(100, Math.round((pointsInCurrentLevel / 500) * 100));
 
     return {
-      completedCards,
-      currentCardNumber,
-      stampsOnCurrentCard,
-      visitsLeftForNextLevel
+      currentLevel,
+      points,
+      minPointsForLevel,
+      maxPointsForLevel,
+      pointsInCurrentLevel,
+      pointsLeftForNextLevel,
+      progressPercent
+    };
+  }
+
+  // Backward compatibility wrapper for getCardProgress
+  getCardProgress(membership) {
+    const prog = this.getLevelProgress(membership);
+    return {
+      completedCards: prog.currentLevel - 1,
+      currentCardNumber: prog.currentLevel,
+      stampsOnCurrentCard: Math.min(10, Math.floor(prog.pointsInCurrentLevel / 50)),
+      visitsLeftForNextLevel: prog.pointsLeftForNextLevel,
+      pointsInCurrentLevel: prog.pointsInCurrentLevel,
+      pointsLeftForNextLevel: prog.pointsLeftForNextLevel
     };
   }
 
   // Calculate stars earned for a level given current state
-  // Star 1: Halfway through this card (5 stamps collected on this card)
-  // Star 2: Full 10 stamps completed on this card!
-  // Star 3: Point balance target achieved for this tier
+  // Star 1: Halfway through level (250 pts earned in this tier)
+  // Star 2: Full 500 points achieved for this tier
+  // Star 3: Tier bonus / mastery milestone
   calculateLevelStars(level, membership) {
-    const visits = membership.lifetimeVisits || 0;
-    const points = membership.points || 0;
+    const points = membership ? (membership.points || 0) : 0;
+    const minPoints = (level.level - 1) * 500;
+    const halfwayPoints = minPoints + 250;
+    const fullLevelPoints = level.level * 500;
 
-    const startVisits = (level.level - 1) * 10;
-    const halfwayVisits = startVisits + 5;
-    const cardCompletedVisits = level.level * 10;
-
-    if (visits < startVisits) return 0;
+    if (points < minPoints) return 0;
 
     let stars = 0;
-    // Star 1: Halfway mark on this card
-    if (visits >= halfwayVisits) stars++;
-    // Star 2: Completed full 10 visits on this card
-    if (visits >= cardCompletedVisits) stars++;
-    // Star 3: Points target
-    if (points >= level.pointsRequired) stars++;
+    // Star 1: Halfway (250 pts earned in tier)
+    if (points >= halfwayPoints) stars++;
+    // Star 2: Full 500 pts completed for this tier
+    if (points >= fullLevelPoints) stars++;
+    // Star 3: Full level passed
+    if (points >= fullLevelPoints) {
+      stars++;
+    } else if (level.stars && level.stars[2] && level.stars[2].earned) {
+      stars++;
+    }
 
-    // Current active level always has at least 1 star base if halfway or first check-in
+    // Active level gets 1 star if past 200 points
     const currentLvl = this.calculateCurrentLevel(membership);
-    if (level.level === currentLvl && stars === 0 && visits > startVisits) {
+    if (level.level === currentLvl && stars === 0 && points >= minPoints + 200) {
       stars = 1;
     }
 
@@ -284,7 +286,7 @@ class CandyLevelsEngine {
     const state = store ? store.getState() : {};
     const membership = state.membership || { lifetimeVisits: 27, currentStamps: 7, points: 420 };
     const currentLevelNum = this.calculateCurrentLevel(membership);
-    const cardProgress = this.getCardProgress(membership);
+    const levelProgress = this.getLevelProgress(membership);
     const user = state.user || { firstName: 'Coffee Explorer' };
 
     // Layout configuration
@@ -333,7 +335,7 @@ class CandyLevelsEngine {
       let avatarHtml = '';
       if (isCurrent) {
         avatarHtml = `
-          <div class="candy-player-marker" title="${user.firstName}'s Current Level: Card #${cardProgress.currentCardNumber}">
+          <div class="candy-player-marker" title="${user.firstName}'s Current Level: Level ${currentLevelNum} (${membership.points || 0} Pts)">
             <div class="candy-player-avatar">
               <span class="avatar-face">☕</span>
               <div class="avatar-sparkle">✦</div>
@@ -366,13 +368,13 @@ class CandyLevelsEngine {
 
       return `
         <div class="${nodeClass}" 
-             style="left: ${coords.x}px; top: ${coords.y}px;"
+             style="left: ${lvl.xPercent}%; top: ${coords.y}px;"
              data-level-num="${lvl.level}">
           ${starsHtml}
           ${avatarHtml}
           <button class="candy-node-btn" 
                   onclick="window.candyEngine.openLevelDetails(${lvl.level})"
-                  title="Level ${lvl.level}: ${lvl.title} (Card #${lvl.cardCycle})"
+                  title="Level ${lvl.level}: ${lvl.title} (${lvl.pointsRequired} - ${lvl.pointsToPass} Pts)"
                   aria-label="Level ${lvl.level}: ${lvl.title}">
             <div class="candy-btn-gloss"></div>
             <div class="candy-btn-inner">
@@ -381,7 +383,7 @@ class CandyLevelsEngine {
           </button>
           <div class="candy-node-caption">
             <span class="caption-title">${lvl.title}</span>
-            <span class="caption-card-sub" style="font-size: 0.65rem; color: #C2B3A8; display: block;">Card #${lvl.cardCycle} (10 Visits)</span>
+            <span class="caption-card-sub" style="font-size: 0.65rem; color: #C2B3A8; display: block;">${lvl.pointsRequired} - ${lvl.pointsToPass} Pts</span>
             ${lvl.milestone ? `<span class="caption-milestone">VAULT</span>` : ''}
           </div>
         </div>
@@ -395,11 +397,11 @@ class CandyLevelsEngine {
           <div class="candy-header-info">
             <div class="candy-eyebrow">
               <span class="candy-sparkle-dot"></span>
-              <span>ATELIER ODYSSEY • 1 CARD (10 VISITS) = 1 LEVEL</span>
+              <span>500 POINTS = 1 LEVEL</span>
             </div>
-            <h2 class="candy-saga-title">The Coffee Roaster's Path</h2>
+            <h2 class="candy-saga-title">Roaster's Path</h2>
             <p class="candy-saga-desc">
-              Every 10 visits on your card advances you 1 level. Finish your card to unlock rare reserve vaults!
+              Advance 1 level every 500 points earned from café bills.
             </p>
           </div>
 
@@ -411,9 +413,9 @@ class CandyLevelsEngine {
               <span class="stat-lbl">Stars</span>
             </div>
             <div class="candy-stat-badge highlight">
-              <span class="stat-icon">💳</span>
-              <span class="stat-val font-mono">Card #${cardProgress.currentCardNumber}</span>
-              <span class="stat-lbl">${cardProgress.stampsOnCurrentCard}/10 Stamps</span>
+              <span class="stat-icon">💎</span>
+              <span class="stat-val font-mono">${membership.points || 0} Pts</span>
+              <span class="stat-lbl">${levelProgress.pointsInCurrentLevel}/500 in Lvl ${currentLevelNum}</span>
             </div>
             <div class="candy-stat-badge">
               <span class="stat-icon">🚩</span>
@@ -461,18 +463,18 @@ class CandyLevelsEngine {
         <!-- Saga Footer Action Banner -->
         <div class="candy-saga-footer">
           <div class="candy-footer-left">
-            <span class="footer-icon">☕</span>
+            <span class="footer-icon">💎</span>
             <div>
               <div style="font-weight: 600; font-size: 0.9rem;">
-                Card #${cardProgress.currentCardNumber}: ${cardProgress.visitsLeftForNextLevel} stamps to Level ${Math.min(totalLevels, currentLevelNum + 1)}
+                Level ${currentLevelNum}: ${levelProgress.pointsLeftForNextLevel} pts to Level ${Math.min(totalLevels, currentLevelNum + 1)}
               </div>
               <div style="font-size: 0.78rem; color: var(--color-roast-muted);">
-                ${cardProgress.stampsOnCurrentCard} of 10 stamps collected on this card (${membership.lifetimeVisits || 0} lifetime visits)
+                ${levelProgress.pointsInCurrentLevel} / 500 points in Level ${currentLevelNum} (${membership.points || 0} total points)
               </div>
             </div>
           </div>
           <button class="btn-primary" onclick="window.candyEngine.openNextLevelAction()" style="padding: 0.55rem 1.2rem; font-size: 0.85rem;">
-            <span>Stamp to Level Up →</span>
+            <span>Add Bill / Stamp Card →</span>
           </button>
         </div>
       </div>
@@ -501,7 +503,7 @@ class CandyLevelsEngine {
     const state = store ? store.getState() : {};
     const membership = state.membership || {};
     const currentLvl = this.calculateCurrentLevel(membership);
-    const cardProgress = this.getCardProgress(membership);
+    const levelProgress = this.getLevelProgress(membership);
 
     const isCompleted = lvl.level < currentLvl;
     const isCurrent = lvl.level === currentLvl;
@@ -519,7 +521,7 @@ class CandyLevelsEngine {
           <div class="candy-stage-ribbon">
             <span class="ribbon-tail left"></span>
             <span class="ribbon-content">
-              ${isCompleted ? '✓ 10 VISITS COMPLETED' : isCurrent ? `★ ACTIVE: CARD #${lvl.cardCycle} (${cardProgress.stampsOnCurrentCard}/10)` : '🔒 STAGE LOCKED'}
+              ${isCompleted ? '✓ COMPLETED' : isCurrent ? `★ ACTIVE: LEVEL ${lvl.level}` : '🔒 LOCKED'}
             </span>
             <span class="ribbon-tail right"></span>
           </div>
@@ -532,23 +534,23 @@ class CandyLevelsEngine {
             <div class="candy-stage-badge-sphere ${isCompleted ? 'completed' : isCurrent ? 'current' : 'locked'}">
               <span>${lvl.icon}</span>
             </div>
-            <div class="candy-stage-lvl-tag">LEVEL ${lvl.level} • CARD #${lvl.cardCycle}</div>
+            <div class="candy-stage-lvl-tag">LEVEL ${lvl.level} • ${lvl.pointsRequired} - ${lvl.pointsToPass} POINTS</div>
             <h3 class="candy-stage-title font-serif">${lvl.title}</h3>
-            <p class="candy-stage-subtitle">${lvl.subtitle}</p>
+            <p class="candy-stage-subtitle">500 Points Tier • ${lvl.pointsToPass} Total Points Required</p>
           </div>
 
-          <!-- Card Progress Meter on Active Stage -->
+          <!-- Points Progress Meter on Active Stage -->
           ${isCurrent ? `
             <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 0.8rem 1rem; margin-bottom: 1.2rem;">
               <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.4rem;">
-                <span style="color: var(--color-roast-muted);">Card #${lvl.cardCycle} Completion:</span>
-                <span class="font-mono" style="font-weight: 700; color: var(--color-gold-foil);">${cardProgress.stampsOnCurrentCard} / 10 Stamps</span>
+                <span style="color: var(--color-roast-muted);">Level ${lvl.level} Progression:</span>
+                <span class="font-mono" style="font-weight: 700; color: var(--color-gold-foil);">${levelProgress.pointsInCurrentLevel} / 500 Points</span>
               </div>
               <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 999px; overflow: hidden;">
-                <div style="width: ${Math.min(100, (cardProgress.stampsOnCurrentCard / 10) * 100)}%; height: 100%; background: linear-gradient(90deg, #FFB03A, #10B981); border-radius: 999px; transition: width 0.3s;"></div>
+                <div style="width: ${levelProgress.progressPercent}%; height: 100%; background: linear-gradient(90deg, #FFB03A, #10B981); border-radius: 999px; transition: width 0.3s;"></div>
               </div>
               <div style="font-size: 0.72rem; color: #C2B3A8; margin-top: 0.35rem; text-align: center;">
-                ${cardProgress.visitsLeftForNextLevel === 0 ? 'Card complete! Stamp to advance level.' : `Collect ${cardProgress.visitsLeftForNextLevel} more stamps on this card to advance to Level ${lvl.level + 1}!`}
+                ${levelProgress.pointsLeftForNextLevel === 0 ? 'Tier complete! Level up unlocked.' : `Earn ${levelProgress.pointsLeftForNextLevel} more points from café bills to advance to Level ${lvl.level + 1} (500 pts difference)!`}
               </div>
             </div>
           ` : ''}
@@ -557,21 +559,21 @@ class CandyLevelsEngine {
           <div class="candy-stage-stars-row">
             <div class="stage-star-slot ${starsEarned >= 1 ? 'earned' : ''}">
               <div class="star-glyph">★</div>
-              <span class="star-label">Star 1 (5 Visits)</span>
+              <span class="star-label">Star 1 (250 Pts in Tier)</span>
             </div>
             <div class="stage-star-slot center ${starsEarned >= 2 ? 'earned' : ''}">
               <div class="star-glyph">★</div>
-              <span class="star-label">Star 2 (Card Complete)</span>
+              <span class="star-label">Star 2 (500 Pts / Lvl Up)</span>
             </div>
             <div class="stage-star-slot ${starsEarned >= 3 ? 'earned' : ''}">
               <div class="star-glyph">★</div>
-              <span class="star-label">Star 3 (Points)</span>
+              <span class="star-label">Star 3 (Mastery)</span>
             </div>
           </div>
 
           <!-- Objectives Box -->
           <div class="candy-objectives-box">
-            <div class="obj-header">LEVEL ADVANCEMENT OBJECTIVES</div>
+            <div class="obj-header">LEVEL ADVANCEMENT OBJECTIVES (500 PTS TIER)</div>
             <ul class="obj-list">
               ${lvl.stars.map((s, idx) => `
                 <li class="obj-item ${idx < starsEarned ? 'done' : ''}">
@@ -597,7 +599,7 @@ class CandyLevelsEngine {
           <div class="candy-stage-actions">
             ${isCurrent ? `
               <button class="candy-squish-btn btn-primary" onclick="window.candyEngine.claimCurrentStamp(${lvl.level})">
-                <span>Collect Stamp (+1 toward Level ${lvl.level + 1}) ☕</span>
+                <span>Enter Bill & Stamp Card ☕</span>
               </button>
             ` : isCompleted ? `
               <button class="candy-squish-btn btn-secondary" onclick="window.candyEngine.replayCelebration(${lvl.level})">
@@ -605,7 +607,7 @@ class CandyLevelsEngine {
               </button>
             ` : `
               <div class="candy-locked-notice">
-                <span>Complete all 10 visits on Card #${lvl.level - 1} to unlock Level ${lvl.level}.</span>
+                <span>Reach ${lvl.pointsRequired} points from cafe bills to unlock Level ${lvl.level}.</span>
               </div>
               <button class="candy-squish-btn btn-secondary" onclick="window.candyEngine.closeModal()">
                 <span>Back to Map</span>
@@ -621,7 +623,7 @@ class CandyLevelsEngine {
   // Trigger Juicy Candy Crush Celebration (Sweet! Divine! Level Up!)
   triggerLevelUpCelebration(levelNum) {
     const lvl = this.levels.find(l => l.level === levelNum) || this.levels[0];
-    const adjectives = ["CARD COMPLETED!", "SWEET!", "TASTY!", "DIVINE!", "10 VISITS COMPLETE!"];
+    const adjectives = ["500 POINTS REACHED!", "SWEET!", "TASTY!", "DIVINE!", "LEVEL UNLOCKED!"];
     const exclamation = adjectives[(levelNum - 1) % adjectives.length];
 
     // 1. Web Audio fanfare
@@ -673,9 +675,9 @@ class CandyLevelsEngine {
           </div>
 
           <div class="candy-celebrate-heading">
-            <span class="eyebrow" style="color: var(--color-gold-foil); font-weight: 700;">10 VISITS COMPLETE • LEVEL ${lvl.level} UNLOCKED!</span>
+            <span class="eyebrow" style="color: var(--color-gold-foil); font-weight: 700;">500 POINTS REACHED • LEVEL ${lvl.level} UNLOCKED!</span>
             <h2 class="font-serif" style="font-size: 2.1rem; color: #FFF; margin: 4px 0;">${lvl.title}</h2>
-            <p style="font-size: 0.85rem; color: #E0D3C9; margin-top: 2px;">You've completed your card and unlocked Card #${lvl.cardCycle}!</p>
+            <p style="font-size: 0.85rem; color: #E0D3C9; margin-top: 2px;">You've accumulated ${lvl.pointsRequired}+ points and unlocked the next Roaster tier!</p>
           </div>
 
           <!-- Staggered 3-Star Slam In -->
@@ -696,14 +698,14 @@ class CandyLevelsEngine {
 
           <!-- Reward Unlocked Box -->
           <div class="candy-celebrate-reward-box">
-            <div class="reward-sparkle-tag">✦ UNLOCKED CARD PRIVILEGE ✦</div>
+            <div class="reward-sparkle-tag">✦ UNLOCKED LEVEL PRIVILEGE ✦</div>
             <div class="reward-title">${lvl.reward}</div>
             <div class="reward-desc">Credited to your Atelier digital pass and member ledger.</div>
           </div>
 
           <!-- CTA Button -->
           <button class="candy-squish-btn btn-primary candy-btn-epic" onclick="window.candyEngine.closeModal()">
-            <span>START CARD #${Math.min(10, lvl.cardCycle + 1)} ➔</span>
+            <span>CONTINUE SAGA JOURNEY ➔</span>
           </button>
 
         </div>
@@ -713,10 +715,12 @@ class CandyLevelsEngine {
 
   // Quick actions
   claimCurrentStamp(levelNum) {
-    if (window.AtelierStore) {
-      window.AtelierStore.addStamp('Chikmagalur Pour Over & Roast');
-    }
     this.closeModal();
+    if (window.openOwnerStampModal) {
+      window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over' });
+    } else if (window.AtelierStore) {
+      window.AtelierStore.addStamp('Chikmagalur Single-Estate Pour Over');
+    }
   }
 
   replayCelebration(levelNum) {
@@ -727,11 +731,15 @@ class CandyLevelsEngine {
   }
 
   openNextLevelAction() {
-    const store = window.AtelierStore;
-    const state = store ? store.getState() : {};
-    const membership = state.membership || {};
-    const currentLvl = this.calculateCurrentLevel(membership);
-    this.openLevelDetails(currentLvl);
+    if (window.openOwnerStampModal) {
+      window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over' });
+    } else {
+      const store = window.AtelierStore;
+      const state = store ? store.getState() : {};
+      const membership = state.membership || {};
+      const currentLvl = this.calculateCurrentLevel(membership);
+      this.openLevelDetails(currentLvl);
+    }
   }
 
   closeModal(e) {

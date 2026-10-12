@@ -316,9 +316,9 @@ class Store {
     return true;
   }
 
-  async verifyOwnerPin(inputPin) {
+  async verifyOwnerPin(inputPin, extraData = {}) {
     if (window.AtelierSecurity) {
-      return await window.AtelierSecurity.verifyOwnerPin(inputPin, this.getOwnerStampPin());
+      return await window.AtelierSecurity.verifyOwnerPin(inputPin, this.getOwnerStampPin(), extraData);
     }
     const current = this.getOwnerStampPin();
     const isValid = String(inputPin).trim() === String(current).trim();
@@ -508,10 +508,9 @@ class Store {
       }
     }
 
-    // Trigger celebration if stamp milestone or Candy Crush Level-up reached
+    // Trigger celebration if points reach a new Saga Level (500 pts difference) or stamp milestone
     if (stampResult) {
-      const prevVisits = Math.max(0, this.state.membership.lifetimeVisits - 1);
-      const prevLvl = window.candyEngine ? window.candyEngine.calculateCurrentLevel({ lifetimeVisits: prevVisits }) : 1;
+      const prevLvl = window.candyEngine ? window.candyEngine.calculateCurrentLevel({ points: prevBalance }) : 1;
       const newLvl = window.candyEngine ? window.candyEngine.calculateCurrentLevel(this.state.membership) : 1;
 
       if (newLvl > prevLvl) {
@@ -542,8 +541,26 @@ class Store {
     };
   }
 
-  // Barista / Customer Action: Add Visit Stamp (convenience wrapper that supports products)
-  addStamp(drinkName = 'Chikmagalur Pour Over & Cardamom Bun') {
+  // Barista / Customer Action: Add Visit Stamp (convenience wrapper that supports bill amount)
+  addStamp(drinkName = 'Chikmagalur Single-Estate Pour Over', amountSpent = null) {
+    const spent = amountSpent !== null && amountSpent !== undefined && Number(amountSpent) > 0
+      ? Number(amountSpent)
+      : null;
+
+    if (spent !== null) {
+      const res = this.createTransaction({
+        productName: drinkName || 'Specialty Coffee Order',
+        amountSpent: spent,
+        addStamp: true
+      });
+      return {
+        newVisits: res.stampResult.newVisits,
+        cardCompleted: res.stampResult.cardCompleted,
+        pointsEarned: res.pointsEarned,
+        newBalance: res.newBalance
+      };
+    }
+
     // Check if drinkName matches a known product
     const matchedProduct = this.state.products.find(p =>
       drinkName.toLowerCase().includes(p.name.toLowerCase()) ||
@@ -552,12 +569,22 @@ class Store {
 
     if (matchedProduct) {
       const res = this.createTransaction({ productId: matchedProduct.id, addStamp: true });
-      return { newVisits: res.stampResult.newVisits, cardCompleted: res.stampResult.cardCompleted, pointsEarned: res.pointsEarned };
+      return {
+        newVisits: res.stampResult.newVisits,
+        cardCompleted: res.stampResult.cardCompleted,
+        pointsEarned: res.pointsEarned,
+        newBalance: res.newBalance
+      };
     }
 
     // Fallback: ₹250 spent -> 25 points at ₹10=1pt
     const res = this.createTransaction({ productName: drinkName, amountSpent: 250, addStamp: true });
-    return { newVisits: res.stampResult.newVisits, cardCompleted: res.stampResult.cardCompleted, pointsEarned: res.pointsEarned };
+    return {
+      newVisits: res.stampResult.newVisits,
+      cardCompleted: res.stampResult.cardCompleted,
+      pointsEarned: res.pointsEarned,
+      newBalance: res.newBalance
+    };
   }
 
   // Undo / Subtract Stamp & Transaction
@@ -580,9 +607,15 @@ class Store {
   }
 
   awardPoints(amount = 50) {
+    const prevLvl = window.candyEngine ? window.candyEngine.calculateCurrentLevel(this.state.membership) : 1;
     this.state.membership.points += amount;
+    const newLvl = window.candyEngine ? window.candyEngine.calculateCurrentLevel(this.state.membership) : 1;
     this.saveState();
-    if (window.AtelierAudio) window.AtelierAudio.playRewardUnlock();
+    if (newLvl > prevLvl && window.candyEngine) {
+      setTimeout(() => window.candyEngine.triggerLevelUpCelebration(newLvl), 350);
+    } else if (window.AtelierAudio) {
+      window.AtelierAudio.playRewardUnlock();
+    }
   }
 
   // Redeem Reward -> Generates Digital Pass
