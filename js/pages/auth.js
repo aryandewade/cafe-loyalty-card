@@ -9,38 +9,38 @@ function renderAuthPage(initialMode = 'login') {
   authMode = initialMode;
 
   return `
-    <div class="auth-page-root" style="min-height: calc(100vh - 90px); display: flex; align-items: center; padding: 2.5rem 0 4rem;">
-      <div class="container" style="max-width: 1040px;">
-        <div class="double-bezel" style="padding: 10px; background: var(--bg-canvas-subtle);">
-          <div class="double-bezel-inner" style="display: grid; grid-template-columns: 1fr 1.15fr; overflow: hidden; min-height: 600px;">
+    <div class="auth-page-root">
+      <div class="container auth-card-container">
+        <div class="double-bezel auth-double-bezel">
+          <div class="double-bezel-inner auth-split-grid">
             
             <!-- LEFT: Editorial Craft Imagery & Storytelling -->
-            <div style="background: linear-gradient(145deg, #241A16 0%, #17110F 100%); color: #FAF4EA; padding: 3rem 2.5rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; border-right: 1px solid rgba(200, 157, 75, 0.2);">
+            <div class="auth-editorial-panel">
               <!-- Texture Background Accent -->
-              <div style="position: absolute; inset: 0; background-image: radial-gradient(rgba(200, 157, 75, 0.08) 1px, transparent 1px); background-size: 16px 16px; opacity: 0.6; pointer-events: none;"></div>
+              <div class="auth-texture-overlay"></div>
 
-              <div style="position: relative; z-index: 2;">
-                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 2rem;">
-                  <div class="nav-brand-logo" style="width: 2rem; height: 2rem; font-size: 1.1rem; background: var(--color-gold-foil); color: #181210;">A</div>
-                  <span class="nav-brand-text" style="font-size: 1.3rem; color: #FAF4EA;">Atelier Café</span>
+              <div class="auth-editorial-content">
+                <div class="auth-editorial-brand">
+                  <div class="nav-brand-logo auth-brand-logo">A</div>
+                  <span class="nav-brand-text auth-brand-text">Atelier Café</span>
                 </div>
 
-                <div class="eyebrow" style="background: rgba(200, 157, 75, 0.15); border-color: rgba(200, 157, 75, 0.3); color: #E5BE6C; margin-bottom: 1.2rem;">
+                <div class="eyebrow auth-eyebrow">
                   The Connoisseur Circle
                 </div>
 
-                <h2 style="font-size: 2.2rem; line-height: 1.2; color: #FAF4EA; margin-bottom: 1.2rem;">
+                <h2 class="auth-quote-heading">
                   "Coffee is not merely sustenance, but an intentional sensory ritual."
                 </h2>
 
-                <p style="color: #BBA89E; font-size: 0.95rem; line-height: 1.6; max-width: 380px;">
+                <p class="auth-quote-desc">
                   Receive your digital membership card immediately upon sign up. Collect stamps, savor seasonal reserve harvests, and enjoy private tasting room privileges.
                 </p>
               </div>
 
               <!-- Mini Loyalty Card Graphic -->
-              <div style="position: relative; z-index: 2; border-top: 1px solid rgba(255, 255, 255, 0.12); padding-top: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #C89D4B; font-family: var(--font-mono);">
+              <div class="auth-mini-card-bar">
+                <div class="auth-mini-card-text">
                   <span>EST. 2021 • GLOBAL CLUB</span>
                   <span>CARD #AT-48291</span>
                 </div>
@@ -48,18 +48,18 @@ function renderAuthPage(initialMode = 'login') {
             </div>
 
             <!-- RIGHT: Interactive Form (Login vs Register Switcher) -->
-            <div style="padding: 3rem 2.8rem; background: var(--bg-surface); display: flex; flex-direction: column; justify-content: center;">
+            <div class="auth-form-panel">
               
               <!-- Mode Tabs -->
-              <div style="display: flex; gap: 1.5rem; border-bottom: 1px solid var(--color-cream-border); padding-bottom: 0.8rem; margin-bottom: 2rem;">
-                <button class="auth-tab-btn ${authMode === 'login' ? 'active' : ''}" id="auth-tab-login" style="background: none; border: none; font-family: var(--font-serif); font-size: 1.4rem; cursor: pointer; color: ${authMode === 'login' ? 'var(--color-espresso)' : 'var(--color-roast-muted)'}; position: relative; padding-bottom: 0.4rem; font-weight: ${authMode === 'login' ? '600' : '400'};">
+              <div class="auth-mode-tabs">
+                <button class="auth-tab-btn ${authMode === 'login' ? 'active' : ''}" id="auth-tab-login">
                   Sign In
-                  ${authMode === 'login' ? '<span style="position: absolute; bottom: -0.9rem; left: 0; right: 0; height: 2px; background: var(--color-terracotta);"></span>' : ''}
+                  ${authMode === 'login' ? '<span class="auth-tab-indicator"></span>' : ''}
                 </button>
 
-                <button class="auth-tab-btn ${authMode === 'register' ? 'active' : ''}" id="auth-tab-register" style="background: none; border: none; font-family: var(--font-serif); font-size: 1.4rem; cursor: pointer; color: ${authMode === 'register' ? 'var(--color-espresso)' : 'var(--color-roast-muted)'}; position: relative; padding-bottom: 0.4rem; font-weight: ${authMode === 'register' ? '600' : '400'};">
+                <button class="auth-tab-btn ${authMode === 'register' ? 'active' : ''}" id="auth-tab-register">
                   Create Account
-                  ${authMode === 'register' ? '<span style="position: absolute; bottom: -0.9rem; left: 0; right: 0; height: 2px; background: var(--color-terracotta);"></span>' : ''}
+                  ${authMode === 'register' ? '<span class="auth-tab-indicator"></span>' : ''}
                 </button>
               </div>
 
@@ -69,8 +69,8 @@ function renderAuthPage(initialMode = 'login') {
               </div>
 
               <!-- 1-Click Demo Login Trigger -->
-              <div style="margin-top: 1.8rem; padding-top: 1.2rem; border-top: 1px dashed var(--color-cream-border); text-align: center;">
-                <button id="quick-demo-login-btn" class="btn-text" style="font-size: 0.82rem; color: var(--color-terracotta);">
+              <div class="auth-demo-row">
+                <button id="quick-demo-login-btn" class="btn-text auth-demo-btn">
                   ⚡ Fast Demo 1-Click Login (Arjun • 7/10 Visits)
                 </button>
               </div>
@@ -86,26 +86,26 @@ function renderAuthPage(initialMode = 'login') {
 
 function renderLoginForm() {
   return `
-    <form id="login-form" style="display: flex; flex-direction: column; gap: 1.2rem;">
-      <div>
-        <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem;">Email Address</label>
-        <input type="email" id="login-email" required value="arjun.mehta@atelier-coffee.com" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: var(--font-sans); font-size: 0.92rem; background: var(--bg-surface-elevated);" placeholder="your@email.com">
+    <form id="login-form" class="auth-form-body">
+      <div class="auth-field">
+        <label class="auth-label">Email Address</label>
+        <input type="email" id="login-email" class="auth-input" required value="arjun.mehta@atelier-coffee.com" placeholder="your@email.com">
       </div>
 
-      <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-          <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Password</label>
-          <button type="button" id="auth-forgot-btn" class="btn-text" style="padding: 0; font-size: 0.78rem; color: var(--color-terracotta);">Forgot?</button>
+      <div class="auth-field">
+        <div class="auth-label-row">
+          <label class="auth-label">Password</label>
+          <button type="button" id="auth-forgot-btn" class="btn-text auth-forgot-btn">Forgot?</button>
         </div>
-        <input type="password" id="login-password" required value="••••••••••••" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: var(--font-sans); font-size: 0.92rem; background: var(--bg-surface-elevated);">
+        <input type="password" id="login-password" class="auth-input" required value="••••••••••••">
       </div>
 
-      <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: var(--color-roast-medium);">
-        <input type="checkbox" id="login-remember" checked style="accent-color: var(--color-terracotta);">
+      <div class="auth-remember-row">
+        <input type="checkbox" id="login-remember" checked>
         <label for="login-remember">Remember this browser</label>
       </div>
 
-      <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; margin-top: 0.5rem;">
+      <button type="submit" class="btn-primary auth-submit-btn">
         <span>Sign In to Tasting Room</span>
         <div class="btn-icon-wrapper">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -120,45 +120,45 @@ function renderLoginForm() {
 
 function renderRegisterForm() {
   return `
-    <form id="register-form" style="display: flex; flex-direction: column; gap: 1rem;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
-        <div>
-          <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">First Name</label>
-          <input type="text" id="reg-firstname" required placeholder="Elena" style="width: 100%; padding: 0.65rem 0.9rem; border-radius: 10px; border: 1px solid var(--color-cream-border); font-size: 0.88rem; background: var(--bg-surface-elevated);">
+    <form id="register-form" class="auth-form-body auth-reg-form">
+      <div class="auth-grid-2col">
+        <div class="auth-field">
+          <label class="auth-label">First Name</label>
+          <input type="text" id="reg-firstname" class="auth-input" required placeholder="Elena">
         </div>
-        <div>
-          <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Last Name</label>
-          <input type="text" id="reg-lastname" required placeholder="Vane" style="width: 100%; padding: 0.65rem 0.9rem; border-radius: 10px; border: 1px solid var(--color-cream-border); font-size: 0.88rem; background: var(--bg-surface-elevated);">
-        </div>
-      </div>
-
-      <div>
-        <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Email Address</label>
-        <input type="email" id="reg-email" required placeholder="elena@example.com" style="width: 100%; padding: 0.65rem 0.9rem; border-radius: 10px; border: 1px solid var(--color-cream-border); font-size: 0.88rem; background: var(--bg-surface-elevated);">
-      </div>
-
-      <div>
-        <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Mobile Phone (for Barista Pass)</label>
-        <input type="tel" id="reg-phone" required placeholder="+1 (555) 019-2834" style="width: 100%; padding: 0.65rem 0.9rem; border-radius: 10px; border: 1px solid var(--color-cream-border); font-size: 0.88rem; background: var(--bg-surface-elevated);">
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
-        <div>
-          <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Password</label>
-          <input type="password" id="reg-password" required placeholder="••••••••" style="width: 100%; padding: 0.65rem 0.9rem; border-radius: 10px; border: 1px solid var(--color-cream-border); font-size: 0.88rem; background: var(--bg-surface-elevated);">
-        </div>
-        <div>
-          <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Confirm</label>
-          <input type="password" id="reg-confirm" required placeholder="••••••••" style="width: 100%; padding: 0.65rem 0.9rem; border-radius: 10px; border: 1px solid var(--color-cream-border); font-size: 0.88rem; background: var(--bg-surface-elevated);">
+        <div class="auth-field">
+          <label class="auth-label">Last Name</label>
+          <input type="text" id="reg-lastname" class="auth-input" required placeholder="Vane">
         </div>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; color: var(--color-roast-medium); margin-top: 0.2rem;">
-        <input type="checkbox" id="reg-terms" required checked style="accent-color: var(--color-terracotta);">
+      <div class="auth-field">
+        <label class="auth-label">Email Address</label>
+        <input type="email" id="reg-email" class="auth-input" required placeholder="elena@example.com">
+      </div>
+
+      <div class="auth-field">
+        <label class="auth-label">Mobile Phone (for Barista Pass)</label>
+        <input type="tel" id="reg-phone" class="auth-input" required placeholder="+1 (555) 019-2834">
+      </div>
+
+      <div class="auth-grid-2col">
+        <div class="auth-field">
+          <label class="auth-label">Password</label>
+          <input type="password" id="reg-password" class="auth-input" required placeholder="••••••••">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Confirm</label>
+          <input type="password" id="reg-confirm" class="auth-input" required placeholder="••••••••">
+        </div>
+      </div>
+
+      <div class="auth-terms-row">
+        <input type="checkbox" id="reg-terms" required checked>
         <label for="reg-terms">I agree to the Club Terms & Coffee Privacy Policy</label>
       </div>
 
-      <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem; margin-top: 0.4rem;">
+      <button type="submit" class="btn-primary auth-submit-btn">
         <span>Create My Loyalty Account</span>
         <div class="btn-icon-wrapper">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">

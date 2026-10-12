@@ -98,23 +98,23 @@ function renderLandingPage() {
       </section>
 
       <!-- 2. THE PHILOSOPHY / HOW IT WORKS -->
-      <section class="section" id="how-it-works" style="background: var(--bg-canvas-subtle); border-top: 1px solid var(--color-cream-border); border-bottom: 1px solid var(--color-cream-border);">
+      <section class="section section-ritual" id="how-it-works">
         <div class="container">
-          <div style="text-align: center; max-width: 620px; margin: 0 auto 3.5rem;">
+          <div class="section-heading-centered">
             <div class="eyebrow">The Ritual</div>
-            <h2 style="margin-bottom: 1rem;">Crafted for genuine coffee lovers.</h2>
-            <p style="color: var(--color-roast-medium); font-size: 1.05rem;">
+            <h2>Crafted for genuine coffee lovers.</h2>
+            <p>
               No convoluted tiers or expiring plastic cards. A tactile digital pass honoring your daily visits.
             </p>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+          <div class="ritual-steps-grid">
             <!-- Step 1 -->
             <div class="double-bezel">
-              <div class="double-bezel-inner" style="padding: 2.2rem 1.8rem;">
-                <div style="font-family: var(--font-mono); font-size: 1.8rem; color: var(--color-gold-foil); font-weight: 500; margin-bottom: 1.2rem;">01</div>
-                <h3 style="margin-bottom: 0.6rem;">Sip & Scan</h3>
-                <p style="color: var(--color-roast-medium); font-size: 0.95rem; line-height: 1.6;">
+              <div class="double-bezel-inner ritual-step-card">
+                <div class="ritual-step-num">01</div>
+                <h3 class="ritual-step-title">Sip & Scan</h3>
+                <p class="ritual-step-desc">
                   Order your customary flat white or pour over at any Atelier location. Simply show your digital pass QR code at the till.
                 </p>
               </div>
@@ -122,10 +122,10 @@ function renderLandingPage() {
 
             <!-- Step 2 -->
             <div class="double-bezel">
-              <div class="double-bezel-inner" style="padding: 2.2rem 1.8rem;">
-                <div style="font-family: var(--font-mono); font-size: 1.8rem; color: var(--color-gold-foil); font-weight: 500; margin-bottom: 1.2rem;">02</div>
-                <h3 style="margin-bottom: 0.6rem;">Collect Harvest Stamps</h3>
-                <p style="color: var(--color-roast-medium); font-size: 0.95rem; line-height: 1.6;">
+              <div class="double-bezel-inner ritual-step-card">
+                <div class="ritual-step-num">02</div>
+                <h3 class="ritual-step-title">Collect Harvest Stamps</h3>
+                <p class="ritual-step-desc">
                   Every drink orders yields a physical ink-style digital stamp with haptic feedback, tracking your path toward curated privileges.
                 </p>
               </div>
@@ -133,10 +133,10 @@ function renderLandingPage() {
 
             <!-- Step 3 -->
             <div class="double-bezel">
-              <div class="double-bezel-inner" style="padding: 2.2rem 1.8rem;">
-                <div style="font-family: var(--font-mono); font-size: 1.8rem; color: var(--color-gold-foil); font-weight: 500; margin-bottom: 1.2rem;">03</div>
-                <h3 style="margin-bottom: 0.6rem;">Unlock Reserve Privileges</h3>
-                <p style="color: var(--color-roast-medium); font-size: 0.95rem; line-height: 1.6;">
+              <div class="double-bezel-inner ritual-step-card">
+                <div class="ritual-step-num">03</div>
+                <h3 class="ritual-step-title">Unlock Reserve Privileges</h3>
+                <p class="ritual-step-desc">
                   Enjoy complimentary single-origins, handcrafted morning brioche buns, rare micro-lot beans, or private tasting flights.
                 </p>
               </div>
@@ -146,9 +146,9 @@ function renderLandingPage() {
       </section>
 
       <!-- 3. REWARDS PREVIEW -->
-      <section class="section" id="rewards-preview">
+      <section class="section section-rewards-preview" id="rewards-preview">
         <div class="container">
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; flex-wrap: wrap; gap: 1.5rem;">
+          <div class="rewards-preview-header">
             <div>
               <div class="eyebrow eyebrow-accent">Curated Privileges</div>
               <h2>Rewards that honor the palate.</h2>
@@ -217,97 +217,97 @@ function renderLandingPage() {
       </section>
 
       <!-- 4. CAFÉ LOCATIONS -->
-      <section class="section" id="locations" style="background: var(--bg-canvas-subtle); border-top: 1px solid var(--color-cream-border);">
+      <section class="section section-locations" id="locations">
         <div class="container">
-          <div style="text-align: center; max-width: 580px; margin: 0 auto 3rem;">
+          <div class="section-heading-centered">
             <div class="eyebrow">Our Houses</div>
             <h2>Visit our roasteries across India.</h2>
-            <p style="color: var(--color-roast-medium);">Your loyalty card is recognized seamlessly across all four Atelier coffee houses.</p>
+            <p>Your loyalty card is recognized seamlessly across all four Atelier coffee houses.</p>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+          <div class="locations-grid">
             <!-- Loc 1: Mumbai -->
-            <div style="background: var(--bg-surface); padding: 1.6rem; border-radius: 18px; border: 1px solid var(--color-cream-border);">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h3 style="font-size: 1.25rem;">Bandra West Flagship</h3>
-                <span style="font-size: 0.72rem; color: var(--color-forest-roast); font-weight: 600;">● Open</span>
+            <div class="location-card">
+              <div class="location-card-header">
+                <h3 class="location-card-name">Bandra West Flagship</h3>
+                <span class="location-status-badge">● Open</span>
               </div>
-              <p style="font-size: 0.85rem; color: var(--color-roast-medium); margin-bottom: 0.8rem;">Pali Mala Road, Off Turner Rd, Mumbai</p>
-              <div style="font-size: 0.75rem; color: var(--color-roast-muted); font-family: var(--font-mono);">07:30 AM — 11:00 PM IST</div>
+              <p class="location-card-address">Pali Mala Road, Off Turner Rd, Mumbai</p>
+              <div class="location-card-hours">07:30 AM — 11:00 PM IST</div>
             </div>
 
             <!-- Loc 2: Bengaluru -->
-            <div style="background: var(--bg-surface); padding: 1.6rem; border-radius: 18px; border: 1px solid var(--color-cream-border);">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h3 style="font-size: 1.25rem;">Indiranagar Roastery</h3>
-                <span style="font-size: 0.72rem; color: var(--color-forest-roast); font-weight: 600;">● Open</span>
+            <div class="location-card">
+              <div class="location-card-header">
+                <h3 class="location-card-name">Indiranagar Roastery</h3>
+                <span class="location-status-badge">● Open</span>
               </div>
-              <p style="font-size: 0.85rem; color: var(--color-roast-medium); margin-bottom: 0.8rem;">12th Main Road, HAL 2nd Stage, Bengaluru</p>
-              <div style="font-size: 0.75rem; color: var(--color-roast-muted); font-family: var(--font-mono);">08:00 AM — 10:30 PM IST</div>
+              <p class="location-card-address">12th Main Road, HAL 2nd Stage, Bengaluru</p>
+              <div class="location-card-hours">08:00 AM — 10:30 PM IST</div>
             </div>
 
             <!-- Loc 3: Delhi -->
-            <div style="background: var(--bg-surface); padding: 1.6rem; border-radius: 18px; border: 1px solid var(--color-cream-border);">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h3 style="font-size: 1.25rem;">Khan Market Tasting Room</h3>
-                <span style="font-size: 0.72rem; color: var(--color-forest-roast); font-weight: 600;">● Open</span>
+            <div class="location-card">
+              <div class="location-card-header">
+                <h3 class="location-card-name">Khan Market Tasting Room</h3>
+                <span class="location-status-badge">● Open</span>
               </div>
-              <p style="font-size: 0.85rem; color: var(--color-roast-medium); margin-bottom: 0.8rem;">Middle Lane, Khan Market, New Delhi</p>
-              <div style="font-size: 0.75rem; color: var(--color-roast-muted); font-family: var(--font-mono);">08:00 AM — 10:00 PM IST</div>
+              <p class="location-card-address">Middle Lane, Khan Market, New Delhi</p>
+              <div class="location-card-hours">08:00 AM — 10:00 PM IST</div>
             </div>
 
             <!-- Loc 4: Pune -->
-            <div style="background: var(--bg-surface); padding: 1.6rem; border-radius: 18px; border: 1px solid var(--color-cream-border);">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h3 style="font-size: 1.25rem;">Koregaon Park Roastery</h3>
-                <span style="font-size: 0.72rem; color: var(--color-forest-roast); font-weight: 600;">● Open</span>
+            <div class="location-card">
+              <div class="location-card-header">
+                <h3 class="location-card-name">Koregaon Park Roastery</h3>
+                <span class="location-status-badge">● Open</span>
               </div>
-              <p style="font-size: 0.85rem; color: var(--color-roast-medium); margin-bottom: 0.8rem;">Lane 6, Koregaon Park, Pune</p>
-              <div style="font-size: 0.75rem; color: var(--color-roast-muted); font-family: var(--font-mono);">07:30 AM — 10:30 PM IST</div>
+              <p class="location-card-address">Lane 6, Koregaon Park, Pune</p>
+              <div class="location-card-hours">07:30 AM — 10:30 PM IST</div>
             </div>
           </div>
         </div>
       </section>
 
       <!-- 5. FOOTER -->
-      <footer style="padding: 4.5rem 0 3rem; background: var(--bg-canvas); border-top: 1px solid var(--color-cream-border);">
+      <footer class="site-footer">
         <div class="container">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 2rem; margin-bottom: 3.5rem;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                <div class="nav-brand-logo" style="width: 2.2rem; height: 2.2rem; font-size: 1.2rem;">A</div>
-                <span class="nav-brand-text" style="font-size: 1.5rem;">Atelier Café</span>
+          <div class="footer-main-row">
+            <div class="footer-brand-col">
+              <div class="footer-brand-title">
+                <div class="nav-brand-logo footer-logo">A</div>
+                <span class="nav-brand-text footer-brand-name">Atelier Café</span>
               </div>
-              <p style="color: var(--color-roast-medium); max-width: 380px; font-size: 0.9rem; line-height: 1.6;">
+              <p class="footer-brand-bio">
                 Specialty roastery and intentional hospitality. Dedicated to single-origin cultivation, seasonal micro-lots, and digital craftsmanship.
               </p>
             </div>
 
-            <div style="display: flex; gap: 3rem; flex-wrap: wrap;">
-              <div>
-                <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; color: var(--color-espresso);">Loyalty Club</div>
-                <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.88rem; color: var(--color-roast-medium);">
-                  <li><a href="#how-it-works" style="text-decoration: none; color: inherit;">How It Works</a></li>
-                  <li><a href="#rewards-preview" style="text-decoration: none; color: inherit;">Privileges</a></li>
-                  <li><a href="#register" style="text-decoration: none; color: inherit;">Create Account</a></li>
-                  <li><a href="#login" style="text-decoration: none; color: inherit;">Member Login</a></li>
+            <div class="footer-links-group">
+              <div class="footer-col">
+                <div class="footer-col-title">Loyalty Club</div>
+                <ul class="footer-links-list">
+                  <li><a href="#how-it-works">How It Works</a></li>
+                  <li><a href="#rewards-preview">Privileges</a></li>
+                  <li><a href="#register">Create Account</a></li>
+                  <li><a href="#login">Member Login</a></li>
                 </ul>
               </div>
 
-              <div>
-                <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; color: var(--color-espresso);">Roastery</div>
-                <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.88rem; color: var(--color-roast-medium);">
-                  <li><a href="#locations" style="text-decoration: none; color: inherit;">Houses & Hours</a></li>
-                  <li><a href="#home" style="text-decoration: none; color: inherit;">Ethical Sourcing</a></li>
-                  <li><a href="#staff" style="text-decoration: none; color: var(--color-gold-foil);">Barista Mode</a></li>
+              <div class="footer-col">
+                <div class="footer-col-title">Roastery</div>
+                <ul class="footer-links-list">
+                  <li><a href="#locations">Houses & Hours</a></li>
+                  <li><a href="#home">Ethical Sourcing</a></li>
+                  <li><a href="#home">Reserve Harvests</a></li>
                 </ul>
               </div>
             </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--color-roast-muted); border-top: 1px solid var(--color-cream-border); padding-top: 1.8rem; flex-wrap: wrap; gap: 1rem;">
-            <div>© 2026 Atelier Coffee & Roastery Group. All rights reserved.</div>
-            <div style="display: flex; gap: 1.5rem;">
+          <div class="footer-bottom-row">
+            <div class="footer-copyright">© 2026 Atelier Coffee & Roastery Group. All rights reserved.</div>
+            <div class="footer-legal-links">
               <span>Terms of Service</span>
               <span>Privacy Policy</span>
               <span>Digital Member Pass</span>

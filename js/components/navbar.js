@@ -12,12 +12,10 @@ function renderNavbar(currentPage = 'home') {
   let linksHtml = '';
   if (isAuth) {
     linksHtml = `
-      <li class="nav-link-item"><a href="#dashboard" class="${currentPage === 'dashboard' ? 'active' : ''}">Dashboard</a></li>
-      <li class="nav-link-item"><a href="#levels" class="${currentPage === 'levels' ? 'active' : ''}" style="color: var(--color-gold-foil); font-weight: 600;">★ Saga Levels</a></li>
+      <li class="nav-link-item"><a href="#dashboard" class="${currentPage === 'dashboard' || currentPage === 'levels' ? 'active' : ''}">Dashboard</a></li>
       <li class="nav-link-item"><a href="#rewards" class="${currentPage === 'rewards' ? 'active' : ''}">Rewards</a></li>
       <li class="nav-link-item"><a href="#activity" class="${currentPage === 'activity' ? 'active' : ''}">Activity</a></li>
       <li class="nav-link-item"><a href="#profile" class="${currentPage === 'profile' ? 'active' : ''}">Profile</a></li>
-      <li class="nav-link-item"><a href="#staff" class="${currentPage === 'staff' ? 'active' : ''}" style="color: var(--color-gold-foil);">Staff POS</a></li>
     `;
   } else {
     linksHtml = `
@@ -32,7 +30,7 @@ function renderNavbar(currentPage = 'home') {
   if (isAuth) {
     actionsHtml = `
       <!-- Sound Haptics Toggle -->
-      <button id="sound-toggle-btn" class="btn-text" title="Toggle tactile sound feedback" style="padding: 0.4rem;">
+      <button id="sound-toggle-btn" class="btn-text nav-sound-btn" title="Toggle tactile sound feedback" style="padding: 0.4rem;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08"></path>
@@ -40,26 +38,26 @@ function renderNavbar(currentPage = 'home') {
       </button>
 
       <!-- Member Pill -->
-      <a href="#profile" class="btn-secondary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+      <a href="#profile" class="btn-secondary nav-member-pill" style="padding: 0.4rem 0.9rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
         <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-gold-foil);"></span>
         <span>${user.firstName}</span>
       </a>
 
       <!-- Sign Out -->
-      <button id="nav-logout-btn" class="btn-text" title="Sign out" style="font-size: 0.8rem; color: var(--color-roast-muted);">
+      <button id="nav-logout-btn" class="btn-text nav-logout-btn" title="Sign out" style="font-size: 0.8rem; color: var(--color-roast-muted);">
         Exit
       </button>
     `;
   } else {
     actionsHtml = `
-      <button id="sound-toggle-btn" class="btn-text" title="Toggle tactile sound feedback" style="padding: 0.4rem;">
+      <button id="sound-toggle-btn" class="btn-text nav-sound-btn" title="Toggle tactile sound feedback" style="padding: 0.4rem;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08"></path>
         </svg>
       </button>
-      <a href="#login" class="btn-text">Sign In</a>
-      <a href="#register" class="btn-primary">
+      <a href="#login" class="btn-text nav-signin-btn">Sign In</a>
+      <a href="#register" class="btn-primary nav-join-btn">
         <span>Join Club</span>
         <div class="btn-icon-wrapper">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -115,7 +113,6 @@ function renderNavbar(currentPage = 'home') {
             <li><a href="#rewards" class="mobile-nav-link">Rewards Catalog</a></li>
             <li><a href="#activity" class="mobile-nav-link">Visit Ledger</a></li>
             <li><a href="#profile" class="mobile-nav-link">Member Profile</a></li>
-            <li><a href="#staff" class="mobile-nav-link" style="color: var(--color-gold-foil);">Staff POS Bar</a></li>
           ` : `
             <li><a href="#home" class="mobile-nav-link">Experience</a></li>
             <li><a href="#how-it-works" class="mobile-nav-link">How It Works</a></li>
@@ -142,7 +139,7 @@ function renderNavbar(currentPage = 'home') {
     <!-- Mobile Bottom Dock (Authenticated Mode) -->
     ${isAuth ? `
       <div class="mobile-dock" id="mobile-app-dock">
-        <a href="#dashboard" class="dock-item ${currentPage === 'dashboard' ? 'active' : ''}">
+        <a href="#dashboard" class="dock-item ${currentPage === 'dashboard' || currentPage === 'levels' ? 'active' : ''}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <rect x="3" y="3" width="7" height="7"></rect>
             <rect x="14" y="3" width="7" height="7"></rect>
@@ -150,12 +147,6 @@ function renderNavbar(currentPage = 'home') {
             <rect x="3" y="14" width="7" height="7"></rect>
           </svg>
           <span>Card</span>
-        </a>
-        <a href="#levels" class="dock-item ${currentPage === 'levels' ? 'active' : ''}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-          <span>Levels</span>
         </a>
         <a href="#rewards" class="dock-item ${currentPage === 'rewards' ? 'active' : ''}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">

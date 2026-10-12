@@ -68,18 +68,6 @@ function renderDashboardPage() {
               ${visitsLeft === 0 ? 'Card complete • Ready to claim reward' : `${visitsLeft} ${visitsLeft === 1 ? 'visit' : 'visits'} to next reward`}
             </p>
           </div>
-
-          <!-- Quick Actions -->
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <a href="#staff" class="btn-secondary" style="padding: 0.42rem 0.8rem; font-size: 0.78rem;">
-              <span style="color: var(--color-gold-foil);">☕</span>
-              <span>Till</span>
-            </a>
-            <a href="#levels" class="btn-secondary" style="padding: 0.42rem 0.8rem; font-size: 0.78rem; border-color: rgba(200, 157, 75, 0.4);">
-              <span style="color: var(--color-gold-foil);">⭐</span>
-              <span>Levels (${starsTotal}★)</span>
-            </a>
-          </div>
         </div>
 
         <!-- VIEW SELECTOR TABS -->
@@ -88,7 +76,7 @@ function renderDashboardPage() {
             <span>💳 Card</span>
           </button>
           <button id="dash-tab-candy" class="dash-view-tab-btn ${dashboardViewMode === 'candy' ? 'active' : ''}">
-            <span>🗺️ Saga</span>
+            <span>🗺️ Saga Road</span>
             <span class="candy-mini-badge">Lvl ${currentLevelNum}</span>
           </button>
         </div>
@@ -146,7 +134,7 @@ function renderDashboardPage() {
               </div>
             </div>
             <button class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.76rem; pointer-events: none;">
-              <span>Map ➔</span>
+              <span>Road ➔</span>
             </button>
           </div>
         `}
@@ -160,7 +148,6 @@ function renderDashboardPage() {
             <span class="step-chip">🏺 Kaapi (+28)</span>
             <span class="step-chip">🧪 V60 (+36)</span>
           </div>
-          <a href="#staff" class="btn-text" style="font-size: 0.76rem; color: var(--color-roast-medium);">Till →</a>
         </div>
 
         <!-- 3. PROGRESS & STATS (MINIMAL) -->

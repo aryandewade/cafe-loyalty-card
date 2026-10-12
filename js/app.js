@@ -88,7 +88,8 @@ class Router {
         pageHtml = window.renderDashboardPage();
         break;
       case 'levels':
-        pageHtml = window.renderCandyLevelsPage ? window.renderCandyLevelsPage() : window.renderDashboardPage();
+        if (typeof dashboardViewMode !== 'undefined') dashboardViewMode = 'candy';
+        pageHtml = window.renderDashboardPage();
         break;
       case 'rewards':
         pageHtml = window.renderRewardsPage();
@@ -128,9 +129,8 @@ class Router {
         window.initAuthEvents();
         break;
       case 'dashboard':
-        window.initDashboardEvents();
-        break;
       case 'levels':
+        window.initDashboardEvents();
         if (window.initCandyLevelsEvents) window.initCandyLevelsEvents();
         break;
       case 'rewards':

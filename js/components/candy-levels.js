@@ -266,7 +266,89 @@ class CandyLevelsEngine {
     return Math.min(3, stars);
   }
 
-  // Generate smooth cubic bezier SVG path connecting all level nodes from bottom to top
+  // Mathematical Cubic Bézier Point Evaluation B(t)
+  getCubicBezierPoint(t, p0, c1, c2, p3) {
+    const mt = 1 - t;
+    const mt2 = mt * mt;
+    const mt3 = mt2 * mt;
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return {
+      x: mt3 * p0.x + 3 * mt2 * t * c1.x + 3 * mt * t2 * c2.x + t3 * p3.x,
+      y: mt3 * p0.y + 3 * mt2 * t * c1.y + 3 * mt * t2 * c2.y + t3 * p3.y
+    };
+  }
+
+  // Mathematical Cubic Bézier Tangent Derivative B'(t) to determine walking direction
+  getCubicBezierTangent(t, p0, c1, c2, p3) {
+    const mt = 1 - t;
+    return {
+      dx: 3 * mt * mt * (c1.x - p0.x) + 6 * mt * t * (c2.x - c1.x) + 3 * t * t * (p3.x - c2.x),
+      dy: 3 * mt * mt * (c1.y - p0.y) + 6 * mt * t * (c2.y - c1.y) + 3 * t * t * (p3.y - c2.y)
+    };
+  }
+
+  // Split cubic bezier at parameter t using de Casteljau's algorithm
+  getCubicBezierSubsegment(p0, c1, c2, p3, t) {
+    if (t <= 0.002) return null;
+    const q1 = { x: (1 - t) * p0.x + t * c1.x, y: (1 - t) * p0.y + t * c1.y };
+    const q12 = { x: (1 - t) * c1.x + t * c2.x, y: (1 - t) * c1.y + t * c2.y };
+    const q2 = { x: (1 - t) * q1.x + t * q12.x, y: (1 - t) * q1.y + t * q12.y };
+    const pt = this.getCubicBezierPoint(t, p0, c1, c2, p3);
+    return { q1, q2, pt };
+  }
+
+  // Continuous Road Character Interpolation:
+  // Waypoints:
+  // [0]: Roastery Gates (0 Pts)
+  // [1]: Level 1 Node (500 Pts)
+  // [2]: Level 2 Node (1,000 Pts)
+  // ...
+  // [10]: Level 10 Node (5,000 Pts)
+  // Segment 1 connects Level 1 (500 Pts) and Level 2 (1,000 Pts).
+  // At 750 points, segmentIndex = 1, t = (750 - 500) / 500 = 0.5 (exactly halfway between Level 1 and 2)!
+  getCharacterRoadPosition(points, waypoints, svgWidth) {
+    const pts = Math.max(0, points || 0);
+    const maxTrackPoints = (waypoints.length - 1) * 500; // 5000 pts
+    const clampedPts = Math.min(maxTrackPoints, pts);
+
+    const segmentIndex = Math.min(waypoints.length - 2, Math.floor(clampedPts / 500));
+    const segmentPts = clampedPts - segmentIndex * 500;
+    const rawT = clampedPts >= maxTrackPoints ? 1.0 : Math.max(0, Math.min(1.0, segmentPts / 500));
+    // Spacious framing: Keep character gracefully positioned along the road between checkpoints, never directly over node buttons
+    const t = clampedPts >= maxTrackPoints
+      ? 1.0
+      : (segmentPts === 0 ? 0.16 : Math.max(0.16, Math.min(0.72, rawT)));
+
+    const p0 = waypoints[segmentIndex];
+    const p3 = waypoints[segmentIndex + 1];
+    const midY = (p0.y + p3.y) / 2;
+    const c1 = { x: p0.x, y: midY };
+    const c2 = { x: p3.x, y: midY };
+
+    const pt = this.getCubicBezierPoint(t, p0, c1, c2, p3);
+    const tangent = this.getCubicBezierTangent(t, p0, c1, c2, p3);
+    const isFacingRight = tangent.dx >= 0;
+
+    const fromLevelNum = segmentIndex;
+    const toLevelNum = segmentIndex + 1;
+    const pointsLeft = Math.max(0, 500 - segmentPts);
+
+    return {
+      x: pt.x,
+      y: pt.y,
+      xPercent: (pt.x / svgWidth) * 100,
+      segmentIndex,
+      t,
+      isFacingRight,
+      fromLevelNum,
+      toLevelNum,
+      pointsLeft,
+      segmentPts
+    };
+  }
+
+  // Generate smooth cubic bezier SVG path connecting waypoints from bottom to top
   generatePathSvg(nodeCoords) {
     if (!nodeCoords || nodeCoords.length < 2) return '';
     let d = `M ${nodeCoords[0].x} ${nodeCoords[0].y}`;
@@ -280,41 +362,101 @@ class CandyLevelsEngine {
     return d;
   }
 
-  // Render the Candy Crush Winding Road
+  // Generate glowing river path starting at Roastery Gates and terminating precisely at the character's feet
+  generateProgressPathSvg(waypoints, charPos) {
+    if (!waypoints || waypoints.length < 2) return '';
+    const { segmentIndex, t } = charPos;
+    let d = `M ${waypoints[0].x} ${waypoints[0].y}`;
+
+    // 1. Fully traversed complete segments
+    for (let i = 0; i < segmentIndex; i++) {
+      const p1 = waypoints[i];
+      const p2 = waypoints[i + 1];
+      const midY = (p1.y + p2.y) / 2;
+      d += ` C ${p1.x} ${midY}, ${p2.x} ${midY}, ${p2.x} ${p2.y}`;
+    }
+
+    // 2. Active subsegment up to character t
+    if (t > 0.005) {
+      const p0 = waypoints[segmentIndex];
+      const p3 = waypoints[segmentIndex + 1];
+      const midY = (p0.y + p3.y) / 2;
+      const c1 = { x: p0.x, y: midY };
+      const c2 = { x: p3.x, y: midY };
+      const sub = this.getCubicBezierSubsegment(p0, c1, c2, p3, t);
+      if (sub) {
+        d += ` C ${sub.q1.x} ${sub.q1.y}, ${sub.q2.x} ${sub.q2.y}, ${sub.pt.x} ${sub.pt.y}`;
+      }
+    }
+
+    return d;
+  }
+
+  // Render the Candy Crush Winding Road with Interactive Character Avatar
   renderSagaMap({ compact = false } = {}) {
     const store = window.AtelierStore;
     const state = store ? store.getState() : {};
     const membership = state.membership || { lifetimeVisits: 27, currentStamps: 7, points: 420 };
+    const points = membership ? (membership.points || 0) : 0;
     const currentLevelNum = this.calculateCurrentLevel(membership);
     const levelProgress = this.getLevelProgress(membership);
     const user = state.user || { firstName: 'Coffee Explorer' };
 
-    // Layout configuration
-    const totalLevels = this.levels.length;
-    const nodeSpacingY = compact ? 88 : 110;
+    // Layout configuration - Generous vertical spacing for spatial breathing room
+    const totalLevels = this.levels.length; // 10 levels
+    const nodeSpacingY = compact ? 150 : 180;
     const svgWidth = 400;
-    const paddingBottom = 70;
-    const paddingTop = 70;
+    const paddingTop = 90;
+    const paddingBottom = 165;
     const svgHeight = paddingTop + (totalLevels - 1) * nodeSpacingY + paddingBottom;
 
-    // Calculate (x, y) coordinates for each level node from bottom (Level 1) to top (Level 10)
+    // 1. Calculate (x, y) coordinates for Level Nodes (Level 1 to Level 10)
     const nodeCoords = [];
     for (let i = 0; i < totalLevels; i++) {
       const lvl = this.levels[i];
       const x = (lvl.xPercent / 100) * svgWidth;
       const y = svgHeight - paddingBottom - i * nodeSpacingY;
-      nodeCoords.push({ x, y, level: lvl.level });
+      nodeCoords.push({ x, y, level: lvl.level, xPercent: lvl.xPercent });
     }
 
-    // Path segments:
-    const fullPathD = this.generatePathSvg(nodeCoords);
-    const completedCoords = nodeCoords.slice(0, currentLevelNum);
-    const completedPathD = completedCoords.length >= 2 ? this.generatePathSvg(completedCoords) : '';
+    // 2. Roastery Gates (WayPoint 0: 0 Points threshold)
+    const startCoord = {
+      x: (38 / 100) * svgWidth,
+      y: svgHeight - 60,
+      level: 0,
+      xPercent: 38
+    };
+
+    // 3. Combined Waypoints for Continuous Road (Indices 0 through 10)
+    const waypoints = [startCoord, ...nodeCoords];
+
+    // 4. Calculate Character Continuous Position along Winding Curve
+    const charPos = this.getCharacterRoadPosition(points, waypoints, svgWidth);
+
+    // 5. Generate Road Paths
+    const fullPathD = this.generatePathSvg(waypoints);
+    const completedPathD = this.generateProgressPathSvg(waypoints, charPos);
+
+    // Contextual status text for character speech pill
+    let charStatusText = '';
+    if (points >= 5000) {
+      charStatusText = 'Grand Master Roaster Summit 🏆';
+    } else if (charPos.segmentPts === 0 && charPos.segmentIndex > 0) {
+      charStatusText = `Level ${charPos.segmentIndex} Achieved! 🎉`;
+    } else if (charPos.t >= 0.45 && charPos.t <= 0.55) {
+      charStatusText = charPos.segmentIndex === 0
+        ? `Midway to Level 1 (${charPos.pointsLeft} pts left)`
+        : `Midway to Level ${charPos.toLevelNum} (${charPos.pointsLeft} pts left)`;
+    } else if (charPos.segmentIndex === 0) {
+      charStatusText = `${charPos.pointsLeft} pts to Level 1`;
+    } else {
+      charStatusText = `${charPos.pointsLeft} pts to Level ${charPos.toLevelNum}`;
+    }
 
     // Render nodes HTML
     const nodesHtml = this.levels.map((lvl, idx) => {
       const coords = nodeCoords[idx];
-      const isCompleted = lvl.level < currentLevelNum;
+      const isCompleted = points >= lvl.pointsToPass;
       const isCurrent = lvl.level === currentLevelNum;
       const isLocked = lvl.level > currentLevelNum;
       const starsEarned = this.calculateLevelStars(lvl, membership);
@@ -331,20 +473,17 @@ class CandyLevelsEngine {
         `;
       }
 
-      // Avatar Marker HTML on Current Level
-      let avatarHtml = '';
+      // Active Target Node Destination Pulse (Only show TARGET badge if no stars earned yet to prevent collision)
+      let targetBeaconHtml = '';
       if (isCurrent) {
-        avatarHtml = `
-          <div class="candy-player-marker" title="${user.firstName}'s Current Level: Level ${currentLevelNum} (${membership.points || 0} Pts)">
-            <div class="candy-player-avatar">
-              <span class="avatar-face">☕</span>
-              <div class="avatar-sparkle">✦</div>
-            </div>
-            <div class="candy-player-shadow"></div>
-            <div class="candy-player-label">YOU</div>
-          </div>
+        targetBeaconHtml = `
           <div class="candy-pulse-ring"></div>
           <div class="candy-pulse-ring delay"></div>
+          ${starsEarned === 0 ? `
+            <div class="candy-destination-flag" title="Active Target: Level ${lvl.level}">
+              <span>TARGET</span>
+            </div>
+          ` : ''}
         `;
       }
 
@@ -371,10 +510,10 @@ class CandyLevelsEngine {
              style="left: ${lvl.xPercent}%; top: ${coords.y}px;"
              data-level-num="${lvl.level}">
           ${starsHtml}
-          ${avatarHtml}
+          ${targetBeaconHtml}
           <button class="candy-node-btn" 
                   onclick="window.candyEngine.openLevelDetails(${lvl.level})"
-                  title="Level ${lvl.level}: ${lvl.title} (${lvl.pointsRequired} - ${lvl.pointsToPass} Pts)"
+                  title="Level ${lvl.level}: ${lvl.title} (${lvl.pointsToPass} Pts Target)"
                   aria-label="Level ${lvl.level}: ${lvl.title}">
             <div class="candy-btn-gloss"></div>
             <div class="candy-btn-inner">
@@ -383,12 +522,125 @@ class CandyLevelsEngine {
           </button>
           <div class="candy-node-caption">
             <span class="caption-title">${lvl.title}</span>
-            <span class="caption-card-sub" style="font-size: 0.65rem; color: #C2B3A8; display: block;">${lvl.pointsRequired} - ${lvl.pointsToPass} Pts</span>
+            <span class="caption-card-sub" style="font-size: 0.65rem; color: #C2B3A8; display: block;">${lvl.pointsToPass} Pts Target</span>
             ${lvl.milestone ? `<span class="caption-milestone">VAULT</span>` : ''}
           </div>
         </div>
       `;
     }).join('');
+
+    // Roastery Gates HTML (Start at 0 Pts)
+    const startGateHtml = `
+      <div class="candy-start-gate" style="left: ${startCoord.xPercent}%; top: ${startCoord.y}px;" title="Roastery Entrance • 0 Pts Start">
+        <div class="start-gate-badge">
+          <span class="start-icon">🚪</span>
+          <div class="start-text-col">
+            <span class="start-title">ROASTERY GATES</span>
+            <span class="start-pts font-mono">0 PTS</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Dynamic Character Avatar Mascot along the Road
+    const characterHtml = `
+      <div class="candy-character-container ${charPos.isFacingRight ? 'facing-right' : 'facing-left'}" 
+           style="left: ${charPos.xPercent}%; top: ${charPos.y}px;"
+           onclick="window.candyEngine.characterTap(event)"
+           title="${user.firstName} • ${points} Points (Tap for Barista Cheer!)">
+        
+        <!-- Ground Footstep Energy & Shadow -->
+        <div class="candy-char-ground-pulse"></div>
+        <div class="candy-char-shadow"></div>
+
+        <!-- Floating Status Callout (Single Unified Sleek Badge) -->
+        <div class="candy-char-callout">
+          <div class="char-unified-pill">
+            <span class="char-avatar-dot">☕</span>
+            <span class="char-name-bold">${user.firstName || 'Explorer'}</span>
+            <span class="char-pill-divider">•</span>
+            <span class="char-pts-bold font-mono">${points} Pts</span>
+            <span class="char-need-sub font-mono">(${charPos.pointsLeft} to Lvl ${charPos.toLevelNum})</span>
+          </div>
+        </div>
+
+        <!-- Animated Character Mascot Figure -->
+        <div class="candy-char-figure">
+          <div class="candy-char-aura"></div>
+          
+          <svg class="candy-char-svg" viewBox="0 0 60 74" width="44" height="56" aria-label="Atelier Barista Character">
+            <defs>
+              <linearGradient id="charApronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3A2C27" />
+                <stop offset="100%" stop-color="#211713" />
+              </linearGradient>
+              <linearGradient id="charGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFE885" />
+                <stop offset="100%" stop-color="#D4AF37" />
+              </linearGradient>
+              <linearGradient id="charSkinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFE3D1" />
+                <stop offset="100%" stop-color="#F7C9AA" />
+              </linearGradient>
+              <linearGradient id="charCupGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFFDF9" />
+                <stop offset="100%" stop-color="#EADBCE" />
+              </linearGradient>
+            </defs>
+
+            <!-- 1. Apron & Body -->
+            <path d="M 17 38 L 43 38 L 46 62 L 14 62 Z" fill="url(#charApronGrad)" rx="3" />
+            <!-- Leather Straps -->
+            <line x1="20" y1="38" x2="27" y2="50" stroke="#8C5835" stroke-width="2.6" stroke-linecap="round" />
+            <line x1="40" y1="38" x2="33" y2="50" stroke="#8C5835" stroke-width="2.6" stroke-linecap="round" />
+            <!-- Brass Center Buckle -->
+            <circle cx="30" cy="48" r="3.2" fill="url(#charGoldGrad)" stroke="#8C5835" stroke-width="1.2" />
+            <!-- Crisp White Barista Collar -->
+            <polygon points="23,37 30,42 37,37" fill="#FFFFFF" stroke="#E2D8CF" stroke-width="0.8" />
+
+            <!-- 2. Arms & Ceramic Coffee Cup -->
+            <path d="M 16 41 Q 20 50 26 50" stroke="#FFE3D1" stroke-width="3.4" stroke-linecap="round" fill="none" />
+            <path d="M 44 41 Q 40 50 34 50" stroke="#FFE3D1" stroke-width="3.4" stroke-linecap="round" fill="none" />
+            
+            <!-- Ceramic Cup -->
+            <rect x="25" y="45" width="10" height="10" rx="2.5" fill="url(#charCupGrad)" stroke="#C89D4B" stroke-width="1" />
+            <!-- Cup Handle -->
+            <path d="M 35 47 Q 39 49 35 52" stroke="#C89D4B" stroke-width="1.4" fill="none" />
+            <!-- Espresso Surface & Latte Art Heart -->
+            <ellipse cx="30" cy="46" rx="4.5" ry="1.8" fill="#54311C" />
+            <path d="M 30 45 C 28.8 44.2 27.5 45.4 30 46.8 C 32.5 45.4 31.2 44.2 30 45 Z" fill="#FFF5ED" />
+
+            <!-- Animated Steam Trails -->
+            <path class="char-steam steam-1" d="M 28 43 Q 26 38 29 34" stroke="rgba(255,255,255,0.75)" stroke-width="1.6" stroke-linecap="round" fill="none" />
+            <path class="char-steam steam-2" d="M 32 42 Q 34 37 31 32" stroke="rgba(255,255,255,0.75)" stroke-width="1.6" stroke-linecap="round" fill="none" />
+
+            <!-- 3. Head & Expressive Facial Features -->
+            <ellipse cx="30" cy="27" rx="12" ry="12" fill="url(#charSkinGrad)" />
+            <!-- Rosy Cheeks -->
+            <circle cx="22" cy="30" r="2.2" fill="#FF8A80" opacity="0.4" />
+            <circle cx="38" cy="30" r="2.2" fill="#FF8A80" opacity="0.4" />
+            <!-- Catchlight Sparkle Eyes -->
+            <circle cx="25" cy="26" r="2.1" fill="#241711" />
+            <circle cx="25.7" cy="25.3" r="0.8" fill="#FFFFFF" />
+            <circle cx="35" cy="26" r="2.1" fill="#241711" />
+            <circle cx="35.7" cy="25.3" r="0.8" fill="#FFFFFF" />
+            <!-- Cheerful Smile -->
+            <path d="M 27 31 Q 30 34.5 33 31" stroke="#241711" stroke-width="1.8" stroke-linecap="round" fill="none" />
+
+            <!-- 4. Barista Flat Cap / Beret -->
+            <ellipse cx="30" cy="18" rx="15" ry="7.5" fill="#281A14" />
+            <path d="M 15 18 Q 30 8 45 18 Q 30 13 15 18 Z" fill="#3D281F" />
+            <!-- Golden Coffee Crest on Cap -->
+            <ellipse cx="30" cy="14" rx="3.5" ry="1.6" fill="url(#charGoldGrad)" />
+            <path d="M 30 11.5 Q 32.5 14 30 16.5 Q 27.5 14 30 11.5 Z" fill="url(#charGoldGrad)" />
+          </svg>
+
+          <!-- Ambient Coffee Sparkles -->
+          <div class="char-sparkle char-sparkle-1">✦</div>
+          <div class="char-sparkle char-sparkle-2">✦</div>
+        </div>
+      </div>
+    `;
 
     return `
       <div class="candy-saga-viewport ${compact ? 'is-compact' : ''}">
@@ -456,8 +708,12 @@ class CandyLevelsEngine {
 
           <!-- 4. Level Nodes Layer -->
           <div class="candy-nodes-layer">
+            ${startGateHtml}
             ${nodesHtml}
           </div>
+
+          <!-- 5. Floating Dynamic Character Mascot Layer -->
+          ${characterHtml}
         </div>
 
         <!-- Saga Footer Action Banner -->
@@ -742,6 +998,44 @@ class CandyLevelsEngine {
     }
   }
 
+  // Tap interaction on character mascot
+  characterTap(e) {
+    if (e) e.stopPropagation();
+    const charEl = document.querySelector('.candy-character-container');
+    if (charEl) {
+      charEl.classList.remove('is-tapped');
+      void charEl.offsetWidth; // trigger reflow
+      charEl.classList.add('is-tapped');
+
+      // Floating cheer bubble
+      let pop = charEl.querySelector('.char-tap-popup');
+      if (!pop) {
+        pop = document.createElement('div');
+        pop.className = 'char-tap-popup';
+        charEl.appendChild(pop);
+      }
+      const cheers = [
+        "Brewing Greatness! ☕✨",
+        "Keep Exploring! 🌟",
+        "Roasted to Perfection! 🔥",
+        "Onward to the Next Level! 🚀",
+        "Delicious V60 Vibes! 🫘",
+        "Step by Step to Grand Master! 🏆"
+      ];
+      pop.textContent = cheers[Math.floor(Math.random() * cheers.length)];
+      pop.classList.remove('show');
+      void pop.offsetWidth;
+      pop.classList.add('show');
+      setTimeout(() => {
+        if (pop) pop.classList.remove('show');
+      }, 2000);
+    }
+
+    if (window.AtelierAudio && window.AtelierAudio.playCardFlip) {
+      window.AtelierAudio.playCardFlip();
+    }
+  }
+
   closeModal(e) {
     if (e && e.target && e.target.id !== 'candy-stage-backdrop' && e.target.id !== 'candy-celebrate-backdrop') {
       return;
@@ -768,9 +1062,10 @@ function renderCandyLevelsPage() {
 }
 
 function initCandyLevelsEvents() {
-  // Re-scroll active node smoothly into view if on levels page
+  // Re-scroll active character or node smoothly into view if on levels page
   setTimeout(() => {
-    const currentMarker = document.querySelector('.candy-level-node.is-current');
+    const charMarker = document.querySelector('.candy-character-container');
+    const currentMarker = charMarker || document.querySelector('.candy-level-node.is-current');
     if (currentMarker) {
       currentMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }

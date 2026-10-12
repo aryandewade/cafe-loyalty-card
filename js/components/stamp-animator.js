@@ -277,20 +277,16 @@
       liveCardEl.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
     }
 
-    // Scroll card smoothly into center view if not comfortably visible
-    const initialRect = liveSlotEl.getBoundingClientRect();
-    const isVisibleInView = (
-      initialRect.top >= 70 &&
-      initialRect.bottom <= (window.innerHeight - 70) &&
-      initialRect.left >= 10 &&
-      initialRect.right <= (window.innerWidth - 10)
-    );
-
-    if (!isVisibleInView) {
-      liveSlotEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-      await new Promise(r => setTimeout(r, 340));
-    } else {
-      await new Promise(r => setTimeout(r, 40));
+    // Ensure card is in vertical viewport without EVER shifting or sliding horizontally
+    if (liveCardEl) {
+      const cardRect = liveCardEl.getBoundingClientRect();
+      const isCardVerticallyOffscreen = cardRect.top < 60 || cardRect.bottom > (window.innerHeight - 20);
+      if (isCardVerticallyOffscreen) {
+        liveCardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        await new Promise(r => setTimeout(r, 220));
+      } else {
+        await new Promise(r => setTimeout(r, 40));
+      }
     }
 
     // Get exact viewport coordinates of the target slot
@@ -375,7 +371,7 @@
     shadow.classList.add('shadow-phase-hover');
 
     // -------------------------------------------------------------
-    // STEP 2: Lowering (190ms)
+    // STEP 2: Lowering (320ms)
     // Stamp smoothly moving down towards the card
     // -------------------------------------------------------------
     setTimeout(() => {
@@ -383,10 +379,10 @@
       tool.classList.add('tool-phase-lower');
       shadow.classList.remove('shadow-phase-hover');
       shadow.classList.add('shadow-phase-lower');
-    }, 190);
+    }, 320);
 
     // -------------------------------------------------------------
-    // STEP 3: Press (390ms)
+    // STEP 3: Press (680ms)
     // Stamp fully pressed onto the card!
     // Radial pressure tick rays burst out, shockwave explodes, card recoils
     // -------------------------------------------------------------
@@ -412,11 +408,17 @@
         window.AtelierAudio.playHeavyStampSound();
       }
 
-      // Card physical spring recoil
+      // Card physical spring recoil (vertical-only absorption, no lateral drift)
       if (liveCardEl) {
         liveCardEl.classList.remove('card-recoil-shake');
         void liveCardEl.offsetWidth; // trigger reflow
         liveCardEl.classList.add('card-recoil-shake');
+        setTimeout(() => {
+          if (liveCardEl) {
+            liveCardEl.classList.remove('card-recoil-shake');
+            liveCardEl.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+          }
+        }, 460);
       }
 
       // Ink particle burst
@@ -445,10 +447,10 @@
       if (navigator.vibrate) {
         navigator.vibrate([35, 45, 20]);
       }
-    }, 390);
+    }, 680);
 
     // -------------------------------------------------------------
-    // STEP 4: Imprinting (590ms)
+    // STEP 4: Imprinting (1020ms)
     // Stamp holds firm dwell position, leaving the mark with subtle gold glow
     // -------------------------------------------------------------
     setTimeout(() => {
@@ -459,10 +461,10 @@
 
       // Golden imprint aura bloom
       imprintAura.classList.add('imprint-active');
-    }, 590);
+    }, 1020);
 
     // -------------------------------------------------------------
-    // STEP 5: Lift (790ms)
+    // STEP 5: Lift (1420ms)
     // Stamp moving up and retracting after stamping
     // -------------------------------------------------------------
     setTimeout(() => {
@@ -470,10 +472,10 @@
       tool.classList.add('tool-phase-lift');
       shadow.classList.remove('shadow-phase-imprint');
       shadow.classList.add('shadow-phase-lift');
-    }, 790);
+    }, 1420);
 
     // -------------------------------------------------------------
-    // STEP 6: Result (1120ms)
+    // STEP 6: Result (1940ms)
     // New stamp added, radiant gold aura shines on newly stamped slot
     // -------------------------------------------------------------
     setTimeout(() => {
@@ -497,7 +499,7 @@
 
       // Trigger user completion callback
       onComplete();
-    }, 1120);
+    }, 1940);
   }
 
   // Export to global window namespace
