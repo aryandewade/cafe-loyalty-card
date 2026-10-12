@@ -314,11 +314,14 @@ class CandyLevelsEngine {
 
     const segmentIndex = Math.min(waypoints.length - 2, Math.floor(clampedPts / 500));
     const segmentPts = clampedPts - segmentIndex * 500;
-    const rawT = clampedPts >= maxTrackPoints ? 1.0 : Math.max(0, Math.min(1.0, segmentPts / 500));
-    // Spacious framing: Keep character gracefully positioned along the road between checkpoints, never directly over node buttons
+    const segmentRatio = Math.max(0, Math.min(1.0, segmentPts / 500));
+
+    // Spacious non-overlapping travel along the road curve:
+    // Character travels smoothly between checkpoints (t: 0.20 to 0.58),
+    // guaranteeing wide breathing margins from both origin and destination nodes.
     const t = clampedPts >= maxTrackPoints
       ? 1.0
-      : (segmentPts === 0 ? 0.16 : Math.max(0.16, Math.min(0.72, rawT)));
+      : 0.20 + segmentRatio * (0.58 - 0.20);
 
     const p0 = waypoints[segmentIndex];
     const p3 = waypoints[segmentIndex + 1];
@@ -404,10 +407,10 @@ class CandyLevelsEngine {
 
     // Layout configuration - Generous vertical spacing for spatial breathing room
     const totalLevels = this.levels.length; // 10 levels
-    const nodeSpacingY = compact ? 150 : 180;
+    const nodeSpacingY = compact ? 180 : 210;
     const svgWidth = 400;
     const paddingTop = 90;
-    const paddingBottom = 165;
+    const paddingBottom = compact ? 260 : 295;
     const svgHeight = paddingTop + (totalLevels - 1) * nodeSpacingY + paddingBottom;
 
     // 1. Calculate (x, y) coordinates for Level Nodes (Level 1 to Level 10)
@@ -422,7 +425,7 @@ class CandyLevelsEngine {
     // 2. Roastery Gates (WayPoint 0: 0 Points threshold)
     const startCoord = {
       x: (38 / 100) * svgWidth,
-      y: svgHeight - 60,
+      y: svgHeight - 65,
       level: 0,
       xPercent: 38
     };
@@ -505,6 +508,13 @@ class CandyLevelsEngine {
         lvl.milestone ? 'is-milestone' : ''
       ].filter(Boolean).join(' ');
 
+      // Side placement for node caption to ensure 100% road and mascot clearance
+      const captionSide = lvl.xPercent > 55
+        ? 'side-left'
+        : lvl.xPercent < 45
+          ? 'side-right'
+          : (idx % 2 === 0 ? 'side-left' : 'side-right');
+
       return `
         <div class="${nodeClass}" 
              style="left: ${lvl.xPercent}%; top: ${coords.y}px;"
@@ -520,9 +530,9 @@ class CandyLevelsEngine {
               ${nodeContent}
             </div>
           </button>
-          <div class="candy-node-caption">
+          <div class="candy-node-caption ${captionSide}">
             <span class="caption-title">${lvl.title}</span>
-            <span class="caption-card-sub" style="font-size: 0.65rem; color: #C2B3A8; display: block;">${lvl.pointsToPass} Pts Target</span>
+            <span class="caption-card-sub">${lvl.pointsToPass} Pts Target</span>
             ${lvl.milestone ? `<span class="caption-milestone">VAULT</span>` : ''}
           </div>
         </div>
@@ -553,14 +563,13 @@ class CandyLevelsEngine {
         <div class="candy-char-ground-pulse"></div>
         <div class="candy-char-shadow"></div>
 
-        <!-- Floating Status Callout (Single Unified Sleek Badge) -->
+        <!-- Floating Status Callout (Compact Sleek Badge) -->
         <div class="candy-char-callout">
           <div class="char-unified-pill">
             <span class="char-avatar-dot">☕</span>
             <span class="char-name-bold">${user.firstName || 'Explorer'}</span>
             <span class="char-pill-divider">•</span>
             <span class="char-pts-bold font-mono">${points} Pts</span>
-            <span class="char-need-sub font-mono">(${charPos.pointsLeft} to Lvl ${charPos.toLevelNum})</span>
           </div>
         </div>
 
