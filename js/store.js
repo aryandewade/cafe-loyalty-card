@@ -508,12 +508,26 @@ class Store {
       }
     }
 
-    // Trigger celebration if stamp milestone reached
-    if (stampResult && (stampResult.newVisits === 5 || stampResult.newVisits === 8 || stampResult.newVisits === 10)) {
-      setTimeout(() => {
-        if (window.AtelierAudio) window.AtelierAudio.playRewardUnlock();
-        if (window.launchAtelierCelebration) window.launchAtelierCelebration();
-      }, 350);
+    // Trigger celebration if stamp milestone or Candy Crush Level-up reached
+    if (stampResult) {
+      const prevVisits = Math.max(0, this.state.membership.lifetimeVisits - 1);
+      const prevLvl = window.candyEngine ? window.candyEngine.calculateCurrentLevel({ lifetimeVisits: prevVisits }) : 1;
+      const newLvl = window.candyEngine ? window.candyEngine.calculateCurrentLevel(this.state.membership) : 1;
+
+      if (newLvl > prevLvl) {
+        setTimeout(() => {
+          if (window.candyEngine) {
+            window.candyEngine.triggerLevelUpCelebration(newLvl);
+          } else if (window.launchAtelierCelebration) {
+            window.launchAtelierCelebration();
+          }
+        }, 400);
+      } else if (stampResult.newVisits === 5 || stampResult.newVisits === 8 || stampResult.newVisits === 10) {
+        setTimeout(() => {
+          if (window.AtelierAudio) window.AtelierAudio.playRewardUnlock();
+          if (window.launchAtelierCelebration) window.launchAtelierCelebration();
+        }, 350);
+      }
     }
 
     return {

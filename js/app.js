@@ -47,7 +47,7 @@ class Router {
     }
 
     // Auth redirection
-    if (!isAuth && ['dashboard', 'rewards', 'activity', 'profile', 'staff'].includes(hash)) {
+    if (!isAuth && ['dashboard', 'rewards', 'activity', 'profile', 'staff', 'levels'].includes(hash)) {
       window.location.hash = '#login';
       return;
     }
@@ -87,6 +87,9 @@ class Router {
       case 'dashboard':
         pageHtml = window.renderDashboardPage();
         break;
+      case 'levels':
+        pageHtml = window.renderCandyLevelsPage ? window.renderCandyLevelsPage() : window.renderDashboardPage();
+        break;
       case 'rewards':
         pageHtml = window.renderRewardsPage();
         break;
@@ -110,13 +113,11 @@ class Router {
       <main id="main-content" class="page-content" tabindex="-1">
         ${pageHtml}
       </main>
-      ${window.renderBaristaSimulator()}
       <div id="modal-root"></div>
     `;
 
     // Rebind component listeners
     window.initNavbarEvents();
-    window.initBaristaSimulatorEvents();
 
     switch (route) {
       case 'home':
@@ -128,6 +129,9 @@ class Router {
         break;
       case 'dashboard':
         window.initDashboardEvents();
+        break;
+      case 'levels':
+        if (window.initCandyLevelsEvents) window.initCandyLevelsEvents();
         break;
       case 'rewards':
         window.initRewardsEvents();

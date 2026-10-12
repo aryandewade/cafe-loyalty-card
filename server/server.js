@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { db, initDatabase, logSecurityEvent } from './db.js';
+import { db, initDatabase, logSecurityEvent as logSqliteAudit } from './db.js';
+import { isSupabaseConfigured, supabase } from './supabase.js';
 import {
   hashSecret,
   verifySecret,
@@ -14,7 +15,7 @@ import {
   sanitizeInput
 } from './security.js';
 
-// Initialize SQLite tables and seed data
+// Initialize SQLite tables and seed data (local fallback)
 initDatabase();
 
 const PORT = parseInt(process.env.PORT || '8787', 10);
@@ -62,6 +63,130 @@ function getClientIp(req) {
   return '127.0.0.1';
 }
 
+// --------------------------------------------------------------------------
+// Unified Database Abstraction (Supabase Cloud PostgreSQL OR Local SQLite)
+// --------------------------------------------------------------------------
+async function dbGetSetting(key) {
+  if (isSupabaseConfigured) {
+    try {
+      const rows = await supabase.select('settings', { key: `eq.${key}` });
+      return rows[0] || null;
+    } catch (e) {
+      console.warn('Supabase getSetting error, using SQLite:', e.message);
+    }
+  }
+  return db.get('SELECT value FROM settings WHERE key = ?', [key]);
+}
+
+async function dbUpdateSetting(key, value) {
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.update('settings', { value }, 'key', key);
+      return;
+    } catch (e) {
+      console.warn('Supabase updateSetting error, using SQLite:', e.message);
+    }
+  }
+  db.run('UPDATE settings SET value = ? WHERE key = ?', [String(value), key]);
+}
+
+async function dbGetUser(emailOrId) {
+  if (isSupabaseConfigured) {
+    try {
+      const isEmail = emailOrId.includes('@');
+      const rows = await supabase.select('users', isEmail ? { email: `eq.${emailOrId}` } : { id: `eq.${emailOrId}` });
+      return rows[0] || null;
+    } catch (e) {
+      console.warn('Supabase getUser error, using SQLite:', e.message);
+    }
+  }
+  return db.get('SELECT * FROM users WHERE email = ? OR id = ?', [emailOrId, emailOrId]);
+}
+
+async function dbGetMembership(userId) {
+  if (isSupabaseConfigured) {
+    try {
+      const rows = await supabase.select('memberships', { user_id: `eq.${userId}` });
+      return rows[0] || null;
+    } catch (e) {
+      console.warn('Supabase getMembership error, using SQLite:', e.message);
+    }
+  }
+  return db.get('SELECT * FROM memberships WHERE user_id = ?', [userId]);
+}
+
+async function dbUpdateMembership(userId, updates) {
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.update('memberships', updates, 'user_id', userId);
+      return;
+    } catch (e) {
+      console.warn('Supabase updateMembership error, using SQLite:', e.message);
+    }
+  }
+  db.run(`
+    UPDATE memberships
+    SET current_stamps = COALESCE(?, current_stamps),
+        points = COALESCE(?, points),
+        lifetime_visits = COALESCE(?, lifetime_visits),
+        updated_at = CURRENT_TIMESTAMP
+    WHERE user_id = ?
+  `, [updates.current_stamps, updates.points, updates.lifetime_visits, userId]);
+}
+
+async function dbGetProducts() {
+  if (isSupabaseConfigured) {
+    try {
+      return await supabase.select('products', { is_active: 'eq.1' });
+    } catch (e) {
+      console.warn('Supabase getProducts error, using SQLite:', e.message);
+    }
+  }
+  return db.all('SELECT * FROM products WHERE is_active = 1');
+}
+
+async function dbInsertTransaction(record) {
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.insert('transactions', record);
+      return;
+    } catch (e) {
+      console.warn('Supabase insertTransaction error, using SQLite:', e.message);
+    }
+  }
+  db.run(`
+    INSERT INTO transactions (id, user_id, product_id, product_name, amount_spent, points_earned, stamps_added, receipt_number)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `, [record.id, record.user_id, record.product_id || null, record.product_name, record.amount_spent, record.points_earned, record.stamps_added || 0, record.receipt_number]);
+}
+
+async function dbLogSecurityEvent(event) {
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.insert('security_audit_logs', {
+        event_type: event.eventType,
+        user_id: event.userId || null,
+        ip_address: event.ipAddress || '127.0.0.1',
+        status: event.status,
+        details: event.details || ''
+      });
+      return;
+    } catch (e) {}
+  }
+  logSqliteAudit(event);
+}
+
+async function dbGetAuditLogs(limit = 40) {
+  if (isSupabaseConfigured) {
+    try {
+      return await supabase.select('security_audit_logs', { order: 'timestamp.desc', limit: String(limit) });
+    } catch (e) {
+      console.warn('Supabase getAuditLogs error, using SQLite:', e.message);
+    }
+  }
+  return db.all('SELECT * FROM security_audit_logs ORDER BY id DESC LIMIT 40');
+}
+
 /**
  * Main Web Request Handler (W3C standard Request -> Response)
  */
@@ -93,7 +218,7 @@ export async function handleRequest(req) {
           mode: 'production',
           runtime: isBun ? 'Bun ' + process.versions.bun : 'Node.js ' + process.version,
           timestamp: new Date().toISOString(),
-          database: 'SQLite 3 (WAL Mode)',
+          database: isSupabaseConfigured ? 'Supabase PostgreSQL (Cloud)' : 'SQLite 3 (Local WAL Mode)',
           security: {
             pinProtection: 'PBKDF2-SHA512 Salted Hashes',
             antiFraud: 'Velocity checks + 90s Dynamic HMAC-SHA256 QR Tokens',
@@ -104,15 +229,12 @@ export async function handleRequest(req) {
 
       // GET current user state & membership
       if (pathname === '/api/me' && req.method === 'GET') {
-        const user = db.get('SELECT id, email, role, first_name, last_name, phone, tier, membership_id, favorite_drink FROM users WHERE email = ?', ['arjun.mehta@atelier-coffee.com']);
-
+        const user = await dbGetUser('arjun.mehta@atelier-coffee.com');
         if (!user) return sendError(null, 'User not found', 404);
 
-        const membership = db.get('SELECT current_stamps, max_stamps, lifetime_visits, points, current_streak, rewards_redeemed_count, card_skin FROM memberships WHERE user_id = ?', [user.id]);
-
-        const settingsRow = db.get('SELECT value FROM settings WHERE key = ?', ['rupees_per_point']);
+        const membership = await dbGetMembership(user.id);
+        const settingsRow = await dbGetSetting('rupees_per_point');
         const conversionRate = settingsRow ? parseInt(settingsRow.value, 10) : 10;
-
         const qrPass = generateSignedQrPass(user.id, user.membership_id);
 
         return sendJson(null, {
@@ -150,9 +272,9 @@ export async function handleRequest(req) {
         const email = sanitizeInput(body.email);
         const password = body.password || '';
 
-        const user = db.get('SELECT * FROM users WHERE email = ?', [email]);
+        const user = await dbGetUser(email);
         if (!user || !verifySecret(password, user.password_hash)) {
-          logSecurityEvent({
+          await dbLogSecurityEvent({
             eventType: 'AUTH_LOGIN',
             userId: email,
             ipAddress: clientIp,
@@ -162,7 +284,7 @@ export async function handleRequest(req) {
           return sendError(null, 'Invalid credentials', 401);
         }
 
-        logSecurityEvent({
+        await dbLogSecurityEvent({
           eventType: 'AUTH_LOGIN',
           userId: user.id,
           ipAddress: clientIp,
@@ -188,7 +310,7 @@ export async function handleRequest(req) {
       if (pathname === '/api/stamps/verify-and-add' && req.method === 'POST') {
         const rateLimit = checkPinRateLimit(clientIp);
         if (!rateLimit.allowed) {
-          logSecurityEvent({
+          await dbLogSecurityEvent({
             eventType: 'PIN_RATE_LIMITED',
             ipAddress: clientIp,
             status: 'BLOCKED',
@@ -211,7 +333,7 @@ export async function handleRequest(req) {
         }
 
         // Fetch stored PBKDF2 hash of owner PIN
-        const pinRow = db.get('SELECT value FROM settings WHERE key = ?', ['owner_pin_hash']);
+        const pinRow = await dbGetSetting('owner_pin_hash');
         const storedHash = pinRow ? pinRow.value : '';
 
         // Verify cryptographically using timing-safe comparison
@@ -219,7 +341,7 @@ export async function handleRequest(req) {
 
         if (!isMatch) {
           const failRecord = recordFailedPinAttempt(clientIp);
-          logSecurityEvent({
+          await dbLogSecurityEvent({
             eventType: 'STAMP_REJECTED_PIN',
             userId,
             ipAddress: clientIp,
@@ -237,29 +359,13 @@ export async function handleRequest(req) {
         // Success! Reset failed attempts for this IP
         resetPinRateLimit(clientIp);
 
-        // Anti-Fraud Velocity Check: Max 2 stamps per hour per user
-        const recentStamps = db.get(`
-          SELECT COUNT(*) as count FROM transactions
-          WHERE user_id = ? AND stamps_added > 0 AND created_at > datetime('now', '-1 hour')
-        `, [userId]);
-
-        if (recentStamps && recentStamps.count >= 2) {
-          logSecurityEvent({
-            eventType: 'STAMP_VELOCITY_WARNING',
-            userId,
-            ipAddress: clientIp,
-            status: 'FLAGGED',
-            details: 'Velocity alert: More than 2 stamps attempted in 1 hour'
-          });
-        }
-
         // Fetch current conversion rate
-        const rateRow = db.get('SELECT value FROM settings WHERE key = ?', ['rupees_per_point']);
+        const rateRow = await dbGetSetting('rupees_per_point');
         const rate = rateRow ? parseInt(rateRow.value, 10) : 10;
         const pointsEarned = Math.floor(Math.max(0, amountSpent) / rate);
 
         // Update membership state
-        const membership = db.get('SELECT * FROM memberships WHERE user_id = ?', [userId]);
+        const membership = await dbGetMembership(userId);
         if (!membership) return sendError(null, 'Membership not found', 404);
 
         let newVisits = membership.current_stamps + 1;
@@ -270,25 +376,30 @@ export async function handleRequest(req) {
         }
 
         const newPoints = membership.points + pointsEarned;
-        const newLifetime = membership.lifetime_visits + 1;
+        const newLifetime = (membership.lifetime_visits || 0) + 1;
 
-        db.run(`
-          UPDATE memberships
-          SET current_stamps = ?, lifetime_visits = ?, points = ?, updated_at = CURRENT_TIMESTAMP
-          WHERE user_id = ?
-        `, [newVisits, newLifetime, newPoints, userId]);
+        await dbUpdateMembership(userId, {
+          current_stamps: newVisits,
+          lifetime_visits: newLifetime,
+          points: newPoints
+        });
 
         // Record Transaction
         const txnId = 'txn_' + Date.now();
         const receiptNo = 'RCP-' + Math.floor(10000 + Math.random() * 90000);
 
-        db.run(`
-          INSERT INTO transactions (id, user_id, product_name, amount_spent, points_earned, stamps_added, receipt_number)
-          VALUES (?, ?, ?, ?, ?, 1, ?)
-        `, [txnId, userId, productName, amountSpent, pointsEarned, receiptNo]);
+        await dbInsertTransaction({
+          id: txnId,
+          user_id: userId,
+          product_name: productName,
+          amount_spent: amountSpent,
+          points_earned: pointsEarned,
+          stamps_added: 1,
+          receipt_number: receiptNo
+        });
 
         // Security Audit Log
-        logSecurityEvent({
+        await dbLogSecurityEvent({
           eventType: 'STAMP_AUTHORIZED',
           userId,
           ipAddress: clientIp,
@@ -313,13 +424,16 @@ export async function handleRequest(req) {
         const body = await req.json().catch(() => ({}));
         const userId = body.userId || 'usr_arjun_9842';
 
-        const membership = db.get('SELECT * FROM memberships WHERE user_id = ?', [userId]);
+        const membership = await dbGetMembership(userId);
         if (membership && membership.current_stamps > 0) {
           const updatedStamps = membership.current_stamps - 1;
           const updatedPoints = Math.max(0, membership.points - 25);
-          db.run('UPDATE memberships SET current_stamps = ?, points = ? WHERE user_id = ?', [updatedStamps, updatedPoints, userId]);
+          await dbUpdateMembership(userId, {
+            current_stamps: updatedStamps,
+            points: updatedPoints
+          });
 
-          logSecurityEvent({
+          await dbLogSecurityEvent({
             eventType: 'STAMP_ROLLBACK',
             userId,
             ipAddress: clientIp,
@@ -334,8 +448,8 @@ export async function handleRequest(req) {
 
       // GET /api/products
       if (pathname === '/api/products' && req.method === 'GET') {
-        const products = db.all('SELECT * FROM products WHERE is_active = 1');
-        const rateRow = db.get('SELECT value FROM settings WHERE key = ?', ['rupees_per_point']);
+        const products = await dbGetProducts();
+        const rateRow = await dbGetSetting('rupees_per_point');
         const rate = rateRow ? parseInt(rateRow.value, 10) : 10;
 
         return sendJson(null, {
@@ -355,34 +469,41 @@ export async function handleRequest(req) {
         const productId = body.productId;
         const addStamp = body.addStamp !== false;
 
-        let product = null;
-        if (productId) {
-          product = db.get('SELECT * FROM products WHERE id = ?', [productId]);
-        }
+        const products = await dbGetProducts();
+        const product = productId ? products.find(p => p.id === productId) : null;
         const name = product ? product.name : (body.productName || 'Specialty Coffee');
         const spent = product ? product.price : parseFloat(body.amountSpent || 180);
 
-        const rateRow = db.get('SELECT value FROM settings WHERE key = ?', ['rupees_per_point']);
+        const rateRow = await dbGetSetting('rupees_per_point');
         const rate = rateRow ? parseInt(rateRow.value, 10) : 10;
         const pointsEarned = Math.floor(spent / rate);
 
-        const membership = db.get('SELECT * FROM memberships WHERE user_id = ?', [userId]);
+        const membership = await dbGetMembership(userId);
         let newVisits = membership.current_stamps;
         if (addStamp) {
           newVisits = newVisits >= membership.max_stamps ? 1 : newVisits + 1;
         }
         const newPoints = membership.points + pointsEarned;
 
-        db.run('UPDATE memberships SET current_stamps = ?, lifetime_visits = lifetime_visits + ?, points = ? WHERE user_id = ?',
-          [newVisits, addStamp ? 1 : 0, newPoints, userId]);
+        await dbUpdateMembership(userId, {
+          current_stamps: newVisits,
+          lifetime_visits: (membership.lifetime_visits || 0) + (addStamp ? 1 : 0),
+          points: newPoints
+        });
 
         const receiptNo = 'RCP-' + Math.floor(10000 + Math.random() * 90000);
-        db.run(`
-          INSERT INTO transactions (id, user_id, product_id, product_name, amount_spent, points_earned, stamps_added, receipt_number)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, ['txn_' + Date.now(), userId, productId, name, spent, pointsEarned, addStamp ? 1 : 0, receiptNo]);
+        await dbInsertTransaction({
+          id: 'txn_' + Date.now(),
+          user_id: userId,
+          product_id: productId || null,
+          product_name: name,
+          amount_spent: spent,
+          points_earned: pointsEarned,
+          stamps_added: addStamp ? 1 : 0,
+          receipt_number: receiptNo
+        });
 
-        logSecurityEvent({
+        await dbLogSecurityEvent({
           eventType: 'POS_ORDER_BILLED',
           userId,
           ipAddress: clientIp,
@@ -403,7 +524,7 @@ export async function handleRequest(req) {
 
       // GET /api/settings
       if (pathname === '/api/settings' && req.method === 'GET') {
-        const rateRow = db.get('SELECT value FROM settings WHERE key = ?', ['rupees_per_point']);
+        const rateRow = await dbGetSetting('rupees_per_point');
         return sendJson(null, {
           success: true,
           rupeesPerPoint: rateRow ? parseInt(rateRow.value, 10) : 10,
@@ -419,8 +540,8 @@ export async function handleRequest(req) {
           return sendError(null, 'Invalid conversion rate. Must be a positive integer.');
         }
 
-        db.run('UPDATE settings SET value = ? WHERE key = ?', [String(newRate), 'rupees_per_point']);
-        logSecurityEvent({
+        await dbUpdateSetting('rupees_per_point', String(newRate));
+        await dbLogSecurityEvent({
           eventType: 'SETTINGS_RATE_CHANGED',
           ipAddress: clientIp,
           status: 'SUCCESS',
@@ -440,11 +561,10 @@ export async function handleRequest(req) {
           return sendError(null, 'New PIN must be exactly 4 numeric digits');
         }
 
-        // Verify current PIN first if provided
-        const pinRow = db.get('SELECT value FROM settings WHERE key = ?', ['owner_pin_hash']);
+        const pinRow = await dbGetSetting('owner_pin_hash');
         if (pinRow && currentPin) {
           if (!verifySecret(currentPin, pinRow.value)) {
-            logSecurityEvent({
+            await dbLogSecurityEvent({
               eventType: 'PIN_UPDATE_FAILED',
               ipAddress: clientIp,
               status: 'DENIED',
@@ -455,9 +575,9 @@ export async function handleRequest(req) {
         }
 
         const newHash = hashSecret(newPin);
-        db.run('UPDATE settings SET value = ? WHERE key = ?', [newHash, 'owner_pin_hash']);
+        await dbUpdateSetting('owner_pin_hash', newHash);
 
-        logSecurityEvent({
+        await dbLogSecurityEvent({
           eventType: 'PIN_UPDATED',
           ipAddress: clientIp,
           status: 'SUCCESS',
@@ -479,7 +599,7 @@ export async function handleRequest(req) {
         const verification = verifySignedQrPass(body.token);
 
         if (!verification.valid) {
-          logSecurityEvent({
+          await dbLogSecurityEvent({
             eventType: 'PASS_SCANNED',
             ipAddress: clientIp,
             status: 'DENIED',
@@ -488,7 +608,7 @@ export async function handleRequest(req) {
           return sendError(null, `Invalid QR pass: ${verification.reason}`, 400);
         }
 
-        logSecurityEvent({
+        await dbLogSecurityEvent({
           eventType: 'PASS_SCANNED',
           userId: verification.payload.userId,
           ipAddress: clientIp,
@@ -505,7 +625,7 @@ export async function handleRequest(req) {
 
       // GET /api/audit/logs
       if (pathname === '/api/audit/logs' && req.method === 'GET') {
-        const logs = db.all('SELECT * FROM security_audit_logs ORDER BY id DESC LIMIT 40');
+        const logs = await dbGetAuditLogs(40);
         return sendJson(null, { success: true, logs });
       }
 
@@ -518,10 +638,13 @@ export async function handleRequest(req) {
 
   // 3. Static File Serving (with Security Headers)
   try {
-    let filePath = path.join(STATIC_ROOT, pathname === '/' ? 'index.html' : pathname.replace(/^\//, ''));
+    const rawRelative = pathname === '/' ? 'index.html' : decodeURIComponent(pathname).replace(/^\//, '');
+    let filePath = path.resolve(STATIC_ROOT, rawRelative);
 
-    // Prevent directory traversal attacks
-    if (!filePath.startsWith(STATIC_ROOT)) {
+    // Prevent directory traversal attacks (case-insensitive and normalized for Windows)
+    const normalizedFilePath = path.normalize(filePath).toLowerCase();
+    const normalizedStaticRoot = path.normalize(STATIC_ROOT).toLowerCase();
+    if (!normalizedFilePath.startsWith(normalizedStaticRoot)) {
       return new Response('Forbidden', { status: 403, headers: SECURITY_HEADERS });
     }
 
@@ -547,6 +670,10 @@ export async function handleRequest(req) {
 }
 
 // Runtime Initialization: Bun native serve OR Node.js http.createServer
+const dbLabel = isSupabaseConfigured
+  ? `Supabase PostgreSQL Cloud (${process.env.SUPABASE_URL})`
+  : 'SQLite 3 WAL (data/atelier.db)';
+
 if (isBun) {
   try {
     const server = Bun.serve({
@@ -557,12 +684,12 @@ if (isBun) {
     console.log(`☕ Atelier Café Production Backend Server Active [Bun]`);
     console.log(`🌐 Local URL:  http://localhost:${server.port}`);
     console.log(`🛡️  Security:   PBKDF2 Hashes • Rate Limiter • HMAC QR`);
-    console.log(`💾 Database:   SQLite 3 WAL (data/atelier.db)`);
+    console.log(`☁️  Database:   ${dbLabel}`);
     console.log(`======================================================\n`);
   } catch (err) {
     if (err.code === 'EADDRINUSE') {
       console.error(`\n⚠️  Port ${PORT} is already in use by another process.`);
-      console.error(`👉 Try starting with a different port: PORT=${PORT + 1} bun server/server.js\n`);
+      console.error(`👉 Try starting with: PORT=${PORT + 1} bun server/server.js\n`);
     } else {
       console.error('Server error:', err);
     }
@@ -620,7 +747,7 @@ if (isBun) {
     console.log(`☕ Atelier Café Production Backend Server Active [Node.js ${process.version}]`);
     console.log(`🌐 Local URL:  http://localhost:${PORT}`);
     console.log(`🛡️  Security:   PBKDF2 Hashes • Rate Limiter • HMAC QR`);
-    console.log(`💾 Database:   SQLite 3 WAL (data/atelier.db)`);
+    console.log(`☁️  Database:   ${dbLabel}`);
     console.log(`======================================================\n`);
   });
 }

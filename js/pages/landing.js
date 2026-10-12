@@ -79,7 +79,7 @@ function renderLandingPage() {
                 ${window.renderLoyaltyCard({ interactive: true })}
                 <div style="text-align: center; margin-top: 1rem;">
                   <button id="hero-preview-stamp-btn" class="btn-text" style="font-size: 0.8rem; color: var(--color-terracotta);">
-                    <span>Tap to simulate stamp ✦</span>
+                    <span>Sample Tasting Stamp ✦</span>
                   </button>
                 </div>
               </div>
@@ -327,7 +327,7 @@ function initLandingEvents() {
   if (stampBtn) {
     stampBtn.addEventListener('click', () => {
       window.AtelierStore.addStamp('Chikmagalur Single-Estate Pour Over');
-      window.showToast('✦ Ink Stamp added! Card progress updated.');
+      window.showToast('✦ Tasting Stamp collected! Card progress updated.');
     });
   }
 }

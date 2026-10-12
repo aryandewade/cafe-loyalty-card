@@ -25,7 +25,7 @@ function renderLoyaltyCard(options = {}) {
 
     if (isStamped) {
       stampsHtml += `
-        <div class="stamp-slot stamped" style="--random-rot: ${rot}deg;" title="Visit ${i} collected">
+        <div class="stamp-slot stamped" id="stamp-slot-${i}" data-slot-index="${i}" style="--random-rot: ${rot}deg; --seal-rot: ${rot}deg;" title="Visit ${i} collected">
           <div class="stamp-seal" style="transform: rotate(${rot}deg);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
@@ -39,13 +39,13 @@ function renderLoyaltyCard(options = {}) {
       `;
     } else if (isNext) {
       stampsHtml += `
-        <div class="stamp-slot next-target" title="Next visit target">
+        <div class="stamp-slot next-target" id="stamp-slot-${i}" data-slot-index="${i}" title="Next visit target">
           <span class="stamp-number font-mono">${i}</span>
         </div>
       `;
     } else {
       stampsHtml += `
-        <div class="stamp-slot empty" title="Visit ${i}">
+        <div class="stamp-slot empty" id="stamp-slot-${i}" data-slot-index="${i}" title="Visit ${i}">
           <span class="stamp-number font-mono">${i}</span>
         </div>
       `;

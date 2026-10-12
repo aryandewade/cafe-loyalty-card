@@ -240,6 +240,9 @@ function renderStaffPage() {
                   <button type="submit" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
                     <span>Update Stamp Code</span>
                   </button>
+                  <button type="button" id="staff-test-stamp-anim-btn" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; background: var(--color-espresso);">
+                    <span>Preview Stamp Animation ☕</span>
+                  </button>
                   <span style="font-size: 0.78rem; color: var(--color-roast-muted);">
                     (Barista enters this code on customer's phone to authenticate physical stamps)
                   </span>
@@ -447,6 +450,13 @@ function initStaffEvents() {
       store.setOwnerStampPin(newPin);
       window.showToast(`✓ Café Owner stamp PIN updated to "${newPin}"! Baristas can now authorize stamps with this code.`);
       window.router.render();
+    }
+  });
+
+  // 3c. Test Physical Stamp Animation
+  document.getElementById('staff-test-stamp-anim-btn')?.addEventListener('click', () => {
+    if (window.openOwnerStampModal) {
+      window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over' });
     }
   });
 

@@ -13,6 +13,7 @@ function renderNavbar(currentPage = 'home') {
   if (isAuth) {
     linksHtml = `
       <li class="nav-link-item"><a href="#dashboard" class="${currentPage === 'dashboard' ? 'active' : ''}">Dashboard</a></li>
+      <li class="nav-link-item"><a href="#levels" class="${currentPage === 'levels' ? 'active' : ''}" style="color: var(--color-gold-foil); font-weight: 600;">★ Saga Levels</a></li>
       <li class="nav-link-item"><a href="#rewards" class="${currentPage === 'rewards' ? 'active' : ''}">Rewards</a></li>
       <li class="nav-link-item"><a href="#activity" class="${currentPage === 'activity' ? 'active' : ''}">Activity</a></li>
       <li class="nav-link-item"><a href="#profile" class="${currentPage === 'profile' ? 'active' : ''}">Profile</a></li>
@@ -149,6 +150,12 @@ function renderNavbar(currentPage = 'home') {
             <rect x="3" y="14" width="7" height="7"></rect>
           </svg>
           <span>Card</span>
+        </a>
+        <a href="#levels" class="dock-item ${currentPage === 'levels' ? 'active' : ''}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span>Levels</span>
         </a>
         <a href="#rewards" class="dock-item ${currentPage === 'rewards' ? 'active' : ''}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">

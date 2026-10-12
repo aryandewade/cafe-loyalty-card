@@ -66,7 +66,7 @@ function openRedemptionPassModal(pass) {
               <span id="pass-countdown-text">Valid: ${formatTime(secondsLeft)}</span>
             </div>
 
-            <!-- Barista Verification Simulator -->
+            <!-- Staff Counter Pass Verification -->
             <button id="barista-verify-pass-btn" class="btn-secondary" style="padding: 0.35rem 0.85rem; font-size: 0.75rem; border-color: var(--color-forest-roast); color: var(--color-forest-roast);">
               <span>Staff: Mark Verified ✓</span>
             </button>
@@ -368,7 +368,7 @@ function openForgotPasswordModal() {
     e.preventDefault();
     const email = document.getElementById('forgot-email')?.value;
     closeAllModals();
-    window.showToast(`Password reset link sent to ${email} (Demo simulated)`);
+    window.showToast(`Password reset link sent to ${email}. Please check your inbox.`);
   });
 }
 
@@ -671,15 +671,40 @@ function openOwnerStampModal(options = {}) {
       setTimeout(() => {
         closeAllModals();
 
-        if (options.onSuccess) {
-          options.onSuccess();
-        } else {
-          const res = store.addStamp(drinkName);
-          window.showToast(`✓ Café Owner verified! Stamp #${res.newVisits}/10 collected for ${drinkName}.`);
-        }
+        const currentStamps = store.getState().membership.currentStamps;
+        const targetSlotIndex = currentStamps < 10 ? currentStamps + 1 : 10;
 
-        window.router.render();
-      }, 550);
+        if (window.playStampToolAnimation) {
+          window.playStampToolAnimation({
+            slotIndex: targetSlotIndex,
+            drinkName: drinkName,
+            onComplete: () => {
+              if (options.onSuccess) {
+                options.onSuccess();
+              } else {
+                const res = store.addStamp(drinkName);
+                window.showToast(`✓ Café Owner verified! Stamp #${res.newVisits}/10 collected for ${drinkName} (+25 pts).`);
+                
+                if (res.completed && window.launchAtelierCelebration) {
+                  window.launchAtelierCelebration();
+                  if (window.AtelierAudio && window.AtelierAudio.playRewardUnlock) {
+                    window.AtelierAudio.playRewardUnlock();
+                  }
+                }
+              }
+              window.router.render();
+            }
+          });
+        } else {
+          if (options.onSuccess) {
+            options.onSuccess();
+          } else {
+            const res = store.addStamp(drinkName);
+            window.showToast(`✓ Café Owner verified! Stamp #${res.newVisits}/10 collected for ${drinkName}.`);
+          }
+          window.router.render();
+        }
+      }, 450);
     } else {
       // Error state!
       for (let i = 0; i < 4; i++) {

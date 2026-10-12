@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: atelier-cafe-loyalty
+    runtime: docker
+    plan: starter
+    region: singapore # Low latency for India
+    envVars:
+      - key: PORT
+        value: 8787
+    disk:
+      name: atelier-sqlite-disk
+      mountPath: /app/data
+      sizeGB: 1
