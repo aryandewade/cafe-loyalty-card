@@ -77,27 +77,6 @@ function renderProfilePage() {
           </div>
         </div>
 
-        <!-- 2. Coffee & Tasting Preferences -->
-        <div style="background: var(--bg-surface); border: 1px solid var(--color-cream-border); border-radius: 20px; padding: 2rem; margin-bottom: 2rem;">
-          <h3 style="font-size: 1.35rem; margin-bottom: 1.2rem;">Beverage Preferences</h3>
-          
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
-            <div>
-              <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; color: var(--color-roast-muted); display: block; margin-bottom: 0.4rem;">Favorite Order</label>
-              <div style="font-weight: 500; font-size: 0.95rem; color: var(--color-espresso);">${user.favoriteDrink}</div>
-            </div>
-
-            <div>
-              <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; color: var(--color-roast-muted); display: block; margin-bottom: 0.4rem;">Milk Selection</label>
-              <div style="font-weight: 500; font-size: 0.95rem; color: var(--color-espresso);">${user.milkPreference}</div>
-            </div>
-
-            <div>
-              <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; color: var(--color-roast-muted); display: block; margin-bottom: 0.4rem;">Roast Profile</label>
-              <div style="font-weight: 500; font-size: 0.95rem; color: var(--color-espresso);">${user.roastPreference}</div>
-            </div>
-          </div>
-        </div>
 
         <!-- 3. Account Information & Actions -->
         <div style="background: var(--bg-surface); border: 1px solid var(--color-cream-border); border-radius: 20px; padding: 2rem; margin-bottom: 2rem;">

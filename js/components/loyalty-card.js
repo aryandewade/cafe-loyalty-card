@@ -88,6 +88,9 @@ function renderLoyaltyCard(options = {}) {
               </div>
             </div>
           </div>
+          <div style="display: flex; flex-direction: row; gap: 16px;">
+             <div>&nbsp;</div>
+           </div>
 
           <!-- 10 Physical Stamp Grid -->
           <div class="card-stamps-grid">
