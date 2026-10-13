@@ -242,11 +242,19 @@ class Store {
     this.listeners = [];
     this.state = this.loadState();
     this.recomputeRewardsStatus();
+
+    // Auto-refresh fresh data from Supabase Cloud PostgreSQL
+    if (window.AtelierSupabase) {
+      const session = window.AtelierSupabase.getSession();
+      if (session && session.userId) {
+        this.refreshFromSupabase(session.userId);
+      }
+    }
   }
 
   loadState() {
     try {
-      // Check v3 first, fall back to v2 for seamless upgrade
+      const session = window.AtelierSupabase ? window.AtelierSupabase.getSession() : null;
       let saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) {
         saved = localStorage.getItem('atelier_loyalty_state_v2');
@@ -271,10 +279,20 @@ class Store {
         if (!parsed.cardSkin) {
           parsed.cardSkin = 'espresso';
         }
-        if (parsed.membership && parsed.membership.streakMultiplier === undefined) {
-          parsed.membership.streakMultiplier = 1.5;
-          parsed.membership.streakFreezeAvailable = 1;
-          parsed.membership.currentStreak = parsed.membership.currentStreak || 4;
+
+        // Strict Session Gate: If no active Supabase session, reset to unauthenticated state
+        if (!session) {
+          parsed.isAuthenticated = false;
+          parsed.user = null;
+          parsed.membership = JSON.parse(JSON.stringify(DEFAULT_STATE.membership));
+          parsed.activities = [];
+        } else {
+          parsed.isAuthenticated = true;
+          if (parsed.membership && parsed.membership.streakMultiplier === undefined) {
+            parsed.membership.streakMultiplier = 1.5;
+            parsed.membership.streakFreezeAvailable = 1;
+            parsed.membership.currentStreak = parsed.membership.currentStreak || 1;
+          }
         }
         return parsed;
       }
@@ -317,6 +335,9 @@ class Store {
     if (validSkins.includes(skin)) {
       this.state.cardSkin = skin;
       this.saveState();
+      if (this.state.isAuthenticated && this.state.user?.id && window.AtelierSupabase) {
+        window.AtelierSupabase.syncMembership(this.state.user.id, { card_skin: skin });
+      }
       if (window.AtelierAudio && window.AtelierAudio.playTap) {
         window.AtelierAudio.playTap();
       }
@@ -348,7 +369,7 @@ class Store {
   }
 
   recomputeRewardsStatus() {
-    const visits = this.state.membership.currentStamps;
+    const visits = this.state.membership ? this.state.membership.currentStamps : 0;
     this.state.rewards.forEach(rew => {
       if (rew.status === 'redeemed') return;
       if (visits >= rew.requiredVisits) {
@@ -487,6 +508,25 @@ class Store {
     this.recomputeRewardsStatus();
     this.saveState();
 
+    // Persist to Supabase Cloud Database if user authenticated
+    if (this.state.isAuthenticated && this.state.user?.id && window.AtelierSupabase) {
+      window.AtelierSupabase.syncMembership(this.state.user.id, {
+        current_stamps: this.state.membership.currentStamps,
+        lifetime_visits: this.state.membership.lifetimeVisits,
+        points: this.state.membership.points
+      });
+      window.AtelierSupabase.recordTransaction({
+        id: newAct.id,
+        user_id: this.state.user.id,
+        product_name: newAct.productName,
+        amount_spent: newAct.amountSpent,
+        points_earned: newAct.pointsEarned,
+        stamps_added: stampResult ? 1 : 0,
+        receipt_number: newAct.receiptNumber,
+        location: newAct.location
+      });
+    }
+
     if (window.AtelierAudio) {
       if (window.AtelierAudio.playCashRegister) {
         window.AtelierAudio.playCashRegister();
@@ -589,15 +629,42 @@ class Store {
       this.state.membership.points = Math.max(0, this.state.membership.points - pointsToDeduct);
       this.recomputeRewardsStatus();
       this.saveState();
+
+      if (this.state.isAuthenticated && this.state.user?.id && window.AtelierSupabase) {
+        window.AtelierSupabase.syncMembership(this.state.user.id, {
+          current_stamps: this.state.membership.currentStamps,
+          lifetime_visits: this.state.membership.lifetimeVisits,
+          points: this.state.membership.points
+        });
+      }
+
       if (window.AtelierAudio) window.AtelierAudio.playTap();
     }
   }
 
   awardPoints(amount = 50) {
+    if (!this.state.membership) return;
     const prevLvl = window.candyEngine ? window.candyEngine.calculateCurrentLevel(this.state.membership) : 1;
-    this.state.membership.points += amount;
+    this.state.membership.points = (this.state.membership.points || 0) + amount;
     const newLvl = window.candyEngine ? window.candyEngine.calculateCurrentLevel(this.state.membership) : 1;
     this.saveState();
+
+    if (this.state.isAuthenticated && this.state.user?.id && window.AtelierSupabase) {
+      window.AtelierSupabase.syncMembership(this.state.user.id, {
+        points: this.state.membership.points
+      });
+      window.AtelierSupabase.recordTransaction({
+        id: 'tx_bonus_' + Date.now(),
+        user_id: this.state.user.id,
+        product_name: `Bonus Reward (+${amount} Pts)`,
+        amount_spent: 0,
+        points_earned: amount,
+        stamps_added: 0,
+        receipt_number: 'RCP-' + Math.floor(10000 + Math.random() * 90000),
+        location: 'Bandra West Flagship, Mumbai'
+      });
+    }
+
     if (newLvl > prevLvl && window.candyEngine) {
       setTimeout(() => window.candyEngine.triggerLevelUpCelebration(newLvl), 350);
     } else if (window.AtelierAudio) {
@@ -641,6 +708,22 @@ class Store {
 
     this.saveState();
 
+    if (this.state.isAuthenticated && this.state.user?.id && window.AtelierSupabase) {
+      window.AtelierSupabase.syncMembership(this.state.user.id, {
+        rewards_redeemed_count: this.state.membership.rewardsRedeemedCount
+      });
+      window.AtelierSupabase.recordTransaction({
+        id: 'tx_redeem_' + Date.now(),
+        user_id: this.state.user.id,
+        product_name: `Reward Redeemed: ${reward.title}`,
+        amount_spent: 0,
+        points_earned: 0,
+        stamps_added: 0,
+        receipt_number: passCode,
+        location: 'Bandra West Flagship, Mumbai'
+      });
+    }
+
     if (window.AtelierAudio) window.AtelierAudio.playRewardUnlock();
     if (window.launchAtelierCelebration) window.launchAtelierCelebration();
 
@@ -656,51 +739,110 @@ class Store {
     }
   }
 
-  // Auth Operations
-  login(email, password) {
+  // --------------------------------------------------------------------------
+  // Supabase Live Data Synchronization Engine
+  // --------------------------------------------------------------------------
+  applyUserData(user, membership, transactions = []) {
+    if (!user) return;
     this.state.isAuthenticated = true;
-    this.saveState();
-  }
-
-  register(userData) {
-    const memberNum = Math.floor(10000 + Math.random() * 90000);
     this.state.user = {
-      id: 'usr_' + Date.now(),
-      firstName: userData.firstName || 'Guest',
-      lastName: userData.lastName || 'Connoisseur',
-      dob: userData.dob || '',
-      email: userData.email || 'guest@atelier-coffee.com',
-      phone: userData.phone || '+1 (555) 019-2834',
-      memberSince: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-      membershipId: `AT-${memberNum}`,
-      tier: 'Reserve Member',
-      favoriteDrink: 'Oat Flat White',
-      milkPreference: 'Oat Milk',
-      roastPreference: 'Light Roast',
+      id: user.id,
+      firstName: user.first_name || user.firstName || 'Connoisseur',
+      lastName: user.last_name || user.lastName || '',
+      email: user.email,
+      phone: user.phone || '+91 98201 44829',
+      dob: user.dob || '',
+      memberSince: user.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'October 2026',
+      membershipId: user.membership_id || `AT-${user.id.slice(-5)}`,
+      tier: user.tier || 'Gold Member',
+      favoriteDrink: user.favorite_drink || 'Chikmagalur Pour Over (Attikan Estate)',
+      milkPreference: 'Oatly Barista / A2 Desi Cow Milk',
+      roastPreference: 'Medium-Light (Western Ghats Shade-Grown)',
       notificationsEnabled: true
     };
-    this.state.membership = {
-      currentStamps: 1, // 1st Complimentary welcome stamp!
-      maxStamps: 10,
-      lifetimeVisits: 1,
-      points: 100, // 100 Welcome points!
-      rewardsRedeemedCount: 0,
-      currentStreak: 1
-    };
-    this.state.isAuthenticated = true;
+
+    if (membership) {
+      this.state.membership = {
+        currentStamps: Number(membership.current_stamps ?? 1),
+        maxStamps: Number(membership.max_stamps ?? 10),
+        lifetimeVisits: Number(membership.lifetime_visits ?? 1),
+        points: Number(membership.points ?? 100),
+        currentStreak: Number(membership.current_streak ?? 1),
+        rewardsRedeemedCount: Number(membership.rewards_redeemed_count ?? 0),
+        streakFreezeAvailable: 1,
+        streakMultiplier: 1.5
+      };
+      if (membership.card_skin) {
+        this.state.cardSkin = membership.card_skin;
+      }
+    }
+
+    if (Array.isArray(transactions) && transactions.length > 0) {
+      this.state.activities = transactions.map(tx => ({
+        id: tx.id,
+        type: (tx.stamps_added > 0 || String(tx.product_name).toLowerCase().includes('stamp')) ? 'stamp' : 'transaction',
+        title: tx.points_earned > 0 ? `+${tx.points_earned} Loyalty Points` : tx.product_name,
+        subtitle: `${tx.product_name} (${tx.amount_spent > 0 ? '₹' + tx.amount_spent + ' spent' : 'Complimentary'})`,
+        productName: tx.product_name,
+        amountSpent: Number(tx.amount_spent || 0),
+        pointsEarned: Number(tx.points_earned || 0),
+        stampsAdded: Number(tx.stamps_added || 0),
+        receiptNumber: tx.receipt_number || 'RCP-89241',
+        date: tx.created_at ? new Date(tx.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Today',
+        time: tx.created_at ? new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+        location: tx.location || 'Bandra West Flagship, Mumbai'
+      }));
+    }
+
     this.recomputeRewardsStatus();
     this.saveState();
   }
 
+  async refreshFromSupabase(userId) {
+    if (!window.AtelierSupabase || !userId) return;
+    try {
+      const data = await window.AtelierSupabase.fetchUserData(userId);
+      if (data && data.user) {
+        this.applyUserData(data.user, data.membership, data.transactions);
+      }
+    } catch (err) {
+      console.warn('Could not refresh from Supabase:', err);
+    }
+  }
+
+  // Auth Operations
+  async login(email, password) {
+    if (!window.AtelierSupabase) {
+      throw new Error('Supabase Client is not initialized.');
+    }
+    const result = await window.AtelierSupabase.signIn(email, password);
+    this.applyUserData(result.user, result.membership, result.transactions);
+    return result;
+  }
+
+  async register(userData) {
+    if (!window.AtelierSupabase) {
+      throw new Error('Supabase Client is not initialized.');
+    }
+    const result = await window.AtelierSupabase.signUp(userData);
+    this.applyUserData(result.user, result.membership, result.transactions);
+    return result;
+  }
+
   logout() {
+    if (window.AtelierSupabase) {
+      window.AtelierSupabase.signOut();
+    }
     this.state.isAuthenticated = false;
+    this.state.user = null;
+    this.state.membership = JSON.parse(JSON.stringify(DEFAULT_STATE.membership));
+    this.state.activities = [];
     this.saveState();
   }
 
-  resetToDemoDefaults() {
-    this.state = JSON.parse(JSON.stringify(DEFAULT_STATE));
-    this.saveState();
-    if (window.AtelierAudio) window.AtelierAudio.playTap();
+  resetToCleanDefaults() {
+    this.logout();
+    if (window.AtelierAudio && window.AtelierAudio.playTap) window.AtelierAudio.playTap();
   }
 }
 

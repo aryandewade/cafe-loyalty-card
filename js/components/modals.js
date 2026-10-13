@@ -983,11 +983,6 @@ function openOwnerStampModal(options = {}) {
           <button class="pin-key-btn action-btn" data-key="back">⌫</button>
         </div>
 
-        <!-- Demo Hint -->
-        <div style="margin-top: 1rem; font-size: 0.72rem; color: var(--color-roast-muted); border-top: 1px dashed var(--color-cream-border); padding-top: 0.7rem;">
-          ✦ Café Owner Password / PIN: <strong style="color: var(--color-gold-foil); font-family: var(--font-mono); font-size: 0.85rem;">${store.getOwnerStampPin()}</strong>
-        </div>
-
       </div>
     </div>
   `;

@@ -462,10 +462,6 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
                   </button>
                 ))}
               </div>
-
-              <div className="mt-3 pt-3 border-t border-dashed border-[#E8E2D8] text-[11px] text-[#6E5A52]">
-                ✦ Default Café Owner PIN: <strong className="font-mono text-[#C89D4B]">{ownerPin}</strong>
-              </div>
             </motion.div>
           </div>
         )}

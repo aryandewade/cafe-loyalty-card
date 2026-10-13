@@ -235,7 +235,7 @@ function renderStaffPage() {
                 <form id="owner-pin-form" style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
                   <div style="display: flex; align-items: center; gap: 0.4rem; background: #FFF; border: 1px solid var(--color-cream-border); border-radius: 12px; padding: 0.35rem 0.8rem;">
                     <span style="font-size: 0.78rem; color: var(--color-roast-muted);">PIN:</span>
-                    <input type="text" id="owner-custom-pin-input" maxlength="8" value="${store.getOwnerStampPin()}" style="width: 85px; border: none; outline: none; font-family: var(--font-mono); font-size: 1rem; font-weight: 700; letter-spacing: 0.15em;" required>
+                    <input type="password" id="owner-custom-pin-input" maxlength="8" placeholder="••••" style="width: 85px; border: none; outline: none; font-family: var(--font-mono); font-size: 1rem; font-weight: 700; letter-spacing: 0.15em;" required>
                   </div>
                   <button type="submit" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
                     <span>Update Stamp Code</span>
@@ -385,7 +385,7 @@ function renderStaffPage() {
             <span>Award +50 Bonus Loyalty Points</span>
           </button>
           <button id="staff-reset-demo" class="btn-text" style="color: var(--color-roast-muted); font-size: 0.82rem;">
-            Reset Customer to Clean Demo State (420 Pts • 7/10 Visits)
+            🔄 Re-sync Active Customer from Supabase Cloud
           </button>
         </div>
 
@@ -448,7 +448,7 @@ function initStaffEvents() {
     const newPin = pinInput?.value?.trim();
     if (newPin) {
       store.setOwnerStampPin(newPin);
-      window.showToast(`✓ Café Owner stamp PIN updated to "${newPin}"! Baristas can now authorize stamps with this code.`);
+      window.showToast('✓ Café Owner stamp PIN updated successfully!');
       window.router.render();
     }
   });
@@ -510,10 +510,15 @@ function initStaffEvents() {
     window.router.render();
   });
 
-  // 9. Reset Demo Defaults
-  document.getElementById('staff-reset-demo')?.addEventListener('click', () => {
-    store.resetToDemoDefaults();
-    window.showToast('Reset customer data to default demo state (Arjun • 420 Pts • 7/10 visits).');
+  // 9. Re-sync from Supabase Cloud
+  document.getElementById('staff-reset-demo')?.addEventListener('click', async () => {
+    const user = store.getState().user;
+    if (user && user.id) {
+      await store.refreshFromSupabase(user.id);
+      window.showToast('Re-synchronized customer record from Supabase Cloud PostgreSQL! ☕');
+    } else {
+      window.showToast('No active customer session to re-sync.');
+    }
     window.router.render();
   });
 

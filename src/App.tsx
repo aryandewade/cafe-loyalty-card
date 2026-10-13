@@ -68,11 +68,6 @@ export const App: React.FC = () => {
         </div>
 
         <div className="flex justify-center items-center gap-3 flex-wrap">
-          <div className="text-xs text-[#6E5A52] bg-white border border-[#E8E2D8] px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-2">
-            <span>🔐 Owner Stamp PIN:</span>
-            <span className="font-mono font-bold text-[#181311]">{ownerPin}</span>
-            <span className="text-[10px] text-[#A69386]">(Default demo PIN)</span>
-          </div>
           <button
             onClick={() => setMembership(prev => ({ ...prev, currentStamps: Math.max(0, prev.currentStamps - 1) }))}
             className="px-4 py-1.5 rounded-full border border-[#E8E2D8] bg-white text-xs font-medium text-[#6E5A52] hover:bg-[#FAF8F5] transition"
