@@ -6226,23 +6226,38 @@ div {
    CANDY CELEBRATION MODAL ("SWEET! TASTY! LEVEL COMPLETED!")
    ========================================================================== */
 .candy-celebration-backdrop {
-  background: rgba(14, 10, 8, 0.88);
-  backdrop-filter: blur(8px);
+  background: rgba(14, 10, 8, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: max(0.5rem, env(safe-area-inset-top)) 0.75rem max(0.5rem, env(safe-area-inset-bottom)) 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .candy-celebrate-card {
   position: relative;
   background: radial-gradient(circle at 50% 30%, #38271F 0%, #1E1511 70%, #120D0A 100%);
   border: 3px solid #FFD43F;
-  border-radius: 36px;
-  padding: 2.8rem 2.2rem 2.2rem;
-  max-width: 440px;
+  border-radius: 28px;
+  padding: 1.5rem 1.4rem 1.4rem;
+  max-width: 420px;
   width: 100%;
+  max-height: calc(100dvh - 1.5rem);
+  max-height: calc(100vh - 1.5rem);
   color: #FFF;
   text-align: center;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75), 0 0 50px rgba(255, 212, 63, 0.3);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  margin: auto;
   z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 /* Sunburst Rotating Golden Background Rays */
@@ -6269,24 +6284,25 @@ div {
 .candy-celebrate-card>*:not(.candy-sunburst-rays) {
   position: relative;
   z-index: 5;
+  max-width: 100%;
 }
 
 /* Celebration Ribbon Banner */
 .candy-celebrate-ribbon {
   display: inline-block;
   background: linear-gradient(180deg, #FF6B4A 0%, #E84118 100%);
-  border: 3px solid #FFF;
+  border: 2.5px solid #FFF;
   border-radius: 999px;
-  padding: 0.55rem 2.2rem;
-  box-shadow: 0 10px 25px rgba(232, 65, 24, 0.5);
-  margin-bottom: 1.2rem;
+  padding: 0.4rem 1.8rem;
+  box-shadow: 0 8px 22px rgba(232, 65, 24, 0.5);
+  margin-bottom: 0.7rem;
   animation: candyRibbonPop 0.6s var(--ease-spring);
 }
 
 .candy-ribbon-text {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 900;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   color: #FFF;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
@@ -6308,16 +6324,40 @@ div {
 }
 
 .candy-celebrate-badge {
-  width: 82px;
-  height: 82px;
+  width: 66px;
+  height: 66px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 25%, #FFEAA7 0%, #F39C12 100%);
-  border: 4px solid #FFF;
-  margin: 0 auto 1rem;
+  border: 3.5px solid #FFF;
+  margin: 0 auto 0.65rem;
   display: grid;
   place-items: center;
-  font-size: 2.6rem;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), inset 0 4px 6px rgba(255, 255, 255, 0.6);
+  font-size: 2.1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 3px 5px rgba(255, 255, 255, 0.6);
+}
+
+/* Typography classes for celebration modal */
+.candy-celebrate-eyebrow {
+  color: var(--color-gold-foil);
+  font-weight: 700;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  display: block;
+}
+
+.candy-celebrate-title {
+  font-size: 1.75rem;
+  color: #FFF;
+  margin: 2px 0 3px;
+  line-height: 1.15;
+}
+
+.candy-celebrate-desc {
+  font-size: 0.8rem;
+  color: #E0D3C9;
+  margin-top: 2px;
+  margin-bottom: 0;
+  line-height: 1.35;
 }
 
 /* Staggered 3-Star Slam-In Container */
@@ -6325,8 +6365,8 @@ div {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
-  margin: 1.6rem 0;
+  gap: 0.8rem;
+  margin: 0.9rem 0;
 }
 
 .candy-slam-star {
@@ -6335,15 +6375,15 @@ div {
 }
 
 .candy-slam-star .star-shape {
-  font-size: 3.2rem;
+  font-size: 2.6rem;
   color: #FFD23F;
-  text-shadow: 0 0 20px rgba(255, 210, 63, 0.9), 0 4px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 0 16px rgba(255, 210, 63, 0.9), 0 3px 6px rgba(0, 0, 0, 0.6);
   opacity: 0;
   transform: scale(3.5) rotate(-35deg);
 }
 
 .candy-slam-star.big .star-shape {
-  font-size: 4.2rem;
+  font-size: 3.3rem;
 }
 
 /* Star Slam Keyframes */
@@ -6382,8 +6422,8 @@ div {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   border: 3px solid #FFD23F;
   opacity: 0;
@@ -6418,37 +6458,181 @@ div {
 .candy-celebrate-reward-box {
   background: rgba(255, 212, 63, 0.12);
   border: 2px dashed rgba(255, 212, 63, 0.5);
-  border-radius: 20px;
-  padding: 1.2rem;
-  margin-bottom: 1.6rem;
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .reward-sparkle-tag {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
   color: #FFD23F;
-  letter-spacing: 0.15em;
-  margin-bottom: 4px;
+  letter-spacing: 0.14em;
+  margin-bottom: 3px;
 }
 
 .candy-celebrate-reward-box .reward-title {
-  font-size: 1.25rem;
+  font-size: 1.12rem;
   font-weight: 700;
   color: #FFF;
+  line-height: 1.25;
 }
 
 .candy-celebrate-reward-box .reward-desc {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   color: #D6C7BC;
-  margin-top: 3px;
+  margin-top: 2px;
+  line-height: 1.3;
 }
 
 .candy-btn-epic {
+  width: 100%;
   background: linear-gradient(180deg, #FF9E2C 0%, #E66A1F 100%) !important;
-  border: 3px solid #FFF !important;
-  box-shadow: 0 10px 30px rgba(230, 106, 31, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
-  font-size: 1.05rem !important;
+  border: 2.5px solid #FFF !important;
+  box-shadow: 0 8px 24px rgba(230, 106, 31, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
+  font-size: 0.96rem !important;
   letter-spacing: 0.08em;
+  padding: 0.72rem 1.2rem !important;
+  box-sizing: border-box;
+}
+
+/* Mobile Screen Responsive Sizing (Ensures zero-scroll visibility) */
+@media (max-width: 640px), (max-height: 840px) {
+  .candy-celebrate-card {
+    padding: 1.15rem 1rem 1rem;
+    border-radius: 22px;
+    border-width: 2.5px;
+    max-height: calc(100dvh - 1rem);
+    max-height: calc(100vh - 1rem);
+  }
+
+  .candy-celebrate-ribbon {
+    padding: 0.32rem 1.3rem;
+    margin-bottom: 0.45rem;
+    border-width: 2px;
+  }
+
+  .candy-ribbon-text {
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
+  }
+
+  .candy-celebrate-badge {
+    width: 52px;
+    height: 52px;
+    font-size: 1.65rem;
+    margin: 0 auto 0.4rem;
+    border-width: 3px;
+  }
+
+  .candy-celebrate-eyebrow {
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+  }
+
+  .candy-celebrate-title {
+    font-size: 1.35rem;
+    margin: 1px 0 2px;
+  }
+
+  .candy-celebrate-desc {
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
+  .candy-slam-stars-container {
+    margin: 0.55rem 0;
+    gap: 0.55rem;
+  }
+
+  .candy-slam-star .star-shape {
+    font-size: 1.95rem;
+  }
+
+  .candy-slam-star.big .star-shape {
+    font-size: 2.55rem;
+  }
+
+  .candy-celebrate-reward-box {
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.8rem;
+    border-radius: 12px;
+  }
+
+  .reward-sparkle-tag {
+    font-size: 0.62rem;
+    margin-bottom: 2px;
+  }
+
+  .candy-celebrate-reward-box .reward-title {
+    font-size: 0.94rem;
+    line-height: 1.2;
+  }
+
+  .candy-celebrate-reward-box .reward-desc {
+    font-size: 0.68rem;
+    margin-top: 1px;
+    line-height: 1.2;
+  }
+
+  .candy-btn-epic {
+    padding: 0.62rem 1rem !important;
+    font-size: 0.86rem !important;
+    border-width: 2px !important;
+  }
+}
+
+/* Short Mobile Screens (e.g. landscape or small devices <= 680px height) */
+@media (max-height: 680px) {
+  .candy-celebrate-card {
+    padding: 0.85rem 0.9rem 0.85rem;
+    border-radius: 18px;
+  }
+
+  .candy-celebrate-ribbon {
+    padding: 0.22rem 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .candy-ribbon-text {
+    font-size: 0.92rem;
+  }
+
+  .candy-celebrate-badge {
+    width: 44px;
+    height: 44px;
+    font-size: 1.4rem;
+    margin: 0 auto 0.3rem;
+  }
+
+  .candy-celebrate-title {
+    font-size: 1.2rem;
+  }
+
+  .candy-slam-stars-container {
+    margin: 0.35rem 0;
+    gap: 0.45rem;
+  }
+
+  .candy-slam-star .star-shape {
+    font-size: 1.6rem;
+  }
+
+  .candy-slam-star.big .star-shape {
+    font-size: 2.1rem;
+  }
+
+  .candy-celebrate-reward-box {
+    padding: 0.45rem 0.65rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .candy-btn-epic {
+    padding: 0.52rem 0.8rem !important;
+    font-size: 0.8rem !important;
+  }
 }
 
 /* Ambient Floating Sparkles */
