@@ -943,7 +943,7 @@ class CandyLevelsEngine {
           </div>
 
           <div class="candy-celebrate-heading">
-            <span class="eyebrow" style="color: var(--color-gold-foil); font-weight: 700;">500 POINTS REACHED • LEVEL ${lvl.level} UNLOCKED!</span>
+            <span class="eyebrow" style="color: var(--color-gold-foil); font-weight: 700;">${lvl.pointsRequired > 0 ? `${lvl.pointsRequired} POINTS REACHED` : 'ROASTERY ROOKIE'} • LEVEL ${lvl.level} UNLOCKED!</span>
             <h2 class="font-serif" style="font-size: 2.1rem; color: #FFF; margin: 4px 0;">${lvl.title}</h2>
             <p style="font-size: 0.85rem; color: #E0D3C9; margin-top: 2px;">You've accumulated ${lvl.pointsRequired}+ points and unlocked the next Roaster tier!</p>
           </div>
