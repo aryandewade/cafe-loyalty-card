@@ -78,12 +78,19 @@ export function initDatabase() {
       first_name TEXT NOT NULL,
       last_name TEXT NOT NULL,
       phone TEXT,
+      dob TEXT,
       tier TEXT DEFAULT 'Gold Member',
       membership_id TEXT UNIQUE NOT NULL,
       favorite_drink TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  try {
+    db.run(`ALTER TABLE users ADD COLUMN dob TEXT;`);
+  } catch (e) {
+    // Column already exists
+  }
 
   db.run(`
     CREATE TABLE IF NOT EXISTS memberships (

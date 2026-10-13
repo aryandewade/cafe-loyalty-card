@@ -88,8 +88,8 @@ function renderDashboardPage() {
           </div>
         ` : `
           <!-- DIGITAL LOYALTY CARD -->
-          <div class="double-bezel" style="margin-bottom: 1.2rem; background: var(--bg-canvas-subtle);">
-            <div class="double-bezel-inner" style="display: flex; flex-direction: column; align-items: center;">
+          <div class="double-bezel dash-card-bezel" style="margin-bottom: 1.2rem; background: var(--bg-canvas-subtle);">
+            <div class="double-bezel-inner dash-card-bezel-inner" style="display: flex; flex-direction: column; align-items: center;">
               <!-- Card Action Bar: Visits Counter & Primary Collect Stamp Button -->
               <div class="card-action-bar">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">

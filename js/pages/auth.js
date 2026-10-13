@@ -12,47 +12,11 @@ function renderAuthPage(initialMode = 'login') {
   return `
     <div class="auth-page-root">
       <div class="container auth-card-container">
-        <div class="double-bezel auth-double-bezel">
-          <div class="double-bezel-inner auth-split-grid">
-            
-            <!-- LEFT: Editorial Craft Imagery & Storytelling -->
-            <div class="auth-editorial-panel">
-              <!-- Texture Background Accent -->
-              <div class="auth-texture-overlay"></div>
-
-              <div class="auth-editorial-content">
-                <div class="auth-editorial-brand">
-                  <div class="nav-brand-logo auth-brand-logo">A</div>
-                  <span class="nav-brand-text auth-brand-text">Atelier Café</span>
-                </div>
-
-                <div class="eyebrow auth-eyebrow">
-                  The Connoisseur Circle
-                </div>
-
-                <h2 class="auth-quote-heading">
-                  "Coffee is not merely sustenance, but an intentional sensory ritual."
-                </h2>
-
-                <p class="auth-quote-desc">
-                  Receive your digital membership card immediately upon sign up. Collect stamps, savor seasonal reserve harvests, and enjoy private tasting room privileges.
-                </p>
-              </div>
-
-              <!-- Mini Loyalty Card Graphic -->
-              <div class="auth-mini-card-bar">
-                <div class="auth-mini-card-text">
-                  <span>EST. 2021 • GLOBAL CLUB</span>
-                  <span>CARD #AT-MEMBERS</span>
-                </div>
-              </div>
-            </div>
+        
 
             <!-- RIGHT: Interactive Form (Login vs Register Switcher) -->
             <div class="auth-form-panel">
-              <div class="auth-glass-header">
-                <span class="auth-glass-badge"><span class="auth-badge-dot"></span> Member Lounge Access</span>
-              </div>
+             
               
               <!-- Mode Tabs -->
               <div class="auth-mode-tabs">

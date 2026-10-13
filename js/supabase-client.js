@@ -222,6 +222,7 @@
         first_name: firstName.trim() || 'New',
         last_name: lastName.trim() || 'Connoisseur',
         phone: phone.trim() || null,
+        dob: dob.trim() || null,
         tier: 'Gold Member',
         membership_id: membershipId,
         favorite_drink: 'Chikmagalur Pour Over (Attikan Estate)'

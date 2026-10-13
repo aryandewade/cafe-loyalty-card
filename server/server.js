@@ -246,6 +246,7 @@ export async function handleRequest(req) {
             firstName: user.first_name,
             lastName: user.last_name,
             phone: user.phone,
+            dob: user.dob || null,
             tier: user.tier,
             membershipId: user.membership_id,
             favoriteDrink: user.favorite_drink
@@ -300,10 +301,42 @@ export async function handleRequest(req) {
             email: user.email,
             firstName: user.first_name,
             lastName: user.last_name,
+            phone: user.phone,
+            dob: user.dob || null,
             role: user.role,
             membershipId: user.membership_id
           }
         });
+      }
+
+      // POST /api/user/profile (Update Profile details such as DOB and Phone)
+      if (pathname === '/api/user/profile' && (req.method === 'POST' || req.method === 'PUT')) {
+        const body = await req.json().catch(() => ({}));
+        const userId = body.userId;
+        if (!userId) return sendError(null, 'User ID is required', 400);
+
+        const updates = {};
+        if (body.dob !== undefined) updates.dob = body.dob;
+        if (body.phone !== undefined) updates.phone = body.phone;
+
+        if (isSupabaseConfigured) {
+          try {
+            await supabase.update('users', updates, 'id', userId);
+          } catch (e) {
+            console.warn('Supabase updateUser error:', e);
+          }
+        }
+
+        try {
+          db.run(
+            'UPDATE users SET dob = COALESCE(?, dob), phone = COALESCE(?, phone) WHERE id = ?',
+            [updates.dob, updates.phone, userId]
+          );
+        } catch (e) {
+          console.warn('SQLite updateUser error:', e);
+        }
+
+        return sendJson(null, { success: true, message: 'Profile updated successfully' });
       }
 
       // 🔐 SECURE ENDPOINT: POST /api/stamps/verify-and-add

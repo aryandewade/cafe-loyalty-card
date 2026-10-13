@@ -835,6 +835,41 @@ class Store {
     return result;
   }
 
+  async updateUserProfile(updates) {
+    if (!this.state.user) return;
+    this.state.user = {
+      ...this.state.user,
+      ...updates
+    };
+    this.saveState();
+
+    // Persist to Supabase if configured
+    if (window.AtelierSupabase && this.state.user.id) {
+      const dbUpdates = {};
+      if (updates.dob !== undefined) dbUpdates.dob = updates.dob;
+      if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+      if (updates.firstName !== undefined) dbUpdates.first_name = updates.firstName;
+      if (updates.lastName !== undefined) dbUpdates.last_name = updates.lastName;
+
+      try {
+        await window.AtelierSupabase.update('users', dbUpdates, 'id', this.state.user.id);
+      } catch (err) {
+        console.warn('Could not persist profile updates to Supabase:', err);
+      }
+    }
+
+    // Persist to backend server if available
+    try {
+      await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: this.state.user.id, ...updates })
+      });
+    } catch (e) {}
+
+    this.notifyListeners({ type: 'PROFILE_UPDATED', user: this.state.user });
+  }
+
   logout() {
     if (window.AtelierSupabase) {
       window.AtelierSupabase.signOut();
