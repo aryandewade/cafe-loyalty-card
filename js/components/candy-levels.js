@@ -396,7 +396,7 @@ class CandyLevelsEngine {
   }
 
   // Render the Candy Crush Winding Road with Interactive Character Avatar
-  renderSagaMap({ compact = false, currentPoints = null } = {}) {
+  renderSagaMap({ compact = false, currentPoints = null, hideHeader = false } = {}) {
     const store = window.AtelierStore;
     const state = store ? store.getState() : {};
     const membership = state.membership || { lifetimeVisits: 27, currentStamps: 7, points: 420 };
@@ -654,6 +654,7 @@ class CandyLevelsEngine {
 
     return `
       <div class="candy-saga-viewport ${compact ? 'is-compact' : ''}">
+        ${hideHeader ? '' : `
         <!-- Header Banner -->
         <div class="candy-saga-header">
           <div class="candy-header-info">
@@ -686,6 +687,7 @@ class CandyLevelsEngine {
             </div>
           </div>
         </div>
+        `}
 
         <!-- The Interactive Winding S-Curve Road -->
         <div class="candy-road-stage" style="height: ${svgHeight}px;">

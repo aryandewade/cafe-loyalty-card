@@ -5034,6 +5034,26 @@ div {
   animation: candyBob 1.6s ease-in-out infinite alternate;
 }
 
+/* Modal Saga Progression Map Viewport */
+.saga-advance-map-viewport {
+  position: relative;
+  overflow-y: scroll !important;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.saga-advance-map-viewport .candy-saga-header {
+  display: none !important;
+}
+
+.saga-advance-map-viewport .candy-saga-viewport {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  max-width: 100% !important;
+  border-radius: 0 !important;
+}
+
 /* 2. Candy Saga Viewport Container */
 .candy-saga-viewport {
   position: relative;
