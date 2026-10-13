@@ -98,41 +98,258 @@ function renderNavbar(currentPage = 'home') {
     <!-- Mobile Drawer Overlay -->
     <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
     <div class="mobile-nav-sheet" id="mobile-nav-sheet">
-      <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-          <div style="display: flex; align-items: center; gap: 0.6rem;">
-            <div class="nav-brand-logo" style="width: 1.8rem; height: 1.8rem; font-size: 1rem;">A</div>
-            <span class="nav-brand-text" style="font-size: 1.2rem;">Atelier Café</span>
+      <div class="mobile-sheet-content">
+        <!-- Header -->
+        <div class="mobile-sheet-header">
+          <div class="mobile-sheet-brand">
+            <div class="mobile-sheet-logo">A</div>
+            <div>
+              <div class="mobile-sheet-title">Atelier Café</div>
+              <div class="mobile-sheet-sub">Specialty Roastery Pass</div>
+            </div>
           </div>
-          <button id="mobile-menu-close" class="btn-text" style="font-size: 1.3rem;">✕</button>
+          <button id="mobile-menu-close" class="mobile-sheet-close" aria-label="Close navigation menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
 
-        <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.2rem; font-size: 1.15rem; font-family: var(--font-serif);">
+        ${isAuth ? `
+          <!-- Member Quick Card -->
+          <div class="mobile-member-card">
+            <div class="mobile-member-info">
+              <div class="mobile-member-avatar">${(user.firstName || 'A')[0]}</div>
+              <div style="min-width: 0;">
+                <div class="mobile-member-name">${user.firstName} ${user.lastName || ''}</div>
+                <div class="mobile-member-meta">${user.membershipId || 'AT-MEMBER'}</div>
+              </div>
+            </div>
+            <div class="mobile-member-tier-pill">${user.tier || 'Gold Member'}</div>
+          </div>
+        ` : ''}
+
+        <!-- Menu Navigation List -->
+        <div class="mobile-nav-section-label">${isAuth ? 'Member Sanctuary' : 'Explore Roastery'}</div>
+        <ul class="mobile-nav-list">
           ${isAuth ? `
-            <li><a href="#dashboard" class="mobile-nav-link">Dashboard</a></li>
-            <li><a href="#rewards" class="mobile-nav-link">Rewards Catalog</a></li>
-            <li><a href="#activity" class="mobile-nav-link">Visit Ledger</a></li>
-            <li><a href="#profile" class="mobile-nav-link">Member Profile</a></li>
+            <li>
+              <a href="#dashboard" class="mobile-nav-link ${currentPage === 'dashboard' || currentPage === 'levels' ? 'active' : ''}">
+                <div class="mobile-nav-link-content">
+                  <div class="mobile-nav-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                      <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                      <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                      <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                    </svg>
+                  </div>
+                  <div class="mobile-nav-texts">
+                    <span class="mobile-nav-title">Dashboard</span>
+                    <span class="mobile-nav-desc">Digital stamp pass & perks</span>
+                  </div>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#rewards" class="mobile-nav-link ${currentPage === 'rewards' ? 'active' : ''}">
+                <div class="mobile-nav-link-content">
+                  <div class="mobile-nav-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <circle cx="12" cy="8" r="6"></circle>
+                      <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mobile-nav-texts">
+                    <span class="mobile-nav-title">Rewards Catalog</span>
+                    <span class="mobile-nav-desc">Reserve brews & redemption items</span>
+                  </div>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#activity" class="mobile-nav-link ${currentPage === 'activity' ? 'active' : ''}">
+                <div class="mobile-nav-link-content">
+                  <div class="mobile-nav-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mobile-nav-texts">
+                    <span class="mobile-nav-title">Visit Ledger</span>
+                    <span class="mobile-nav-desc">Audited visits & stamp history</span>
+                  </div>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#profile" class="mobile-nav-link ${currentPage === 'profile' ? 'active' : ''}">
+                <div class="mobile-nav-link-content">
+                  <div class="mobile-nav-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <div class="mobile-nav-texts">
+                    <span class="mobile-nav-title">Member Profile</span>
+                    <span class="mobile-nav-desc">Tasting notes, taste & pass settings</span>
+                  </div>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </li>
           ` : `
-            <li><a href="#home" class="mobile-nav-link">Experience</a></li>
-            <li><a href="#how-it-works" class="mobile-nav-link">How It Works</a></li>
-            <li><a href="#rewards-preview" class="mobile-nav-link">Rewards</a></li>
-            <li><a href="#locations" class="mobile-nav-link">Café Locations</a></li>
-            <li><a href="#login" class="mobile-nav-link">Sign In</a></li>
-            <li><a href="#register" class="mobile-nav-link" style="color: var(--color-terracotta);">Join the Club</a></li>
+            <li>
+              <a href="#home" class="mobile-nav-link ${currentPage === 'home' ? 'active' : ''}">
+                <div class="mobile-nav-link-content">
+                  <div class="mobile-nav-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                  </div>
+                  <div class="mobile-nav-texts">
+                    <span class="mobile-nav-title">Experience</span>
+                    <span class="mobile-nav-desc">Tasting rooms & philosophy</span>
+                  </div>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#how-it-works" class="mobile-nav-link ${currentPage === 'how-it-works' ? 'active' : ''}">
+                <div class="mobile-nav-link-content">
+                  <div class="mobile-nav-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                  </div>
+                  <div class="mobile-nav-texts">
+                    <span class="mobile-nav-title">How It Works</span>
+                    <span class="mobile-nav-desc">Tiers, digital stamps & levels</span>
+                  </div>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#rewards-preview" class="mobile-nav-link ${currentPage === 'rewards-preview' ? 'active' : ''}">
+                <div class="mobile-nav-link-content">
+                  <div class="mobile-nav-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                  </div>
+                  <div class="mobile-nav-texts">
+                    <span class="mobile-nav-title">Club Privileges</span>
+                    <span class="mobile-nav-desc">Single-origin perks & tastings</span>
+                  </div>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#locations" class="mobile-nav-link ${currentPage === 'locations' ? 'active' : ''}">
+                <div class="mobile-nav-link-content">
+                  <div class="mobile-nav-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                  </div>
+                  <div class="mobile-nav-texts">
+                    <span class="mobile-nav-title">Café Locations</span>
+                    <span class="mobile-nav-desc">Mumbai • Delhi • Bengaluru • Pune</span>
+                  </div>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#login" class="mobile-nav-link ${currentPage === 'login' ? 'active' : ''}">
+                <div class="mobile-nav-link-content">
+                  <div class="mobile-nav-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                      <polyline points="10 17 15 12 10 7"></polyline>
+                      <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                  </div>
+                  <div class="mobile-nav-texts">
+                    <span class="mobile-nav-title">Sign In</span>
+                    <span class="mobile-nav-desc">Access your existing pass</span>
+                  </div>
+                </div>
+                <div class="mobile-nav-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </a>
+            </li>
           `}
         </ul>
       </div>
 
-      <div style="border-top: 1px solid var(--color-cream-border); padding-top: 1.5rem;">
-        <div style="font-size: 0.8rem; color: var(--color-roast-muted); margin-bottom: 0.8rem;">
-          ${isAuth ? `Signed in as ${user.firstName} (${user.membershipId})` : 'Specialty Roastery & Tasting Room'}
-        </div>
+      <div class="mobile-sheet-footer">
         ${isAuth ? `
-          <button id="mobile-logout-btn" class="btn-secondary" style="width: 100%; justify-content: center;">Sign Out</button>
+          <button id="mobile-logout-btn" class="mobile-signout-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Sign Out of Pass</span>
+          </button>
         ` : `
-          <a href="#register" class="btn-primary" style="width: 100%; justify-content: center;">Join the Club</a>
+          <a href="#register" class="btn-primary mobile-nav-link" style="justify-content: center; width: 100%; border-radius: var(--radius-button); padding: 0.8rem 1rem; color: #fff !important;">
+            <span>Join the Roastery Club</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-left: 0.4rem;">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
         `}
+        <div class="mobile-sheet-signature">Atelier Specialty Coffee Roastery • Est. 2024</div>
       </div>
     </div>
 
@@ -179,10 +396,20 @@ function initNavbarEvents() {
   const overlay = document.getElementById('mobile-nav-overlay');
   const sheet = document.getElementById('mobile-nav-sheet');
 
+  const dock = document.getElementById('mobile-app-dock');
+
   function openMobileNav() {
     if (overlay && sheet) {
       overlay.classList.add('is-open');
       sheet.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      if (dock) {
+        dock.style.opacity = '0';
+        dock.style.pointerEvents = 'none';
+      }
+      if (window.AtelierAudio && typeof window.AtelierAudio.playCardOpen === 'function') {
+        window.AtelierAudio.playCardOpen();
+      }
     }
   }
 
@@ -190,6 +417,14 @@ function initNavbarEvents() {
     if (overlay && sheet) {
       overlay.classList.remove('is-open');
       sheet.classList.remove('is-open');
+      document.body.style.overflow = '';
+      if (dock) {
+        dock.style.opacity = '1';
+        dock.style.pointerEvents = 'auto';
+      }
+      if (window.AtelierAudio && typeof window.AtelierAudio.playCardClose === 'function') {
+        window.AtelierAudio.playCardClose();
+      }
     }
   }
 
@@ -197,18 +432,29 @@ function initNavbarEvents() {
   if (close) close.addEventListener('click', closeMobileNav);
   if (overlay) overlay.addEventListener('click', closeMobileNav);
 
-  // Close when clicking mobile links
+  // Close when clicking mobile links with tactile tap
   document.querySelectorAll('.mobile-nav-link').forEach(link => {
-    link.addEventListener('click', closeMobileNav);
+    link.addEventListener('click', () => {
+      if (window.AtelierAudio && typeof window.AtelierAudio.playTap === 'function') {
+        window.AtelierAudio.playTap();
+      }
+      closeMobileNav();
+    });
   });
 
   // Logout Listeners
   const logoutBtn = document.getElementById('nav-logout-btn');
   const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
-  function doLogout() {
+  function doLogout(e) {
+    if (e) e.preventDefault();
+    closeMobileNav();
     window.AtelierStore.logout();
     window.showToast('You have been signed out. Have a wonderful day!');
     window.location.hash = '#home';
+    if (window.router) {
+      window.router.currentRoute = 'home';
+      window.router.handleRoute();
+    }
   }
   if (logoutBtn) logoutBtn.addEventListener('click', doLogout);
   if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', doLogout);

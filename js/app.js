@@ -16,7 +16,7 @@ class Router {
 
     // Subscribe to central store for zero-reload reactive updates
     window.AtelierStore.subscribe(() => {
-      this.render();
+      this.handleRoute();
     });
 
     // Keyboard Shortcuts
@@ -48,7 +48,9 @@ class Router {
 
     // Auth redirection
     if (!isAuth && ['dashboard', 'rewards', 'activity', 'profile', 'staff', 'levels'].includes(hash)) {
-      window.location.hash = '#login';
+      window.location.hash = '#home';
+      this.currentRoute = 'home';
+      this.render();
       return;
     }
 

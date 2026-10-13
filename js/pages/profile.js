@@ -97,6 +97,14 @@ function renderProfilePage() {
 
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--color-cream-border-subtle);">
               <div>
+                <div style="font-weight: 600; font-size: 0.95rem;">Date of Birth (DOB)</div>
+                <div style="font-size: 0.85rem; color: var(--color-roast-medium);">${user.dob || '1996-08-14'} • Birthday Reserve Perk Active 🎂</div>
+              </div>
+              <span class="badge" style="font-size: 0.72rem; background: rgba(200, 157, 75, 0.15); color: #C89D4B; border-radius: 999px; padding: 2px 8px;">Active</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--color-cream-border-subtle);">
+              <div>
                 <div style="font-weight: 600; font-size: 0.95rem;">Passcode & Security</div>
                 <div style="font-size: 0.85rem; color: var(--color-roast-medium);">•••••••••••• (Encrypted)</div>
               </div>
@@ -117,7 +125,7 @@ function renderProfilePage() {
 
         <!-- Sign Out Action -->
         <div style="text-align: center;">
-          <button id="profile-signout-btn" class="btn-secondary" style="border-color: #E27B7B; color: #B33939; padding: 0.65rem 1.8rem;">
+          <button id="profile-signout-btn" class="btn-secondary" style="border-color: #E27B7B; color: #B33939; padding: 0.65rem 1.8rem; cursor: pointer;">
             <span>Sign Out of Account</span>
           </button>
         </div>
@@ -138,11 +146,14 @@ function initProfileEvents() {
     window.openForgotPasswordModal();
   });
 
-  document.getElementById('profile-signout-btn')?.addEventListener('click', () => {
-    if (confirm('Are you sure you want to sign out?')) {
-      window.AtelierStore.logout();
-      window.showToast('You have been signed out.');
-      window.location.hash = '#home';
+  document.getElementById('profile-signout-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.AtelierStore.logout();
+    window.showToast('You have been signed out. Come back soon! ☕');
+    window.location.hash = '#home';
+    if (window.router) {
+      window.router.currentRoute = 'home';
+      window.router.handleRoute();
     }
   });
 }

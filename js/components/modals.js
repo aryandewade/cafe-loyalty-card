@@ -418,7 +418,311 @@ function openRedeemConfirmModal(reward) {
   });
 }
 
-// 6. Gen Z Caffeine Wrapped (9:16 Instagram Story Export Modal)
+// Helper: Functional HTML5 Canvas Export for Wrapped Story Image
+function downloadWrappedCanvasImage(user, membership) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1080;
+  canvas.height = 1440;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // Background
+  const bg = ctx.createRadialGradient(800, 200, 100, 540, 720, 950);
+  bg.addColorStop(0, '#2D1F1A');
+  bg.addColorStop(0.5, '#16100E');
+  bg.addColorStop(1, '#0C0807');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, 1080, 1440);
+
+  // Micro-pattern texture dots
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.035)';
+  for (let x = 0; x < 1080; x += 30) {
+    for (let y = 0; y < 1440; y += 30) {
+      if ((x + y) % 60 === 0) ctx.fillRect(x, y, 2, 2);
+    }
+  }
+
+  // Double Gold Border
+  ctx.strokeStyle = 'rgba(200, 157, 75, 0.45)';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(45, 45, 990, 1350);
+  ctx.strokeStyle = 'rgba(200, 157, 75, 0.2)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(65, 65, 950, 1310);
+
+  // Header Brand
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '600 48px "Cormorant Garamond", Georgia, serif';
+  ctx.fillText('ATELIER CAFÉ', 110, 150);
+
+  ctx.fillStyle = '#D4B06A';
+  ctx.font = '600 22px "Plus Jakarta Sans", sans-serif';
+  ctx.fillText('MONTHLY CAFFEINE WRAPPED • 2026', 110, 195);
+
+  // Member dossier
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.font = '400 28px "Plus Jakarta Sans", sans-serif';
+  ctx.fillText(`Ritual dossier for ${user.firstName || 'Member'} ${user.lastName || ''}`, 110, 280);
+
+  // Headline
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 68px "Cormorant Garamond", Georgia, serif';
+  ctx.fillText('A season of', 110, 375);
+  ctx.fillText('shade-grown rituals.', 110, 455);
+
+  // Coffee Aura Box
+  const auraY = 525;
+  ctx.fillStyle = 'rgba(200, 157, 75, 0.14)';
+  ctx.strokeStyle = 'rgba(200, 157, 75, 0.45)';
+  ctx.lineWidth = 2;
+  roundRect(ctx, 110, auraY, 860, 200, 24);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#E8C17A';
+  ctx.font = '700 22px "Plus Jakarta Sans", sans-serif';
+  ctx.fillText('✦ PRIMARY COFFEE AURA', 150, auraY + 52);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '600 44px "Cormorant Garamond", Georgia, serif';
+  ctx.fillText('Bergamot & Wild Honey Cold Drip', 150, auraY + 112);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  ctx.font = '400 24px "Plus Jakarta Sans", sans-serif';
+  ctx.fillText('Top 2% early-morning pour-over purist in Mumbai', 150, auraY + 158);
+
+  // 2x2 Stats Grid
+  const stats = [
+    { num: `${membership.lifetimeVisits || 27}`, label: 'Reserve Cups Brewed' },
+    { num: `🔥 ${membership.currentStreak || 4}d`, label: 'Daily Ritual Streak' },
+    { num: `${membership.points || 0}`, label: 'Loyalty Points Balance' },
+    { num: '🌱 14', label: 'Cups Saved (Zero-Waste)' }
+  ];
+
+  const gridY = 765;
+  const colW = 415;
+  const rowH = 165;
+  stats.forEach((st, idx) => {
+    const col = idx % 2;
+    const row = Math.floor(idx / 2);
+    const x = 110 + col * (colW + 30);
+    const y = gridY + row * (rowH + 25);
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, y, colW, rowH, 20);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#E8C17A';
+    ctx.font = '700 46px "Cormorant Garamond", Georgia, serif';
+    ctx.fillText(st.num, x + colW / 2, y + 72);
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    ctx.font = '500 22px "Plus Jakarta Sans", sans-serif';
+    ctx.fillText(st.label, x + colW / 2, y + 120);
+  });
+
+  // Footer Divider & Details
+  const footerY = 1200;
+  ctx.strokeStyle = 'rgba(200, 157, 75, 0.3)';
+  ctx.setLineDash([8, 8]);
+  ctx.beginPath();
+  ctx.moveTo(110, footerY);
+  ctx.lineTo(970, footerY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#E8C17A';
+  ctx.font = '700 28px "JetBrains Mono", monospace';
+  ctx.fillText(user.membershipId || 'AT-MEMBER', 110, footerY + 55);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.font = '400 22px "Plus Jakarta Sans", sans-serif';
+  ctx.fillText(`${user.tier || 'Gold Member'} • Atelier Specialty Club`, 110, footerY + 95);
+
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#D4B06A';
+  ctx.font = '600 24px "Plus Jakarta Sans", sans-serif';
+  ctx.fillText('Atelier Roasters Mumbai', 970, footerY + 55);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.font = '400 20px "Plus Jakarta Sans", sans-serif';
+  ctx.fillText('y-card.vercel.app', 970, footerY + 95);
+
+  try {
+    const dataUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `Atelier-Wrapped-${(user.firstName || 'Member').toLowerCase()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.showToast('📸 Wrapped story image downloaded to your device!');
+    if (window.AtelierAudio && typeof window.AtelierAudio.playCashRegister === 'function') {
+      window.AtelierAudio.playCashRegister();
+    }
+  } catch (err) {
+    console.error('Image export failed:', err);
+    window.showToast('📸 Image generated! Tap and hold to save on mobile.');
+  }
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+// Interactive Tasting & Experience Review Modal
+function openReviewModal() {
+  closeAllModals();
+  const container = document.getElementById('modal-root');
+  if (!container) return;
+
+  let currentRating = 5;
+  const store = window.AtelierStore;
+  const state = store.getState();
+
+  container.innerHTML = `
+    <div class="modal-backdrop is-active" id="review-modal-backdrop">
+      <div class="modal-card" style="max-width: 410px; padding: 1.6rem 1.4rem; text-align: center;">
+        
+        <div style="display: flex; justify-content: flex-end; margin-bottom: -0.4rem;">
+          <button class="btn-text" id="close-review-btn" style="font-size: 1.3rem; color: var(--color-roast-muted); padding: 0.2rem;">✕</button>
+        </div>
+
+        <div style="width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--bg-canvas-subtle); border: 1.5px solid var(--color-gold-foil); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-size: 1.35rem;">
+          ☕
+        </div>
+
+        <h3 style="font-family: var(--font-serif); font-size: 1.55rem; color: var(--color-espresso); margin-bottom: 0.25rem;">
+          Review Tasting Ritual
+        </h3>
+        <p style="font-size: 0.8rem; color: var(--color-roast-medium); line-height: 1.35; margin-bottom: 0.8rem;">
+          Share your tasting impressions with our Master Roasters and earn <strong>+25 Loyalty Points</strong>.
+        </p>
+
+        <!-- Star Rating Row -->
+        <div class="review-star-row" id="review-stars-container">
+          <button class="review-star-btn is-active" data-val="1">★</button>
+          <button class="review-star-btn is-active" data-val="2">★</button>
+          <button class="review-star-btn is-active" data-val="3">★</button>
+          <button class="review-star-btn is-active" data-val="4">★</button>
+          <button class="review-star-btn is-active" data-val="5">★</button>
+        </div>
+        <div id="review-rating-label" style="font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; color: var(--color-gold-foil); margin-bottom: 0.9rem;">
+          5 / 5 • Exceptional Single-Origin Brew
+        </div>
+
+        <!-- Flavor & Ambience Tags -->
+        <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-roast-muted); font-weight: 600; text-align: left; margin-bottom: 0.35rem;">
+          Tasting Highlights:
+        </div>
+        <div class="review-tags-container">
+          <button type="button" class="review-tag-chip selected" data-tag="Silky Microfoam">Silky Microfoam 🥛</button>
+          <button type="button" class="review-tag-chip selected" data-tag="Floral Jasmine Notes">Floral Notes 🌸</button>
+          <button type="button" class="review-tag-chip" data-tag="Perfect Extraction">Hand Extraction ⚖️</button>
+          <button type="button" class="review-tag-chip" data-tag="Warm Hospitality">Warm Hospitality 🖤</button>
+          <button type="button" class="review-tag-chip" data-tag="Attikan Estate Reserve">Attikan Reserve 🌿</button>
+        </div>
+
+        <!-- Feedback Textarea -->
+        <div style="margin: 0.9rem 0;">
+          <textarea id="review-comment-input" rows="3" placeholder="Notes on roast profile, extraction, or roastery ambience..." style="width: 100%; border: 1px solid var(--color-cream-border); border-radius: 12px; padding: 0.75rem; font-family: var(--font-sans); font-size: 0.82rem; background: var(--bg-surface); color: var(--color-espresso); resize: none;"></textarea>
+        </div>
+
+        <button id="submit-review-btn" class="btn-primary btn-terracotta" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.9rem;">
+          <span>Submit Review (+25 Points)</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Hide dock and prevent scroll
+  document.body.style.overflow = 'hidden';
+  const dock = document.getElementById('mobile-app-dock');
+  if (dock) {
+    dock.style.opacity = '0';
+    dock.style.pointerEvents = 'none';
+  }
+
+  // Star Rating Interaction
+  const ratingLabels = [
+    '',
+    '1 / 5 • Sub-optimal Extraction',
+    '2 / 5 • Fair Cup',
+    '3 / 5 • Enjoyable Roast',
+    '4 / 5 • Excellent Craft',
+    '5 / 5 • Exceptional Single-Origin Brew'
+  ];
+  const starBtns = document.querySelectorAll('.review-star-btn');
+  const ratingLabelEl = document.getElementById('review-rating-label');
+
+  starBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = parseInt(btn.getAttribute('data-val'), 10);
+      currentRating = val;
+      starBtns.forEach((b, idx) => {
+        if (idx < val) {
+          b.classList.add('is-active');
+        } else {
+          b.classList.remove('is-active');
+        }
+      });
+      if (ratingLabelEl) ratingLabelEl.textContent = ratingLabels[val] || `${val} / 5`;
+      if (window.AtelierAudio && typeof window.AtelierAudio.playStarSlam === 'function') {
+        window.AtelierAudio.playStarSlam(Math.min(3, Math.max(1, Math.floor(val / 2))));
+      }
+    });
+  });
+
+  // Tag Chips Toggle
+  document.querySelectorAll('.review-tag-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('selected');
+      if (window.AtelierAudio && typeof window.AtelierAudio.playTap === 'function') {
+        window.AtelierAudio.playTap();
+      }
+    });
+  });
+
+  // Close Handlers
+  document.getElementById('close-review-btn')?.addEventListener('click', closeAllModals);
+  document.getElementById('review-modal-backdrop')?.addEventListener('click', (e) => {
+    if (e.target.id === 'review-modal-backdrop') closeAllModals();
+  });
+
+  // Submit Handler
+  document.getElementById('submit-review-btn')?.addEventListener('click', () => {
+    // Add 25 bonus points
+    store.state.membership.points = (store.state.membership.points || 0) + 25;
+    store.saveState();
+
+    if (window.AtelierAudio && typeof window.AtelierAudio.playCandyFanfare === 'function') {
+      window.AtelierAudio.playCandyFanfare();
+    }
+    if (window.fireAtelierConfetti) {
+      window.fireAtelierConfetti();
+    }
+
+    closeAllModals();
+    window.showToast('⭐ Thank you for your review! +25 Loyalty Points added to your pass.');
+  });
+}
+
+// 6. Caffeine Wrapped Story Export Modal
 function openCaffeineWrappedModal() {
   closeAllModals();
   const container = document.getElementById('modal-root');
@@ -430,9 +734,9 @@ function openCaffeineWrappedModal() {
 
   container.innerHTML = `
     <div class="modal-backdrop is-active" id="wrapped-modal-backdrop">
-      <div class="modal-card" style="max-width: 400px; padding: 1.2rem; background: transparent; box-shadow: none; border: none;">
+      <div class="modal-card" style="max-width: 390px; padding: 0.5rem; background: transparent; box-shadow: none; border: none;">
         
-        <!-- 9:16 Vertical Story Card -->
+        <!-- Vertical Story Card -->
         <div class="wrapped-story-card" id="wrapped-story-card-element">
           <div class="grain-layer"></div>
 
@@ -442,31 +746,31 @@ function openCaffeineWrappedModal() {
               <span style="font-family: var(--font-serif); font-size: 1.2rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; display: block;">
                 Atelier Café
               </span>
-              <span style="font-size: 0.65rem; color: #D4B06A; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600;">
+              <span style="font-size: 0.62rem; color: #D4B06A; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600;">
                 Monthly Caffeine Wrapped • 2026
               </span>
             </div>
-            <button class="btn-text" id="close-wrapped-btn" style="color: rgba(255,255,255,0.7); font-size: 1.4rem; padding: 0.2rem;">✕</button>
+            <button class="btn-text" id="close-wrapped-btn" style="color: rgba(255,255,255,0.7); font-size: 1.35rem; padding: 0.2rem; line-height: 1;">✕</button>
           </div>
 
           <!-- Center Content & Stats -->
-          <div style="z-index: 2; margin: 1.2rem 0;">
-            <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin-bottom: 0.3rem;">
+          <div style="z-index: 2; margin: 0.9rem 0;">
+            <div style="font-size: 0.82rem; color: rgba(255,255,255,0.8); margin-bottom: 0.25rem;">
               Ritual dossier for <strong>${user.firstName} ${user.lastName}</strong>
             </div>
-            <h2 style="font-family: var(--font-serif); font-size: 2.2rem; line-height: 1.1; margin-bottom: 1.2rem; color: #FFF;">
+            <h2 style="font-family: var(--font-serif); font-size: clamp(1.4rem, 4.8vw, 1.95rem); line-height: 1.15; margin-bottom: 0.9rem; color: #FFF;">
               A season of shade-grown rituals.
             </h2>
 
             <!-- Aura Box -->
             <div class="wrapped-aura-box">
-              <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: #E8C17A; font-weight: 600;">
+              <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; color: #E8C17A; font-weight: 600;">
                 ✦ Primary Coffee Aura
               </div>
-              <div style="font-family: var(--font-serif); font-size: 1.35rem; font-weight: 600; color: #FFF; margin: 2px 0;">
+              <div style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 600; color: #FFF; margin: 2px 0;">
                 Bergamot & Wild Honey Cold Drip
               </div>
-              <div style="font-size: 0.72rem; color: rgba(255,255,255,0.75);">
+              <div style="font-size: 0.7rem; color: rgba(255,255,255,0.75);">
                 Top 2% early-morning pour-over purist in Mumbai
               </div>
             </div>
@@ -493,177 +797,201 @@ function openCaffeineWrappedModal() {
           </div>
 
           <!-- Footer Bar -->
-          <div style="z-index: 2; border-top: 1px dashed rgba(200, 157, 75, 0.3); padding-top: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+          <div style="z-index: 2; border-top: 1px dashed rgba(200, 157, 75, 0.3); padding-top: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <div style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; color: #E8C17A;">
+              <div style="font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; color: #E8C17A;">
                 ${user.membershipId}
               </div>
-              <div style="font-size: 0.65rem; color: rgba(255,255,255,0.6);">
+              <div style="font-size: 0.62rem; color: rgba(255,255,255,0.6);">
                 ${user.tier} • Atelier Club
               </div>
             </div>
-            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.7); text-align: right;">
+            <div style="font-size: 0.68rem; color: rgba(255,255,255,0.7); text-align: right;">
               Share to Story ⚡
             </div>
           </div>
         </div>
 
-        <!-- Action Row -->
-        <div style="display: flex; gap: 0.6rem; justify-content: center; margin-top: 1rem;">
-          <button id="wrapped-download-btn" class="btn-primary" style="padding: 0.65rem 1.2rem; font-size: 0.82rem; background: var(--color-espresso);">
-            <span>📸 Download Story Image (9:16)</span>
+        <!-- Action Grid: Download, Share Link & Review Experience -->
+        <div class="wrapped-action-grid">
+          <button id="wrapped-download-btn" class="btn-primary" style="padding: 0.7rem 0.85rem; font-size: 0.82rem; background: var(--color-espresso); border: 1px solid rgba(200, 157, 75, 0.4); justify-content: center; gap: 0.35rem;">
+            <span>📸 Download Story Image</span>
           </button>
-          <button id="wrapped-copy-btn" class="btn-secondary" style="padding: 0.65rem 1rem; font-size: 0.82rem; background: rgba(255,255,255,0.9);">
-            <span>Copy Stats Link</span>
+          <button id="wrapped-copy-btn" class="btn-secondary" style="padding: 0.7rem 0.85rem; font-size: 0.82rem; background: rgba(255,255,255,0.95); justify-content: center; gap: 0.35rem;">
+            <span>🔗 Share Stats Link</span>
+          </button>
+          <button id="wrapped-review-btn" class="btn-primary btn-terracotta" style="grid-column: 1 / -1; padding: 0.75rem 1rem; font-size: 0.84rem; justify-content: center; gap: 0.4rem;">
+            <span>⭐ Review Tasting Experience (+25 Pts)</span>
           </button>
         </div>
 
       </div>
     </div>
   `;
+
+  // Hide dock and prevent scroll
+  document.body.style.overflow = 'hidden';
+  const dock = document.getElementById('mobile-app-dock');
+  if (dock) {
+    dock.style.opacity = '0';
+    dock.style.pointerEvents = 'none';
+  }
 
   document.getElementById('close-wrapped-btn')?.addEventListener('click', closeAllModals);
   document.getElementById('wrapped-modal-backdrop')?.addEventListener('click', (e) => {
     if (e.target.id === 'wrapped-modal-backdrop') closeAllModals();
   });
 
+  // Functional Image Download via HTML5 Canvas
   document.getElementById('wrapped-download-btn')?.addEventListener('click', () => {
-    window.showToast('✨ 9:16 Story Graphic generated! Ready to post on Instagram / TikTok Stories.');
+    downloadWrappedCanvasImage(user, membership);
   });
 
-  document.getElementById('wrapped-copy-btn')?.addEventListener('click', () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(`My Atelier Café Wrapped: 🔥 ${membership.currentStreak || 4}d Streak • ${membership.points} Points • Aura: Bergamot & Honey V60`);
+  // Functional Stats & Link Sharing
+  document.getElementById('wrapped-copy-btn')?.addEventListener('click', async () => {
+    const shareUrl = window.location.href.split('#')[0] + '#dashboard';
+    const shareText = `☕ Atelier Café Wrapped — ${user.firstName} ${user.lastName}\n🔥 Streak: ${membership.currentStreak || 4}d | Points: ${membership.points} pts\n✦ Aura: Bergamot & Wild Honey Cold Drip\n${shareUrl}`;
+
+    if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
+      try {
+        await navigator.share({
+          title: `${user.firstName}'s Atelier Café Wrapped`,
+          text: shareText,
+          url: shareUrl
+        });
+        window.showToast('✨ Shared successfully!');
+        return;
+      } catch (err) {
+        // Fallback to clipboard if share cancelled
+      }
     }
-    window.showToast('📋 Story stats copied to clipboard!');
+
+    let copied = false;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(shareText);
+        copied = true;
+      } catch (e) {
+        copied = false;
+      }
+    }
+
+    if (!copied) {
+      const ta = document.createElement('textarea');
+      ta.value = shareText;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        copied = true;
+      } catch (e) {}
+      document.body.removeChild(ta);
+    }
+
+    window.showToast('📋 Stats & pass link copied to clipboard!');
+    if (window.AtelierAudio && typeof window.AtelierAudio.playTap === 'function') {
+      window.AtelierAudio.playTap();
+    }
+  });
+
+  // Review Experience Button Handler
+  document.getElementById('wrapped-review-btn')?.addEventListener('click', () => {
+    openReviewModal();
   });
 }
 
 // 7. Café Owner Stamp Authorization PIN Keypad Modal
-function openOwnerStampModal(options = {}) {
+// 7. Collect Stamp & Earn Points Modal (NO Owner PIN required)
+function openCollectStampModal(options = {}) {
   closeAllModals();
   const container = document.getElementById('modal-root');
   if (!container) return;
 
   const store = window.AtelierStore;
-  const drinkName = options.drinkName || 'Specialty Coffee Order';
+  const drinkName = options.drinkName || 'Chikmagalur Single-Estate Pour Over';
   const initialBillAmount = options.amountSpent !== undefined && options.amountSpent !== null 
     ? Number(options.amountSpent) 
     : 250;
   const rate = store.getRupeesPerPoint();
   let billAmount = initialBillAmount;
-  let enteredPin = '';
-  let isChecking = false;
 
   container.innerHTML = `
-    <div class="modal-backdrop is-active" id="owner-stamp-backdrop">
-      <div class="modal-card" style="max-width: 375px; padding: 1.8rem 1.5rem; text-align: center;">
+    <div class="modal-backdrop is-active" id="collect-stamp-backdrop">
+      <div class="modal-card" style="max-width: 385px; padding: 1.8rem 1.5rem; text-align: center;">
         
         <!-- Header -->
-        <div style="display: flex; justify-content: flex-end; margin-bottom: -0.5rem;">
-          <button class="btn-text" id="close-owner-stamp-btn" style="font-size: 1.3rem; color: var(--color-roast-muted);">✕</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span style="font-size: 1.2rem;">☕</span>
+            <span class="eyebrow" style="font-size: 0.72rem; letter-spacing: 0.1em; color: var(--color-gold-foil);">VISIT STAMP</span>
+          </div>
+          <button class="btn-text" id="close-collect-stamp-btn" style="font-size: 1.3rem; color: var(--color-roast-muted);">✕</button>
         </div>
 
-        <div style="width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--bg-canvas-subtle); border: 1.5px solid var(--color-gold-foil); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.6rem; font-size: 1.35rem;">
-          🔐
-        </div>
-
-        <h3 style="font-family: var(--font-serif); font-size: 1.45rem; margin-bottom: 0.2rem;">
-          Owner Stamp & Bill Authorization
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 0.3rem;">
+          Collect Stamp & Earn Points
         </h3>
-        <p id="owner-pin-status-text" style="font-size: 0.8rem; color: var(--color-roast-medium); line-height: 1.35; margin-bottom: 0.75rem;">
-          Enter the customer's bill amount and 4-digit PIN to issue stamp & points.
+        <p style="font-size: 0.82rem; color: var(--color-roast-medium); line-height: 1.35; margin-bottom: 1rem;">
+          Add your café order to claim your loyalty stamp and advance along the Saga Road!
         </p>
 
         <!-- Bill Amount Entry & Dynamic Points Conversion -->
-        <div class="owner-bill-box">
-          <label class="owner-bill-label">Customer Café Bill Amount</label>
+        <div class="owner-bill-box" style="margin-bottom: 1.2rem;">
+          <label class="owner-bill-label">Order / Café Bill Amount</label>
           <div class="owner-bill-input-wrap">
             <span class="owner-bill-currency">₹</span>
-            <input type="number" id="owner-bill-amount-input" class="owner-bill-input" value="${billAmount}" min="0" step="10" placeholder="250">
+            <input type="number" id="collect-bill-amount-input" class="owner-bill-input" value="${billAmount}" min="0" step="10" placeholder="250">
           </div>
           <div class="owner-bill-chips">
-            <button type="button" class="owner-bill-chip-btn ${billAmount === 180 ? 'active' : ''}" data-amt="180">₹180</button>
-            <button type="button" class="owner-bill-chip-btn ${billAmount === 250 ? 'active' : ''}" data-amt="250">₹250</button>
-            <button type="button" class="owner-bill-chip-btn ${billAmount === 350 ? 'active' : ''}" data-amt="350">₹350</button>
-            <button type="button" class="owner-bill-chip-btn ${billAmount === 500 ? 'active' : ''}" data-amt="500">₹500</button>
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 180 ? 'active' : ''}" data-amt="180">₹180 (Cappuccino)</button>
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 250 ? 'active' : ''}" data-amt="250">₹250 (Pour Over)</button>
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 350 ? 'active' : ''}" data-amt="350">₹350 (Brew Bar)</button>
+            <button type="button" class="owner-bill-chip-btn ${billAmount === 500 ? 'active' : ''}" data-amt="500">₹500 (Reserve)</button>
             <button type="button" class="owner-bill-chip-btn ${billAmount === 750 ? 'active' : ''}" data-amt="750">₹750</button>
             <button type="button" class="owner-bill-chip-btn ${billAmount === 1000 ? 'active' : ''}" data-amt="1000">₹1,000</button>
           </div>
-          <div class="owner-bill-conversion-pill" id="owner-bill-conversion-badge">
-            <span>💎 Converts to <strong id="owner-converted-pts">+${store.calculatePoints(billAmount)} Loyalty Points</strong></span>
+          <div class="owner-bill-conversion-pill" id="collect-bill-conversion-badge" style="margin-top: 0.6rem;">
+            <span>💎 Converts to <strong id="collect-converted-pts">+${store.calculatePoints(billAmount)} Loyalty Points</strong></span>
             <span style="font-size: 0.68rem; color: var(--color-roast-muted);">(₹${rate} = 1 pt)</span>
           </div>
         </div>
 
-        <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-roast-muted); font-weight: 700; margin-bottom: 0.4rem;">
-          Enter 4-Digit Owner PIN
-        </div>
-
-        <!-- 4 PIN Dots -->
-        <div class="pin-display-dots" id="pin-dots-container" style="margin-bottom: 0.8rem;">
-          <div class="pin-dot" id="pindot-0"></div>
-          <div class="pin-dot" id="pindot-1"></div>
-          <div class="pin-dot" id="pindot-2"></div>
-          <div class="pin-dot" id="pindot-3"></div>
-        </div>
-
-        <!-- Tactile 3x4 Keypad -->
-        <div class="pin-keypad" id="pin-keypad-box">
-          <button class="pin-key-btn" data-key="1">1</button>
-          <button class="pin-key-btn" data-key="2">2</button>
-          <button class="pin-key-btn" data-key="3">3</button>
-          <button class="pin-key-btn" data-key="4">4</button>
-          <button class="pin-key-btn" data-key="5">5</button>
-          <button class="pin-key-btn" data-key="6">6</button>
-          <button class="pin-key-btn" data-key="7">7</button>
-          <button class="pin-key-btn" data-key="8">8</button>
-          <button class="pin-key-btn" data-key="9">9</button>
-          <button class="pin-key-btn action-btn" data-key="clear">Clear</button>
-          <button class="pin-key-btn" data-key="0">0</button>
-          <button class="pin-key-btn action-btn" data-key="back">⌫</button>
-        </div>
-
-        <!-- Demo Hint -->
-        <div style="margin-top: 1rem; font-size: 0.72rem; color: var(--color-roast-muted); border-top: 1px dashed var(--color-cream-border); padding-top: 0.7rem;">
-          ✦ Café Owner Password / PIN: <strong style="color: var(--color-gold-foil); font-family: var(--font-mono); font-size: 0.85rem;">${store.getOwnerStampPin()}</strong>
-        </div>
+        <button id="confirm-collect-stamp-btn" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem; font-size: 0.95rem;">
+          <span>Collect Stamp & Earn Points (+${store.calculatePoints(billAmount)} Pts) ✨</span>
+        </button>
 
       </div>
     </div>
   `;
 
   // Dynamic bill amount and points calculation listeners
-  const billInput = document.getElementById('owner-bill-amount-input');
-  const ptsBadge = document.getElementById('owner-converted-pts');
+  const billInput = document.getElementById('collect-bill-amount-input');
+  const ptsBadge = document.getElementById('collect-converted-pts');
+  const submitBtn = document.getElementById('confirm-collect-stamp-btn');
   const chipBtns = container.querySelectorAll('.owner-bill-chip-btn');
 
   function updatePointsPreview(amt) {
     billAmount = Math.max(0, Number(amt) || 0);
     const pts = store.calculatePoints(billAmount);
-    if (ptsBadge) {
-      ptsBadge.textContent = `+${pts} Loyalty Points`;
+    if (ptsBadge) ptsBadge.textContent = `+${pts} Loyalty Points`;
+    if (submitBtn) {
+      submitBtn.querySelector('span').textContent = `Collect Stamp & Earn Points (+${pts} Pts) ✨`;
     }
     chipBtns.forEach(btn => {
       const btnAmt = Number(btn.getAttribute('data-amt'));
-      if (btnAmt === billAmount) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
+      btn.classList.toggle('active', btnAmt === billAmount);
     });
   }
 
-  billInput?.addEventListener('input', (e) => {
-    updatePointsPreview(e.target.value);
-  });
+  billInput?.addEventListener('input', (e) => updatePointsPreview(e.target.value));
 
   chipBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const amt = Number(btn.getAttribute('data-amt'));
-      if (billInput) {
-        billInput.value = amt;
-      }
+      if (billInput) billInput.value = amt;
       updatePointsPreview(amt);
       if (window.AtelierAudio && window.AtelierAudio.playTap) {
         window.AtelierAudio.playTap();
@@ -671,190 +999,176 @@ function openOwnerStampModal(options = {}) {
     });
   });
 
-  function updateDots() {
-    for (let i = 0; i < 4; i++) {
-      const dot = document.getElementById(`pindot-${i}`);
-      if (dot) {
-        if (i < enteredPin.length) {
-          dot.classList.add('filled');
-        } else {
-          dot.classList.remove('filled');
-        }
-      }
-    }
-  }
+  submitBtn?.addEventListener('click', () => {
+    const currentBill = Math.max(0, parseFloat(billInput?.value || billAmount) || 0);
+    const oldPoints = store.getState().membership.points || 0;
 
-  function handleDigit(d) {
-    if (isChecking || enteredPin.length >= 4) return;
-    enteredPin += d;
-    updateDots();
-
-    if (window.AtelierAudio && window.AtelierAudio.playTap) {
-      window.AtelierAudio.playTap();
+    // Ink stamp sound
+    if (window.AtelierAudio && window.AtelierAudio.playStampSound) {
+      window.AtelierAudio.playStampSound();
     }
 
-    if (enteredPin.length === 4) {
-      validatePin();
-    }
-  }
+    const res = store.addStamp(drinkName, currentBill);
+    const newPoints = store.getState().membership.points || 0;
 
-  function handleBackspace() {
-    if (isChecking || enteredPin.length === 0) return;
-    enteredPin = enteredPin.slice(0, -1);
-    updateDots();
-    if (window.AtelierAudio && window.AtelierAudio.playTap) {
-      window.AtelierAudio.playTap();
-    }
-  }
-
-  function handleClear() {
-    if (isChecking) return;
-    enteredPin = '';
-    updateDots();
-  }
-
-  async function validatePin() {
-    isChecking = true;
-    const currentBill = Math.max(0, parseFloat(document.getElementById('owner-bill-amount-input')?.value || billAmount) || 0);
-    const convertedPoints = store.calculatePoints(currentBill);
-    const statusText = document.getElementById('owner-pin-status-text');
-    const keypadBox = document.getElementById('pin-keypad-box');
-    const dotsContainer = document.getElementById('pin-dots-container');
-
-    const result = await store.verifyOwnerPin(enteredPin, {
-      amountSpent: currentBill,
-      productName: drinkName
-    });
-    const isValid = result === true || (result && result.success === true);
-
-    if (isValid) {
-      // Success state!
-      for (let i = 0; i < 4; i++) {
-        document.getElementById(`pindot-${i}`)?.classList.add('success');
-      }
-      if (statusText) {
-        statusText.innerHTML = `<span style="color: var(--color-forest-roast); font-weight: 600;">✓ Verified! Converting ₹${currentBill} bill into +${convertedPoints} points...</span>`;
-      }
-
-      // Ink stamp sound
-      if (window.AtelierAudio && window.AtelierAudio.playStampSound) {
-        window.AtelierAudio.playStampSound();
-      }
-
-      setTimeout(() => {
-        closeAllModals();
-
-        const currentStamps = store.getState().membership.currentStamps;
-        const targetSlotIndex = currentStamps < 10 ? currentStamps + 1 : 10;
-
-        if (window.playStampToolAnimation) {
-          window.playStampToolAnimation({
-            slotIndex: targetSlotIndex,
-            drinkName: drinkName,
-            onComplete: () => {
-              const res = store.addStamp(drinkName, currentBill);
-              if (options.onSuccess) {
-                options.onSuccess(res);
-              } else {
-                window.showToast(`✓ Café Owner verified! ₹${currentBill} bill converted into +${res.pointsEarned} points. Stamp #${res.newVisits}/10 collected.`);
-                
-                if (res.cardCompleted && window.launchAtelierCelebration) {
-                  window.launchAtelierCelebration();
-                  if (window.AtelierAudio && window.AtelierAudio.playRewardUnlock) {
-                    window.AtelierAudio.playRewardUnlock();
-                  }
-                }
-              }
-              window.router.render();
-            }
-          });
-        } else {
-          const res = store.addStamp(drinkName, currentBill);
-          if (options.onSuccess) {
-            options.onSuccess(res);
-          } else {
-            window.showToast(`✓ Café Owner verified! ₹${currentBill} bill converted into +${res.pointsEarned} points. Stamp #${res.newVisits}/10 collected.`);
-          }
-          window.router.render();
-        }
-      }, 450);
-    } else {
-      // Error state!
-      for (let i = 0; i < 4; i++) {
-        document.getElementById(`pindot-${i}`)?.classList.add('error');
-      }
-      if (keypadBox) keypadBox.classList.add('shake-animation');
-      if (dotsContainer) dotsContainer.classList.add('shake-animation');
-
-      if (statusText) {
-        if (result && result.locked) {
-          statusText.innerHTML = `<span style="color: #D32F2F; font-weight: 700;">⛔ Security Lockout: 5 failed attempts.<br>Locked for ${result.remainingSeconds}s.</span>`;
-        } else if (result && result.remainingAttempts !== undefined) {
-          statusText.innerHTML = `<span style="color: #D32F2F; font-weight: 600;">✕ Incorrect Owner PIN (${result.remainingAttempts} attempts left before 5m lockout).</span>`;
-        } else {
-          statusText.innerHTML = '<span style="color: #D32F2F; font-weight: 600;">✕ Incorrect Owner PIN. Please try again.</span>';
-        }
-      }
-
-      if (window.AtelierAudio && window.AtelierAudio.playTap) {
-        window.AtelierAudio.playTap();
-      }
-
-      setTimeout(() => {
-        enteredPin = '';
-        updateDots();
-        for (let i = 0; i < 4; i++) {
-          document.getElementById(`pindot-${i}`)?.classList.remove('error');
-        }
-        if (keypadBox) keypadBox.classList.remove('shake-animation');
-        if (dotsContainer) dotsContainer.classList.remove('shake-animation');
-        if (statusText && (!result || !result.locked)) {
-          statusText.innerHTML = 'Enter the customer\'s bill amount and 4-digit PIN to issue stamp & points.';
-        }
-        isChecking = false;
-      }, 850);
-    }
-  }
-
-  // Keypad click listeners
-  container.querySelectorAll('.pin-key-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const key = btn.getAttribute('data-key');
-      if (key === 'clear') {
-        handleClear();
-      } else if (key === 'back') {
-        handleBackspace();
-      } else if (key) {
-        handleDigit(key);
-      }
+    // Immediately pop up Saga Level road progression with animated character!
+    openSagaLevelAdvanceModal({
+      oldPoints,
+      newPoints,
+      pointsEarned: res.pointsEarned,
+      newVisits: res.newVisits,
+      drinkName
     });
   });
 
-  // Physical keyboard listener
-  const keydownHandler = (e) => {
-    // If typing inside the bill amount input, don't trigger PIN keypad
-    if (e.target && e.target.id === 'owner-bill-amount-input') return;
+  document.getElementById('close-collect-stamp-btn')?.addEventListener('click', closeAllModals);
+  document.getElementById('collect-stamp-backdrop')?.addEventListener('click', (e) => {
+    if (e.target.id === 'collect-stamp-backdrop') closeAllModals();
+  });
+}
 
-    if (e.key >= '0' && e.key <= '9') {
-      handleDigit(e.key);
-    } else if (e.key === 'Backspace') {
-      handleBackspace();
-    } else if (e.key === 'Escape') {
-      closeAllModals();
+// 8. Saga Level Progress Popup & Animated Road Character March
+function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned = 0, newVisits = 1, drinkName = 'Café Order' } = {}) {
+  closeAllModals();
+  const container = document.getElementById('modal-root');
+  if (!container) return;
+
+  const store = window.AtelierStore;
+  const user = store.getState().user || { firstName: 'Explorer' };
+  const candy = window.candyEngine;
+  const oldLvl = candy ? candy.calculateCurrentLevel({ points: oldPoints }) : 1;
+  const newLvl = candy ? candy.calculateCurrentLevel({ points: newPoints }) : 1;
+  const isLevelUp = newLvl > oldLvl;
+
+  container.innerHTML = `
+    <div class="modal-backdrop is-active" id="saga-advance-backdrop">
+      <div class="modal-card saga-advance-modal-card" style="max-width: 440px; padding: 1.5rem 1.2rem; text-align: center; max-height: 90vh; overflow-y: auto;">
+        
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.2rem;">✨</span>
+            <span class="eyebrow" style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold-foil);">SAGA ROAD PROGRESSION</span>
+          </div>
+          <button class="btn-text" id="close-saga-advance-btn" style="font-size: 1.3rem; color: var(--color-roast-muted);">✕</button>
+        </div>
+
+        <div class="saga-advance-points-banner">
+          <div class="saga-advance-pts-glow" style="font-size: 1.6rem; font-weight: 800; color: #FFD43F; text-shadow: 0 0 15px rgba(255, 212, 63, 0.6);">
+            +${pointsEarned} Points Added!
+          </div>
+          <p style="font-size: 0.82rem; color: var(--color-roast-medium); margin: 0.2rem 0 0.8rem;">
+            ${drinkName} • Total Balance: <strong>${newPoints} Pts</strong>
+          </p>
+          ${isLevelUp ? `
+            <div class="saga-levelup-badge" style="background: linear-gradient(135deg, rgba(200, 157, 75, 0.3), rgba(255, 212, 63, 0.2)); border: 1px solid #FFD43F; border-radius: 999px; padding: 6px 14px; font-weight: 800; font-size: 0.85rem; color: #FFF; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(255, 212, 63, 0.3);">
+              🏆 LEVEL UP! Level ${newLvl} Achieved!
+            </div>
+          ` : `
+            <div class="saga-advancing-pill" style="background: rgba(255, 212, 63, 0.12); border: 1px solid rgba(255, 212, 63, 0.3); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 0.78rem; color: #FFE8A3; display: inline-flex; align-items: center; gap: 5px;">
+              ⭐ ${user.firstName} is advancing on the road to Level ${Math.min(10, newLvl + 1)}!
+            </div>
+          `}
+        </div>
+
+        <!-- Saga Road Winding Section -->
+        <div class="saga-advance-map-viewport" id="saga-modal-map-viewport" style="border-radius: 18px; border: 1px solid rgba(200, 157, 75, 0.3); overflow: hidden; background: #120D0A; margin: 0.8rem 0; position: relative; max-height: 380px; overflow-y: auto;">
+          ${candy ? candy.renderSagaMap({ compact: true }) : ''}
+        </div>
+
+        <button id="saga-modal-continue-btn" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem; margin-top: 0.6rem;">
+          <span>Continue Journey ☕</span>
+        </button>
+
+      </div>
+    </div>
+  `;
+
+  // Animate character moving through the levels
+  setTimeout(() => {
+    const mapViewport = document.getElementById('saga-modal-map-viewport');
+    if (!mapViewport || !candy) return;
+
+    const charEl = mapViewport.querySelector('.candy-character-container');
+    if (!charEl) return;
+
+    // Calculate waypoints for compact map
+    const totalLevels = candy.levels.length;
+    const nodeSpacingY = 180; // compact
+    const svgWidth = 400;
+    const paddingTop = 90;
+    const paddingBottom = 260;
+    const svgHeight = paddingTop + (totalLevels - 1) * nodeSpacingY + paddingBottom;
+
+    const nodeCoords = [];
+    for (let i = 0; i < totalLevels; i++) {
+      const lvl = candy.levels[i];
+      const x = (lvl.xPercent / 100) * svgWidth;
+      const y = svgHeight - paddingBottom - i * nodeSpacingY;
+      nodeCoords.push({ x, y, level: lvl.level, xPercent: lvl.xPercent });
     }
-  };
-  window.addEventListener('keydown', keydownHandler);
+    const startCoord = { x: (38 / 100) * svgWidth, y: svgHeight - 65, level: 0, xPercent: 38 };
+    const waypoints = [startCoord, ...nodeCoords];
+
+    const oldPos = candy.getCharacterRoadPosition(oldPoints, waypoints, svgWidth);
+    const newPos = candy.getCharacterRoadPosition(newPoints, waypoints, svgWidth);
+
+    // 1. Set starting position to oldPoints
+    charEl.style.transition = 'none';
+    charEl.style.left = `${oldPos.xPercent}%`;
+    charEl.style.top = `${oldPos.y}px`;
+
+    // Center viewport on character
+    charEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+
+    // 2. Animate to newPoints
+    setTimeout(() => {
+      charEl.style.transition = 'left 1.8s cubic-bezier(0.34, 1.25, 0.64, 1), top 1.8s cubic-bezier(0.34, 1.25, 0.64, 1)';
+      charEl.style.left = `${newPos.xPercent}%`;
+      charEl.style.top = `${newPos.y}px`;
+
+      // Update completed river path SVG
+      const completedPath = mapViewport.querySelector('.candy-svg-completed-fill');
+      const glowPath = mapViewport.querySelector('.candy-svg-completed-glow');
+      const newPathD = candy.generateProgressPathSvg(waypoints, newPos);
+      if (completedPath && newPathD) completedPath.setAttribute('d', newPathD);
+      if (glowPath && newPathD) glowPath.setAttribute('d', newPathD);
+
+      if (window.AtelierAudio && window.AtelierAudio.playCardFlip) {
+        window.AtelierAudio.playCardFlip();
+      }
+
+      // Smooth scroll viewport along with character
+      setTimeout(() => {
+        charEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+
+      // Character tap celebration bounce at destination
+      setTimeout(() => {
+        charEl.classList.add('is-tapped');
+        if (window.AtelierAudio) {
+          if (isLevelUp && window.AtelierAudio.playRewardUnlock) {
+            window.AtelierAudio.playRewardUnlock();
+          } else if (window.AtelierAudio.playTap) {
+            window.AtelierAudio.playTap();
+          }
+        }
+        if (isLevelUp && window.launchAtelierCelebration) {
+          window.launchAtelierCelebration();
+        }
+      }, 1800);
+    }, 200);
+  }, 100);
 
   // Close handlers
-  document.getElementById('close-owner-stamp-btn')?.addEventListener('click', () => {
-    window.removeEventListener('keydown', keydownHandler);
+  const handleClose = () => {
     closeAllModals();
-  });
-  document.getElementById('owner-stamp-backdrop')?.addEventListener('click', (e) => {
-    if (e.target.id === 'owner-stamp-backdrop') {
-      window.removeEventListener('keydown', keydownHandler);
-      closeAllModals();
-    }
+    if (window.router) window.router.render();
+  };
+  document.getElementById('close-saga-advance-btn')?.addEventListener('click', handleClose);
+  document.getElementById('saga-modal-continue-btn')?.addEventListener('click', handleClose);
+  document.getElementById('saga-advance-backdrop')?.addEventListener('click', (e) => {
+    if (e.target.id === 'saga-advance-backdrop') handleClose();
   });
 }
 
@@ -865,6 +1179,12 @@ function closeAllModals() {
   }
   const container = document.getElementById('modal-root');
   if (container) container.innerHTML = '';
+  document.body.style.overflow = '';
+  const dock = document.getElementById('mobile-app-dock');
+  if (dock) {
+    dock.style.opacity = '1';
+    dock.style.pointerEvents = 'auto';
+  }
 }
 
 window.openRedemptionPassModal = openRedemptionPassModal;
@@ -873,6 +1193,9 @@ window.openWelcomeCeremonyModal = openWelcomeCeremonyModal;
 window.openReceiptModal = openReceiptModal;
 window.openAddProductModal = openAddProductModal;
 window.openCaffeineWrappedModal = openCaffeineWrappedModal;
-window.openOwnerStampModal = openOwnerStampModal;
+window.openReviewModal = openReviewModal;
+window.openCollectStampModal = openCollectStampModal;
+window.openOwnerStampModal = openCollectStampModal;
+window.openSagaLevelAdvanceModal = openSagaLevelAdvanceModal;
 window.openForgotPasswordModal = openForgotPasswordModal;
 window.closeAllModals = closeAllModals;

@@ -238,22 +238,23 @@ function initDashboardEvents() {
     if (window.initCandyLevelsEvents) window.initCandyLevelsEvents();
   });
 
-  // Quick Collect Stamp Button -> Requires Café Owner Password / PIN
+  // Quick Collect Stamp Button -> Opens Collect Stamp & Saga Level Animation Flow
   document.getElementById('dash-quick-stamp-btn')?.addEventListener('click', () => {
-    if (window.openOwnerStampModal) {
+    if (window.openCollectStampModal) {
+      window.openCollectStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 250 });
+    } else if (window.openOwnerStampModal) {
       window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 250 });
-    } else {
-      const res = window.AtelierStore.addStamp('Chikmagalur Single-Estate Pour Over', 250);
-      window.showToast(`Stamp #${res.newVisits} stamped! +${res.pointsEarned} Points ☕`);
     }
   });
 
-  // Tapping next target slot on loyalty card also prompts for Café Owner verification
+  // Tapping next target slot on loyalty card also prompts for Collect Stamp flow
   document.querySelectorAll('.stamp-slot.next-target').forEach(slot => {
     slot.style.cursor = 'pointer';
     slot.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (window.openOwnerStampModal) {
+      if (window.openCollectStampModal) {
+        window.openCollectStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 250 });
+      } else if (window.openOwnerStampModal) {
         window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 250 });
       }
     });

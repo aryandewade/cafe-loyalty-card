@@ -981,7 +981,9 @@ class CandyLevelsEngine {
   // Quick actions
   claimCurrentStamp(levelNum) {
     this.closeModal();
-    if (window.openOwnerStampModal) {
+    if (window.openCollectStampModal) {
+      window.openCollectStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over' });
+    } else if (window.openOwnerStampModal) {
       window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over' });
     } else if (window.AtelierStore) {
       window.AtelierStore.addStamp('Chikmagalur Single-Estate Pour Over');
@@ -996,7 +998,9 @@ class CandyLevelsEngine {
   }
 
   openNextLevelAction() {
-    if (window.openOwnerStampModal) {
+    if (window.openCollectStampModal) {
+      window.openCollectStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over' });
+    } else if (window.openOwnerStampModal) {
       window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over' });
     } else {
       const store = window.AtelierStore;

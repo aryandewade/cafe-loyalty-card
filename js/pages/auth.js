@@ -89,7 +89,7 @@ function renderLoginForm() {
     <form id="login-form" class="auth-form-body">
       <div class="auth-field">
         <label class="auth-label">Email Address</label>
-        <input type="email" id="login-email" class="auth-input" required value="arjun.mehta@atelier-coffee.com" placeholder="your@email.com">
+        <input type="email" id="login-email" class="auth-input" required placeholder="arjun.mehta@atelier-coffee.com" autocomplete="email">
       </div>
 
       <div class="auth-field">
@@ -97,7 +97,7 @@ function renderLoginForm() {
           <label class="auth-label">Password</label>
           <button type="button" id="auth-forgot-btn" class="btn-text auth-forgot-btn">Forgot?</button>
         </div>
-        <input type="password" id="login-password" class="auth-input" required value="••••••••••••">
+        <input type="password" id="login-password" class="auth-input" required placeholder="Enter your password" autocomplete="current-password">
       </div>
 
       <div class="auth-remember-row">
@@ -124,22 +124,28 @@ function renderRegisterForm() {
       <div class="auth-grid-2col">
         <div class="auth-field">
           <label class="auth-label">First Name</label>
-          <input type="text" id="reg-firstname" class="auth-input" required placeholder="Elena">
+          <input type="text" id="reg-firstname" class="auth-input" required placeholder="Aryan">
         </div>
         <div class="auth-field">
           <label class="auth-label">Last Name</label>
-          <input type="text" id="reg-lastname" class="auth-input" required placeholder="Vane">
+          <input type="text" id="reg-lastname" class="auth-input" required placeholder="Dewade">
+        </div>
+      </div>
+
+      <div class="auth-grid-2col">
+        <div class="auth-field">
+          <label class="auth-label">Date of Birth (DOB)</label>
+          <input type="date" id="reg-dob" class="auth-input" required title="Your birth date for annual birthday reserve rewards">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Mobile Phone</label>
+          <input type="tel" id="reg-phone" class="auth-input" required placeholder="+91 98201 44829">
         </div>
       </div>
 
       <div class="auth-field">
         <label class="auth-label">Email Address</label>
-        <input type="email" id="reg-email" class="auth-input" required placeholder="elena@example.com">
-      </div>
-
-      <div class="auth-field">
-        <label class="auth-label">Mobile Phone (for Barista Pass)</label>
-        <input type="tel" id="reg-phone" class="auth-input" required placeholder="+1 (555) 019-2834">
+        <input type="email" id="reg-email" class="auth-input" required placeholder="aryan@example.com">
       </div>
 
       <div class="auth-grid-2col">
@@ -186,6 +192,25 @@ function initAuthEvents() {
     window.openForgotPasswordModal();
   });
 
+  // Clear pre-filled input on click/focus
+  const emailInput = document.getElementById('login-email');
+  const pwdInput = document.getElementById('login-password');
+  [emailInput, pwdInput].forEach(inp => {
+    if (!inp) return;
+    inp.addEventListener('focus', function() {
+      if (this.dataset.autoCleared !== 'true' && this.value) {
+        this.value = '';
+        this.dataset.autoCleared = 'true';
+      }
+    });
+    inp.addEventListener('click', function() {
+      if (this.dataset.autoCleared !== 'true' && this.value) {
+        this.value = '';
+        this.dataset.autoCleared = 'true';
+      }
+    });
+  });
+
   // 1-Click Demo Login
   document.getElementById('quick-demo-login-btn')?.addEventListener('click', () => {
     window.AtelierStore.login();
@@ -204,12 +229,13 @@ function initAuthEvents() {
   // Register Form Submission -> Welcome Ceremony Trigger!
   document.getElementById('register-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const firstName = document.getElementById('reg-firstname')?.value || 'New';
-    const lastName = document.getElementById('reg-lastname')?.value || 'Member';
-    const email = document.getElementById('reg-email')?.value || 'new@atelier.com';
-    const phone = document.getElementById('reg-phone')?.value || '+1 555-0100';
+    const firstName = document.getElementById('reg-firstname')?.value?.trim() || 'New';
+    const lastName = document.getElementById('reg-lastname')?.value?.trim() || 'Member';
+    const dob = document.getElementById('reg-dob')?.value || '';
+    const email = document.getElementById('reg-email')?.value?.trim() || 'new@atelier.com';
+    const phone = document.getElementById('reg-phone')?.value?.trim() || '+1 555-0100';
 
-    window.AtelierStore.register({ firstName, lastName, email, phone });
+    window.AtelierStore.register({ firstName, lastName, dob, email, phone });
     // Launch Welcome Ceremony
     window.openWelcomeCeremonyModal(window.AtelierStore.getState().user);
   });

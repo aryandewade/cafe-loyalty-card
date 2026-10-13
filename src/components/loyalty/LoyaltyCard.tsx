@@ -339,7 +339,7 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
           onClick={() => setShowWrappedModal(true)}
           className="text-xs text-[#BC5A2B] hover:text-[#913E18] font-semibold inline-flex items-center gap-1 transition"
         >
-          <span>📸 Monthly Wrapped (9:16)</span>
+          <span>📸 Monthly Wrapped</span>
           <span>↗</span>
         </button>
       </div>
@@ -546,10 +546,10 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
               <div className="flex gap-2 justify-center mt-3">
                 <button
                   type="button"
-                  onClick={() => alert('✨ 9:16 Story Graphic generated! Ready to post on Instagram / TikTok Stories.')}
+                  onClick={() => alert('✨ Story Graphic generated! Ready to post on Instagram / TikTok Stories.')}
                   className="px-4 py-2 bg-[#181311] text-white text-xs font-semibold rounded-full shadow hover:bg-black transition"
                 >
-                  📸 Download Story (9:16)
+                  📸 Download Story
                 </button>
                 <button
                   type="button"

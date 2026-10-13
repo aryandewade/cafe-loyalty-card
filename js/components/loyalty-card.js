@@ -93,11 +93,12 @@ function renderLoyaltyCard(options = {}) {
             ${stampsHtml}
           </div>
 
-          <!-- Card Footer Info -->
+          <!-- Card Footer Bar: Customer Name & Member ID -->
           <div class="card-footer-bar">
-            <div>
-              <div class="card-holder-name">${user.firstName} ${user.lastName}</div>
-              <div style="font-size: 0.65rem; color: #AA9588; margin-top: 1px;">Member since ${user.memberSince}</div>
+            <div class="card-holder-box">
+              <span class="card-holder-tag">CUSTOMER NAME</span>
+              <div class="card-holder-name">${(user.firstName || 'Valued') + ' ' + (user.lastName || 'Guest')}</div>
+              <div class="card-holder-since">Member since ${user.memberSince || '2024'}</div>
             </div>
             <div style="text-align: right;">
               <div class="card-member-id">${user.membershipId}</div>
@@ -133,7 +134,13 @@ function renderLoyaltyCard(options = {}) {
             <div style="background: #FFF; padding: 8px; border-radius: 12px; border: 1px solid var(--color-cream-border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
               ${qrSvg}
             </div>
-            <div class="font-mono" style="font-size: 0.85rem; font-weight: 600; color: var(--color-espresso); margin-top: 0.5rem; letter-spacing: 0.1em;">
+            <div style="margin-top: 0.4rem; text-align: center;">
+              <div style="font-size: 0.62rem; color: var(--color-roast-muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 800;">Customer</div>
+              <div style="font-size: 0.95rem; font-weight: 700; color: var(--color-espresso); text-transform: uppercase; letter-spacing: 0.04em;">
+                ${(user.firstName || 'Valued') + ' ' + (user.lastName || 'Guest')}
+              </div>
+            </div>
+            <div class="font-mono" style="font-size: 0.85rem; font-weight: 600; color: var(--color-espresso); margin-top: 0.3rem; letter-spacing: 0.1em;">
               ${user.membershipId}
             </div>
           </div>
@@ -168,7 +175,7 @@ function renderLoyaltyCard(options = {}) {
 
         <div style="text-align: center; margin-top: 0.6rem;">
           <button id="card-open-wrapped-btn" class="btn-text" style="font-size: 0.82rem; color: var(--color-terracotta); font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>📸 Monthly Caffeine Wrapped (9:16 Instagram Story)</span>
+            <span>📸 Monthly Caffeine Wrapped</span>
             <span>↗</span>
           </button>
         </div>
