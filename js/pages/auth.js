@@ -50,6 +50,9 @@ function renderAuthPage(initialMode = 'login') {
 
             <!-- RIGHT: Interactive Form (Login vs Register Switcher) -->
             <div class="auth-form-panel">
+              <div class="auth-glass-header">
+                <span class="auth-glass-badge"><span class="auth-badge-dot"></span> Member Lounge Access</span>
+              </div>
               
               <!-- Mode Tabs -->
               <div class="auth-mode-tabs">
@@ -124,11 +127,11 @@ function renderRegisterForm() {
       <div class="auth-grid-2col">
         <div class="auth-field">
           <label class="auth-label" for="reg-firstname">First Name</label>
-          <input type="text" id="reg-firstname" class="auth-input" required placeholder="Aryan">
+          <input type="text" id="reg-firstname" class="auth-input" required placeholder="Alex">
         </div>
         <div class="auth-field">
           <label class="auth-label" for="reg-lastname">Last Name</label>
-          <input type="text" id="reg-lastname" class="auth-input" required placeholder="Dewade">
+          <input type="text" id="reg-lastname" class="auth-input" required placeholder="Doe">
         </div>
       </div>
 
@@ -145,7 +148,7 @@ function renderRegisterForm() {
 
       <div class="auth-field">
         <label class="auth-label" for="reg-email">Email Address</label>
-        <input type="email" id="reg-email" class="auth-input" required placeholder="aryan@example.com" autocomplete="email">
+        <input type="email" id="reg-email" class="auth-input" required placeholder="alex.doe@example.com" autocomplete="email">
       </div>
 
       <div class="auth-grid-2col">

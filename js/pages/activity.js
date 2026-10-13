@@ -8,7 +8,9 @@ function renderActivityPage() {
   const state = store.getState();
   const { activities, membership } = state;
 
-  const itemsHtml = activities.map(act => `
+  const currentPoints = membership?.points || 0;
+  const itemsList = activities || [];
+  const itemsHtml = itemsList.length > 0 ? itemsList.map(act => `
     <div class="timeline-item" data-act-id="${act.id}">
       <div class="timeline-left">
         <div class="timeline-icon-disc">
@@ -40,7 +42,12 @@ function renderActivityPage() {
         <span class="timeline-time">${act.date} • ${act.time}</span>
       </div>
     </div>
-  `).join('');
+  `).join('') : `
+    <div style="text-align: center; padding: 4rem 1rem; color: var(--color-roast-muted); background: var(--bg-surface); border: 1px dashed var(--color-cream-border); border-radius: 16px;">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">☕</div>
+      <p style="font-size: 0.92rem; margin: 0;">No transactions yet. Visit any Atelier Roastery to collect stamps and earn points.</p>
+    </div>
+  `;
 
   return `
     <div class="activity-page-root" style="padding: 2.5rem 0 5rem;">
@@ -58,7 +65,7 @@ function renderActivityPage() {
           <!-- Total Balance Pill -->
           <div style="background: var(--bg-surface); border: 1px solid var(--color-cream-border); padding: 0.6rem 1.2rem; border-radius: 16px; text-align: right;">
             <div style="font-size: 0.72rem; color: var(--color-roast-muted); text-transform: uppercase;">Current Balance</div>
-            <div class="font-serif" style="font-size: 1.4rem; font-weight: 600; color: var(--color-espresso);">${membership.points} Points</div>
+            <div class="font-serif" style="font-size: 1.4rem; font-weight: 600; color: var(--color-espresso);">${currentPoints} Points</div>
           </div>
         </div>
 

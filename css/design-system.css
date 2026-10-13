@@ -1601,9 +1601,9 @@ p, span, div {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(20, 15, 13, 0.78);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(20, 15, 13, 0.58);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   z-index: 20000;
   display: flex;
   align-items: center;
@@ -1624,11 +1624,13 @@ p, span, div {
 .modal-card {
   width: 100%;
   max-width: 460px;
-  background: var(--bg-surface);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   border-radius: var(--radius-outer);
   padding: 8px;
-  border: 1px solid var(--color-cream-border);
-  box-shadow: var(--shadow-modal);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow-modal), inset 0 1px 2px rgba(255, 255, 255, 0.9);
   transform: translateY(20px) scale(0.96);
   transition: transform 0.4s var(--ease-spring);
   position: relative;
@@ -1636,6 +1638,14 @@ p, span, div {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   margin: auto;
+}
+
+[data-theme="dark"] .modal-card {
+  background: rgba(32, 25, 22, 0.78);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(200, 157, 75, 0.28);
+  box-shadow: var(--shadow-modal), inset 0 1px 2px rgba(255, 255, 255, 0.08);
 }
 
 .modal-backdrop.is-active .modal-card {
@@ -1754,6 +1764,11 @@ p, span, div {
    AUTHENTICATION PAGE RESPONSIVE SYSTEM
    ========================================================================== */
 
+/* ==========================================================================
+   AUTHENTICATION PAGE RESPONSIVE SYSTEM (GLASSMORPHISM ENGINE)
+   High-translucency frosted glassmorphism displaying interactive ambient canvas
+   ========================================================================== */
+
 .auth-page-root {
   min-height: calc(100vh - 90px);
   display: flex;
@@ -1762,16 +1777,74 @@ p, span, div {
   padding: 2.5rem 0 4rem;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
 }
 
 .auth-card-container {
   max-width: 1040px;
   width: 100%;
+  position: relative;
+  z-index: 2;
 }
 
+/* Glassmorphic Double-Bezel Frame */
 .auth-double-bezel {
   padding: 10px;
-  background: var(--bg-canvas-subtle);
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: var(--radius-outer);
+  box-shadow: 
+    0 30px 70px -15px rgba(24, 19, 17, 0.14),
+    0 0 0 1px rgba(255, 255, 255, 0.6),
+    inset 0 1.5px 3px rgba(255, 255, 255, 0.9);
+  position: relative;
+  transition: transform var(--duration-normal) var(--ease-tactile), box-shadow var(--duration-normal) var(--ease-tactile);
+}
+
+[data-theme="dark"] .auth-double-bezel {
+  background: rgba(30, 23, 20, 0.45);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(200, 157, 75, 0.28);
+  box-shadow: 
+    0 30px 70px -15px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(200, 157, 75, 0.15),
+    inset 0 1.5px 3px rgba(255, 255, 255, 0.08);
+}
+
+/* Top Glass Specular Refraction Sheen */
+.auth-double-bezel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: var(--radius-outer) var(--radius-outer) 0 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+[data-theme="dark"] .auth-double-bezel::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+/* Override inner container background to allow full transparency for canvas */
+.auth-double-bezel .double-bezel-inner {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .auth-double-bezel .double-bezel-inner {
+  background: rgba(18, 14, 12, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
 .auth-split-grid {
@@ -1781,14 +1854,25 @@ p, span, div {
   overflow: hidden;
 }
 
+/* LEFT: Smoked Obsidian & Dark Roast Luxury Glass Panel */
 .auth-editorial-panel {
-  background: linear-gradient(145deg, #241A16 0%, #17110F 100%);
+  background: linear-gradient(145deg, rgba(34, 25, 21, 0.74) 0%, rgba(20, 15, 13, 0.84) 100%);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
   color: #FAF4EA;
   padding: 3rem 2.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
+  border-right: 1px solid rgba(200, 157, 75, 0.22);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .auth-editorial-panel {
+  background: linear-gradient(145deg, rgba(26, 19, 16, 0.7) 0%, rgba(14, 10, 9, 0.82) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-right: 1px solid rgba(200, 157, 75, 0.2);
 }
 
@@ -1797,7 +1881,7 @@ p, span, div {
   inset: 0;
   background-image: radial-gradient(rgba(200, 157, 75, 0.08) 1px, transparent 1px);
   background-size: 16px 16px;
-  opacity: 0.6;
+  opacity: 0.35;
   pointer-events: none;
 }
 
@@ -1819,18 +1903,22 @@ p, span, div {
   font-size: 1.1rem;
   background: var(--color-gold-foil);
   color: #181210;
+  box-shadow: 0 2px 8px rgba(200, 157, 75, 0.35);
 }
 
 .auth-brand-text {
   font-size: 1.3rem;
   color: #FAF4EA;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .auth-eyebrow {
-  background: rgba(200, 157, 75, 0.15);
-  border-color: rgba(200, 157, 75, 0.3);
+  background: rgba(200, 157, 75, 0.18);
+  border-color: rgba(200, 157, 75, 0.35);
   color: #E5BE6C;
   margin-bottom: 1.2rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .auth-quote-heading {
@@ -1838,13 +1926,15 @@ p, span, div {
   line-height: 1.2;
   color: #FAF4EA;
   margin-bottom: 1.2rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .auth-quote-desc {
-  color: #BBA89E;
+  color: #C8B7AD;
   font-size: 0.95rem;
   line-height: 1.6;
   max-width: 380px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .auth-mini-card-bar {
@@ -1862,47 +1952,126 @@ p, span, div {
   font-family: var(--font-mono);
 }
 
+/* RIGHT: Frosted Crystal Glass Form Panel */
 .auth-form-panel {
   padding: 3rem 2.8rem;
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.52) 0%, rgba(251, 248, 243, 0.38) 100%);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.9);
 }
 
+[data-theme="dark"] .auth-form-panel {
+  background: linear-gradient(135deg, rgba(34, 27, 24, 0.5) 0%, rgba(24, 19, 17, 0.6) 100%);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08);
+}
+
+/* Frosted Header Badge */
+.auth-glass-header {
+  margin-bottom: 1.25rem;
+}
+
+.auth-glass-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(200, 157, 75, 0.12);
+  border: 1px solid rgba(200, 157, 75, 0.3);
+  color: var(--color-gold-foil);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .auth-glass-badge {
+  background: rgba(216, 176, 98, 0.14);
+  border-color: rgba(216, 176, 98, 0.35);
+}
+
+.auth-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2E9D68;
+  box-shadow: 0 0 6px #2E9D68;
+}
+
+/* Frosted Capsule Mode Tabs */
 .auth-mode-tabs {
   display: flex;
-  gap: 1.5rem;
-  border-bottom: 1px solid var(--color-cream-border);
-  padding-bottom: 0.8rem;
+  gap: 0.5rem;
+  padding: 5px;
+  background: rgba(24, 19, 17, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 14px;
   margin-bottom: 2rem;
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .auth-mode-tabs {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .auth-tab-btn {
-  background: none;
+  flex: 1;
+  background: transparent;
   border: none;
   font-family: var(--font-serif);
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   cursor: pointer;
   color: var(--color-roast-muted);
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all var(--duration-fast) var(--ease-tactile);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  padding-bottom: 0.4rem;
-  font-weight: 400;
-  transition: color 0.2s;
+}
+
+.auth-tab-btn:hover {
+  color: var(--color-espresso);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="dark"] .auth-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #FAF4EA;
 }
 
 .auth-tab-btn.active {
   color: var(--color-espresso);
   font-weight: 600;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 14px rgba(24, 19, 17, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .auth-tab-btn.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #FAF4EA;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .auth-tab-indicator {
-  position: absolute;
-  bottom: -0.9rem;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--color-terracotta);
+  display: none;
 }
 
 .auth-form-body {
@@ -1923,69 +2092,139 @@ p, span, div {
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   display: block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.45rem;
   color: var(--color-espresso);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .auth-label {
+  color: var(--color-espresso);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .auth-label-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.45rem;
 }
 
 .auth-forgot-btn {
   padding: 0;
   font-size: 0.78rem;
   color: var(--color-terracotta);
+  font-weight: 500;
+  transition: opacity 0.2s;
 }
 
+.auth-forgot-btn:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
+/* Tactile Glass Inputs */
 .auth-input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1.05rem;
   border-radius: 12px;
-  border: 1px solid var(--color-cream-border);
+  border: 1px solid rgba(215, 205, 195, 0.7);
   font-family: var(--font-sans);
-  font-size: 0.92rem;
-  background: var(--bg-surface-elevated);
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--color-espresso);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.2s var(--ease-tactile);
   box-sizing: border-box;
+  box-shadow: 
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .auth-input {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 157, 75, 0.22);
+  color: #FAF4EA;
+  box-shadow: 
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.auth-input::placeholder {
+  color: var(--color-roast-muted);
+  opacity: 0.85;
 }
 
 .auth-input:focus {
   outline: none;
+  background: rgba(255, 255, 255, 0.88);
   border-color: var(--color-terracotta);
-  box-shadow: 0 0 0 3px rgba(188, 90, 43, 0.12);
+  box-shadow: 
+    0 0 0 3.5px rgba(188, 90, 43, 0.16),
+    0 4px 16px rgba(188, 90, 43, 0.1);
+}
+
+[data-theme="dark"] .auth-input:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--color-terracotta);
+  box-shadow: 
+    0 0 0 3.5px rgba(217, 115, 67, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .auth-remember-row,
 .auth-terms-row {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
   font-size: 0.85rem;
-  color: var(--color-roast-medium);
+  color: var(--color-espresso-subtle);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .auth-remember-row,
+[data-theme="dark"] .auth-terms-row {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
 }
 
 .auth-remember-row input,
 .auth-terms-row input {
   accent-color: var(--color-terracotta);
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
 }
 
 .auth-submit-btn {
   width: 100%;
   justify-content: center;
-  padding: 0.85rem;
-  margin-top: 0.5rem;
+  padding: 0.92rem;
+  margin-top: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 
+    0 8px 24px -4px rgba(188, 90, 43, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  transition: all var(--duration-fast) var(--ease-tactile);
+}
+
+.auth-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 28px -4px rgba(188, 90, 43, 0.45),
+    inset 0 1px 1px rgba(255, 255, 255, 0.45);
 }
 
 .auth-demo-row {
   margin-top: 1.8rem;
   padding-top: 1.2rem;
-  border-top: 1px dashed var(--color-cream-border);
+  border-top: 1px dashed rgba(200, 185, 170, 0.4);
   text-align: center;
 }
 
@@ -1995,17 +2234,25 @@ p, span, div {
 }
 
 .auth-error-banner {
-  background: rgba(194, 89, 63, 0.08);
-  border: 1px solid rgba(194, 89, 63, 0.3);
+  background: rgba(194, 89, 63, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(194, 89, 63, 0.35);
   color: #a73318;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  font-size: 0.86rem;
   line-height: 1.4;
   margin-bottom: 1.2rem;
   display: none;
   align-items: center;
   gap: 0.6rem;
+}
+
+[data-theme="dark"] .auth-error-banner {
+  background: rgba(220, 80, 50, 0.18);
+  border-color: rgba(220, 80, 50, 0.4);
+  color: #ff9f8a;
 }
 
 .auth-grid-2col {

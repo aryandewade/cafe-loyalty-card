@@ -120,7 +120,7 @@ function openWelcomeCeremonyModal(user) {
         <div class="eyebrow eyebrow-accent">Welcome to the Club</div>
         
         <h2 style="font-size: 2.2rem; margin-bottom: 0.6rem;">
-          Welcome, ${user.firstName}.
+          Welcome, ${user?.first_name || user?.firstName || 'Connoisseur'}.
         </h2>
         <p style="color: var(--color-roast-medium); font-size: 0.95rem; margin-bottom: 1.8rem; line-height: 1.6;">
           Your digital membership card has been crafted. We’ve added your first complimentary welcome stamp and 100 points to start your journey.
@@ -161,7 +161,7 @@ function openReceiptModal(activity) {
   const amount = activity.amountSpent !== undefined ? activity.amountSpent : 180;
   const rate = activity.conversionRate || currentRate;
   const points = activity.pointsEarned !== undefined ? activity.pointsEarned : Math.floor(amount / rate);
-  const newBal = activity.newBalance !== undefined ? activity.newBalance : (store ? store.getState().membership.points : 438);
+  const newBal = activity.newBalance !== undefined ? activity.newBalance : (store ? (store.getState().membership?.points || 0) : 0);
   const prevBal = activity.previousBalance !== undefined ? activity.previousBalance : Math.max(0, newBal - points);
 
   container.innerHTML = `
@@ -332,6 +332,8 @@ function openForgotPasswordModal() {
   const container = document.getElementById('modal-root');
   if (!container) return;
 
+  const currentEmail = window.AtelierStore?.getState()?.user?.email || '';
+
   container.innerHTML = `
     <div class="modal-backdrop is-active" id="forgot-password-backdrop">
       <div class="modal-card" style="max-width: 420px; padding: 2rem;">
@@ -348,7 +350,7 @@ function openForgotPasswordModal() {
         <form id="forgot-form" style="display: flex; flex-direction: column; gap: 1rem;">
           <div>
             <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem;">Email Address</label>
-            <input type="email" id="forgot-email" required placeholder="arjun@atelier-coffee.com" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: var(--font-sans); font-size: 0.9rem;" value="arjun@atelier-coffee.com">
+            <input type="email" id="forgot-email" required placeholder="name@example.com" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: var(--font-sans); font-size: 0.9rem;" value="${currentEmail}">
           </div>
 
           <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">
@@ -727,8 +729,8 @@ function openCaffeineWrappedModal() {
   if (!container) return;
 
   const store = window.AtelierStore;
-  const state = store.getState();
-  const { user, membership } = state;
+  const user = state.user || { firstName: 'Valued', lastName: 'Member', tier: 'Gold Member', membershipId: 'AT-CLUB' };
+  const membership = state.membership || { lifetimeVisits: 27, points: 420, currentStreak: 4, rewardsRedeemedCount: 3 };
 
   container.innerHTML = `
     <div class="modal-backdrop is-active" id="wrapped-modal-backdrop">
@@ -1096,37 +1098,104 @@ function openOwnerStampModal(options = {}) {
       }
 
       const oldPoints = store.getState().membership.points || 0;
-      const res = store.addStamp(drinkName, currentBill);
-      const newPoints = store.getState().membership.points || 0;
+      const currentStamps = store.getState().membership.currentStamps || 0;
+      const targetSlotIndex = currentStamps < 10 ? currentStamps + 1 : 1;
 
       setTimeout(() => {
         closeAllModals();
 
-        if (options.onSuccess) {
-          options.onSuccess(res);
-        } else {
-          window.showToast(`✓ Café Owner verified! ₹${currentBill} bill converted into +${res.pointsEarned} points. Stamp #${res.newVisits}/10 collected.`);
-          if (res.cardCompleted && window.launchAtelierCelebration) {
-            window.launchAtelierCelebration();
-            if (window.AtelierAudio && window.AtelierAudio.playRewardUnlock) {
-              window.AtelierAudio.playRewardUnlock();
-            }
-          }
+        if (typeof dashboardViewMode !== 'undefined' && dashboardViewMode !== 'card') {
+          dashboardViewMode = 'card';
+          if (window.router) window.router.render();
         }
 
-        // Open Saga Level Road progress modal
-        if (typeof openSagaLevelAdvanceModal === 'function') {
-          openSagaLevelAdvanceModal({
-            oldPoints,
-            newPoints,
-            pointsEarned: res.pointsEarned,
-            newVisits: res.newVisits,
-            drinkName
+        if (window.playStampToolAnimation) {
+          window.playStampToolAnimation({
+            slotIndex: targetSlotIndex,
+            drinkName: drinkName,
+            onComplete: () => {
+              const res = store.addStamp(drinkName, currentBill);
+              const newPoints = store.getState().membership.points || 0;
+
+              if (options.onSuccess) {
+                options.onSuccess(res);
+              } else {
+                if (typeof window.showToast === 'function') {
+                  window.showToast(`✓ Café Owner verified! ₹${currentBill} bill converted into +${res.pointsEarned} points. Stamp #${res.newVisits}/10 collected.`);
+                }
+                if (res.cardCompleted && window.launchAtelierCelebration) {
+                  window.launchAtelierCelebration();
+                  if (window.AtelierAudio && window.AtelierAudio.playRewardUnlock) {
+                    window.AtelierAudio.playRewardUnlock();
+                  }
+                }
+              }
+
+              // Open Saga Level Road progress modal with animated character walk!
+              setTimeout(() => {
+                if (typeof openSagaLevelAdvanceModal === 'function') {
+                  openSagaLevelAdvanceModal({
+                    oldPoints,
+                    newPoints,
+                    pointsEarned: res.pointsEarned,
+                    newVisits: res.newVisits,
+                    drinkName
+                  });
+                } else if (typeof window.openSagaLevelAdvanceModal === 'function') {
+                  window.openSagaLevelAdvanceModal({
+                    oldPoints,
+                    newPoints,
+                    pointsEarned: res.pointsEarned,
+                    newVisits: res.newVisits,
+                    drinkName
+                  });
+                } else if (window.router) {
+                  window.router.render();
+                }
+              }, 120);
+            }
           });
-        } else if (window.router) {
-          window.router.render();
+        } else {
+          const res = store.addStamp(drinkName, currentBill);
+          const newPoints = store.getState().membership.points || 0;
+
+          if (options.onSuccess) {
+            options.onSuccess(res);
+          } else {
+            if (typeof window.showToast === 'function') {
+              window.showToast(`✓ Café Owner verified! ₹${currentBill} bill converted into +${res.pointsEarned} points. Stamp #${res.newVisits}/10 collected.`);
+            }
+            if (res.cardCompleted && window.launchAtelierCelebration) {
+              window.launchAtelierCelebration();
+              if (window.AtelierAudio && window.AtelierAudio.playRewardUnlock) {
+                window.AtelierAudio.playRewardUnlock();
+              }
+            }
+          }
+
+          setTimeout(() => {
+            if (typeof openSagaLevelAdvanceModal === 'function') {
+              openSagaLevelAdvanceModal({
+                oldPoints,
+                newPoints,
+                pointsEarned: res.pointsEarned,
+                newVisits: res.newVisits,
+                drinkName
+              });
+            } else if (typeof window.openSagaLevelAdvanceModal === 'function') {
+              window.openSagaLevelAdvanceModal({
+                oldPoints,
+                newPoints,
+                pointsEarned: res.pointsEarned,
+                newVisits: res.newVisits,
+                drinkName
+              });
+            } else if (window.router) {
+              window.router.render();
+            }
+          }, 120);
         }
-      }, 500);
+      }, 450);
     } else {
       // Error state!
       for (let i = 0; i < 4; i++) {
@@ -1209,9 +1278,11 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
   closeAllModals();
   const container = document.getElementById('modal-root');
   if (!container) return;
+  document.body.style.overflow = 'hidden';
 
   const store = window.AtelierStore;
-  const user = store.getState().user || { firstName: 'Explorer' };
+  const rawUser = store ? store.getState().user || {} : {};
+  const user = { firstName: rawUser.first_name || rawUser.firstName || 'Explorer', ...rawUser };
   const candy = window.candyEngine;
   const oldLvl = candy ? candy.calculateCurrentLevel({ points: oldPoints }) : 1;
   const newLvl = candy ? candy.calculateCurrentLevel({ points: newPoints }) : 1;
@@ -1219,7 +1290,7 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
 
   container.innerHTML = `
     <div class="modal-backdrop is-active" id="saga-advance-backdrop">
-      <div class="modal-card saga-advance-modal-card" style="max-width: 440px; padding: 1.5rem 1.2rem; text-align: center; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-card saga-advance-modal-card" style="max-width: 440px; padding: 1.5rem 1.2rem; text-align: center; max-height: 90vh; overflow-y: auto; background: #18120F; color: #FAF4EA; border: 1.5px solid rgba(200, 157, 75, 0.45); box-shadow: 0 32px 80px rgba(0, 0, 0, 0.8), 0 0 30px rgba(200, 157, 75, 0.25);">
         
         <!-- Header -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
@@ -1227,15 +1298,15 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
             <span style="font-size: 1.2rem;">✨</span>
             <span class="eyebrow" style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold-foil);">SAGA ROAD PROGRESSION</span>
           </div>
-          <button class="btn-text" id="close-saga-advance-btn" style="font-size: 1.3rem; color: var(--color-roast-muted);">✕</button>
+          <button class="btn-text" id="close-saga-advance-btn" style="font-size: 1.3rem; color: #C89D4B;">✕</button>
         </div>
 
-        <div class="saga-advance-points-banner">
-          <div class="saga-advance-pts-glow" style="font-size: 1.6rem; font-weight: 800; color: #FFD43F; text-shadow: 0 0 15px rgba(255, 212, 63, 0.6);">
+        <div class="saga-advance-points-banner" style="margin-bottom: 0.6rem;">
+          <div class="saga-advance-pts-glow" style="font-size: 1.7rem; font-weight: 800; color: #FFD43F; text-shadow: 0 0 20px rgba(255, 212, 63, 0.7); letter-spacing: -0.02em;">
             +${pointsEarned} Points Added!
           </div>
-          <p style="font-size: 0.82rem; color: var(--color-roast-medium); margin: 0.2rem 0 0.8rem;">
-            ${drinkName} • Total Balance: <strong>${newPoints} Pts</strong>
+          <p style="font-size: 0.84rem; color: #D1C2B6; margin: 0.25rem 0 0.8rem;">
+            ${drinkName} • Total Balance: <strong style="color: #FFD43F;">${newPoints} Pts</strong>
           </p>
           ${isLevelUp ? `
             <div class="saga-levelup-badge" style="background: linear-gradient(135deg, rgba(200, 157, 75, 0.3), rgba(255, 212, 63, 0.2)); border: 1px solid #FFD43F; border-radius: 999px; padding: 6px 14px; font-weight: 800; font-size: 0.85rem; color: #FFF; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(255, 212, 63, 0.3);">
@@ -1290,64 +1361,100 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
     const oldPos = candy.getCharacterRoadPosition(oldPoints, waypoints, svgWidth);
     const newPos = candy.getCharacterRoadPosition(newPoints, waypoints, svgWidth);
 
-    // 1. Initial scroll position centered on oldPoints
-    mapViewport.scrollTop = Math.max(0, oldPos.y - 180);
+    // 1. Initial scroll & character position centered on oldPoints
+    charEl.style.setProperty('transition', 'none', 'important');
+    charEl.style.willChange = 'left, top';
+    charEl.style.left = `${oldPos.xPercent}%`;
+    charEl.style.top = `${oldPos.y}px`;
+    if (oldPos.isFacingRight !== undefined) {
+      charEl.classList.toggle('facing-right', oldPos.isFacingRight);
+      charEl.classList.toggle('facing-left', !oldPos.isFacingRight);
+    }
+    mapViewport.scrollTop = Math.max(0, oldPos.y - 170);
 
-    // 2. Animate character journey along the road to newPoints
+    // 2. Animate character journey smoothly along the road curve through each level
     setTimeout(() => {
-      charEl.style.transition = 'left 2.2s cubic-bezier(0.25, 1, 0.5, 1), top 2.2s cubic-bezier(0.25, 1, 0.5, 1)';
-      charEl.style.left = `${newPos.xPercent}%`;
-      charEl.style.top = `${newPos.y}px`;
-
-      if (newPos.isFacingRight !== undefined) {
-        charEl.classList.toggle('facing-right', newPos.isFacingRight);
-        charEl.classList.toggle('facing-left', !newPos.isFacingRight);
-      }
-
-      // Smoothly track viewport along with moving character
-      mapViewport.scrollTo({
-        top: Math.max(0, newPos.y - 180),
-        behavior: 'smooth'
-      });
-
-      // Update completed river path SVG to illuminate road up to new location
       const completedPath = mapViewport.querySelector('.candy-svg-completed-fill');
       const glowPath = mapViewport.querySelector('.candy-svg-completed-glow');
-      const newPathD = candy.generateProgressPathSvg(waypoints, newPos);
-      if (completedPath && newPathD) completedPath.setAttribute('d', newPathD);
-      if (glowPath && newPathD) glowPath.setAttribute('d', newPathD);
-
-      // Smooth real-time counter of points in character speech bubble
       const charPtsEl = charEl.querySelector('.char-pts-bold');
-      const animStartTime = performance.now();
-      const animDuration = 2200;
-      function stepCounter(now) {
-        const progress = Math.min(1, (now - animStartTime) / animDuration);
-        const curr = Math.round(oldPoints + (newPoints - oldPoints) * progress);
-        if (charPtsEl) charPtsEl.textContent = `${curr} Pts`;
-        if (progress < 1) requestAnimationFrame(stepCounter);
-      }
-      requestAnimationFrame(stepCounter);
 
       if (window.AtelierAudio && window.AtelierAudio.playCardFlip) {
         window.AtelierAudio.playCardFlip();
       }
 
-      // Character celebration bounce & triumphant sound at destination
-      setTimeout(() => {
+      if (oldPoints === newPoints) {
         charEl.classList.add('is-tapped');
-        if (window.AtelierAudio) {
-          if (isLevelUp && window.AtelierAudio.playRewardUnlock) {
-            window.AtelierAudio.playRewardUnlock();
-          } else if (window.AtelierAudio.playTap) {
-            window.AtelierAudio.playTap();
+        return;
+      }
+
+      const ptsDiff = Math.abs(newPoints - oldPoints);
+      const animDuration = Math.min(3400, Math.max(2000, 1800 + ptsDiff * 2));
+      let animStartTime = null;
+
+      function stepFrame(now) {
+        if (!animStartTime) animStartTime = now;
+        const elapsed = now - animStartTime;
+        const progress = Math.min(1, elapsed / animDuration);
+
+        // Smooth easeInOutCubic progression
+        const ease = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        const currentPts = oldPoints + (newPoints - oldPoints) * ease;
+        const currentPos = candy.getCharacterRoadPosition(currentPts, waypoints, svgWidth);
+
+        // Update character position directly on Bézier road curve
+        charEl.style.left = `${currentPos.xPercent}%`;
+        charEl.style.top = `${currentPos.y}px`;
+
+        if (currentPos.isFacingRight !== undefined) {
+          charEl.classList.toggle('facing-right', currentPos.isFacingRight);
+          charEl.classList.toggle('facing-left', !currentPos.isFacingRight);
+        }
+
+        // Camera viewport smoothly tracks moving character through levels
+        mapViewport.scrollTop = Math.max(0, currentPos.y - 180);
+
+        // Light up completed golden road path in real time
+        const currentPathD = candy.generateProgressPathSvg(waypoints, currentPos);
+        if (completedPath && currentPathD) completedPath.setAttribute('d', currentPathD);
+        if (glowPath && currentPathD) glowPath.setAttribute('d', currentPathD);
+
+        // Live points count in speech bubble
+        if (charPtsEl) {
+          charPtsEl.textContent = `${Math.round(currentPts)} Pts`;
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(stepFrame);
+        } else {
+          // Final destination settlement
+          charEl.style.left = `${newPos.xPercent}%`;
+          charEl.style.top = `${newPos.y}px`;
+          if (newPos.isFacingRight !== undefined) {
+            charEl.classList.toggle('facing-right', newPos.isFacingRight);
+            charEl.classList.toggle('facing-left', !newPos.isFacingRight);
+          }
+          if (charPtsEl) charPtsEl.textContent = `${newPoints} Pts`;
+
+          // Triumphant bounce & sound at destination
+          charEl.classList.add('is-tapped');
+          if (window.AtelierAudio) {
+            if (isLevelUp && window.AtelierAudio.playRewardUnlock) {
+              window.AtelierAudio.playRewardUnlock();
+            } else if (window.AtelierAudio.playTap) {
+              window.AtelierAudio.playTap();
+            }
+          }
+          if (isLevelUp && window.launchAtelierCelebration) {
+            window.launchAtelierCelebration();
           }
         }
-        if (isLevelUp && window.launchAtelierCelebration) {
-          window.launchAtelierCelebration();
-        }
-      }, 2200);
-    }, 350);
+      }
+
+      requestAnimationFrame(stepFrame);
+    }, 320);
   }, 100);
 
   // Close handlers

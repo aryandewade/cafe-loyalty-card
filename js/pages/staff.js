@@ -409,14 +409,20 @@ function initStaffEvents() {
       `✓ Transaction created: Cappuccino (₹180 spent) → +${res.pointsEarned} points! New balance: ${res.newBalance} points`
     );
 
-    // Open receipt modal automatically to showcase the full breakdown
-    if (window.openReceiptModal && res.transaction) {
+    // Open saga level modal to show points advance & character march through levels
+    if (typeof window.openSagaLevelAdvanceModal === 'function' && res.pointsEarned > 0) {
+      window.openSagaLevelAdvanceModal({
+        oldPoints: res.previousBalance,
+        newPoints: res.newBalance,
+        pointsEarned: res.pointsEarned,
+        newVisits: res.stampResult ? res.stampResult.newVisits : 1,
+        drinkName: 'Cappuccino'
+      });
+    } else if (window.openReceiptModal && res.transaction) {
       setTimeout(() => {
         window.openReceiptModal(res.transaction);
       }, 350);
     }
-
-    window.router.render();
   });
 
   // 2. Preset conversion rates

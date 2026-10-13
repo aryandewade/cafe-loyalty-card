@@ -542,16 +542,22 @@ class Store {
 
       if (newLvl > prevLvl) {
         setTimeout(() => {
-          if (window.candyEngine) {
-            window.candyEngine.triggerLevelUpCelebration(newLvl);
-          } else if (window.launchAtelierCelebration) {
-            window.launchAtelierCelebration();
+          const hasSagaModal = document.getElementById('saga-advance-backdrop');
+          if (!hasSagaModal) {
+            if (window.candyEngine) {
+              window.candyEngine.triggerLevelUpCelebration(newLvl);
+            } else if (window.launchAtelierCelebration) {
+              window.launchAtelierCelebration();
+            }
           }
         }, 400);
       } else if (stampResult.newVisits === 5 || stampResult.newVisits === 8 || stampResult.newVisits === 10) {
         setTimeout(() => {
-          if (window.AtelierAudio) window.AtelierAudio.playRewardUnlock();
-          if (window.launchAtelierCelebration) window.launchAtelierCelebration();
+          const hasSagaModal = document.getElementById('saga-advance-backdrop');
+          if (!hasSagaModal) {
+            if (window.AtelierAudio) window.AtelierAudio.playRewardUnlock();
+            if (window.launchAtelierCelebration) window.launchAtelierCelebration();
+          }
         }, 350);
       }
     }

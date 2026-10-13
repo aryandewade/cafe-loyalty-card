@@ -156,3 +156,38 @@ class Router {
 }
 
 window.router = new Router();
+
+// Global Tactile Toast Notification System
+window.showToast = function(message, duration = 3200) {
+  if (!message) return;
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px) scale(0.95)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => {
+      if (typeof toast.remove === 'function') {
+        toast.remove();
+      } else if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+      if (container.children.length === 0) {
+        if (typeof container.remove === 'function') container.remove();
+        else if (container.parentNode) container.parentNode.removeChild(container);
+      }
+    }, 320);
+  }, duration);
+};
+

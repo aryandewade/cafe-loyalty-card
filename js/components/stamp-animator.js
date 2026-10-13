@@ -255,8 +255,14 @@
 
     // If on a different page or card not found, navigate to dashboard first
     if (!cardEl || !slotEl) {
+      if (typeof dashboardViewMode !== 'undefined') {
+        dashboardViewMode = 'card';
+      }
       if (window.router && window.router.navigate) {
         window.router.navigate('dashboard');
+        await new Promise(r => setTimeout(r, 120));
+      } else if (window.router && window.router.render) {
+        window.router.render();
         await new Promise(r => setTimeout(r, 120));
       }
     }
