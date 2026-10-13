@@ -8,7 +8,19 @@
 function renderLoyaltyCard(options = {}) {
   const store = window.AtelierStore;
   const state = store.getState();
-  const { user, membership } = state;
+  const user = state.user || {
+    firstName: 'Connoisseur',
+    lastName: 'Circle',
+    membershipId: 'AT-PREVIEW',
+    tier: 'Gold Member',
+    memberSince: '2026'
+  };
+  const membership = state.membership || {
+    currentStamps: 7,
+    maxStamps: 10,
+    currentStreak: 4,
+    points: 420
+  };
   const stamps = membership.currentStamps;
   const maxStamps = membership.maxStamps;
   const isInteractive = options.interactive !== false;

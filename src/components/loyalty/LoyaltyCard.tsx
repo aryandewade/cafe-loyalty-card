@@ -27,7 +27,7 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
 
   // Café Owner Stamp PIN Authorization States
   const [showPinModal, setShowPinModal] = useState(false);
-  const [billAmount, setBillAmount] = useState<number>(250);
+  const [billAmount, setBillAmount] = useState<number>(200);
   const [enteredPin, setEnteredPin] = useState('');
   const [pinError, setPinError] = useState(false);
   const [pinSuccess, setPinSuccess] = useState(false);
@@ -403,19 +403,19 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
                     className="w-24 h-8 text-center font-mono text-base font-bold border border-[#C89D4B] rounded-lg bg-white text-[#181311] outline-none"
                   />
                 </div>
-                <div className="flex justify-center gap-1 flex-wrap mb-1.5">
-                  {[180, 250, 350, 500, 750, 1000].map(amt => (
+                <div className="flex justify-center gap-1.5 flex-wrap mb-1.5">
+                  {[200, 500, 1000].map(amt => (
                     <button
                       key={amt}
                       type="button"
                       onClick={() => setBillAmount(amt)}
-                      className={`text-[10px] font-mono px-2 py-0.5 rounded-full border transition ${
+                      className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border transition ${
                         billAmount === amt
                           ? 'bg-[#181311] text-white border-[#181311]'
                           : 'bg-white text-[#6E5A52] border-[#E8E2D8] hover:border-[#C89D4B]'
                       }`}
                     >
-                      ₹{amt}
+                      ₹{amt === 1000 ? '1,000' : amt}
                     </button>
                   ))}
                 </div>

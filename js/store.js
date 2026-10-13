@@ -96,34 +96,20 @@ const DEFAULT_PRODUCTS = [
 ];
 
 const DEFAULT_STATE = {
-  isAuthenticated: true,
+  isAuthenticated: false,
   cardSkin: 'espresso', // 'espresso' | 'holo' | 'matcha' | 'cyber'
   settings: DEFAULT_SETTINGS,
   products: DEFAULT_PRODUCTS,
-  user: {
-    id: 'usr_arjun_9842',
-    firstName: 'Arjun',
-    lastName: 'Mehta',
-    dob: '1996-08-14',
-    email: 'arjun.mehta@atelier-coffee.com',
-    phone: '+91 98201 44829',
-    memberSince: 'October 2024',
-    membershipId: 'AT-48291',
-    tier: 'Gold Member',
-    favoriteDrink: 'Chikmagalur Pour Over (Attikan Estate)',
-    milkPreference: 'Oatly Barista / A2 Desi Cow Milk',
-    roastPreference: 'Medium-Light (Western Ghats Shade-Grown)',
-    notificationsEnabled: true
-  },
+  user: null,
   membership: {
-    currentStamps: 7,
+    currentStamps: 0,
     maxStamps: 10,
-    lifetimeVisits: 27,
-    points: 420,
-    rewardsRedeemedCount: 3,
-    currentStreak: 4,
+    lifetimeVisits: 0,
+    points: 0,
+    rewardsRedeemedCount: 0,
+    currentStreak: 0,
     streakFreezeAvailable: 1,
-    streakMultiplier: 1.5
+    streakMultiplier: 1.0
   },
   rewards: [
     {

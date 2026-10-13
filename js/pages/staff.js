@@ -468,7 +468,15 @@ function initStaffEvents() {
       if (prod) {
         const res = store.createTransaction({ productId: prod.id, addStamp: true });
         window.showToast(`✓ Sold ${prod.name} (₹${prod.price} spent) → +${res.pointsEarned} pts! New balance: ${res.newBalance} pts`);
-        window.router.render();
+        if (typeof window.openSagaLevelAdvanceModal === 'function') {
+          window.openSagaLevelAdvanceModal({
+            oldPoints: res.previousBalance,
+            newPoints: res.newBalance,
+            pointsEarned: res.pointsEarned,
+            newVisits: res.stampResult ? res.stampResult.newVisits : 1,
+            drinkName: prod.name
+          });
+        }
       }
     });
   });

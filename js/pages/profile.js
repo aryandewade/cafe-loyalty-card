@@ -6,7 +6,24 @@
 function renderProfilePage() {
   const store = window.AtelierStore;
   const state = store.getState();
-  const { user, membership } = state;
+  const user = state.user || {
+    firstName: 'Member',
+    lastName: '',
+    tier: 'Gold Member',
+    email: '',
+    memberSince: '2026',
+    membershipId: 'AT-00000',
+    favoriteDrink: 'Chikmagalur Pour Over',
+    milkPreference: 'Oat Milk / A2 Milk',
+    roastPreference: 'Medium-Light'
+  };
+  const membership = state.membership || {
+    lifetimeVisits: 0,
+    rewardsRedeemedCount: 0,
+    points: 0
+  };
+
+  const initials = ((user.firstName || 'M')[0] + ((user.lastName || '')[0] || '')).toUpperCase();
 
   return `
     <div class="profile-page-root" style="padding: 2.5rem 0 5rem;">
@@ -27,7 +44,7 @@ function renderProfilePage() {
             <div style="display: flex; align-items: center; gap: 1.4rem;">
               <!-- Monogram Avatar -->
               <div style="width: 4.5rem; height: 4.5rem; border-radius: 50%; background: var(--color-espresso); color: #FAF6ED; display: flex; align-items: center; justify-content: center; font-family: var(--font-serif); font-size: 1.8rem; border: 2px solid var(--color-gold-foil);">
-                ${user.firstName[0]}${user.lastName[0]}
+                ${initials}
               </div>
 
               <div>

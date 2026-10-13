@@ -40,7 +40,7 @@ function renderNavbar(currentPage = 'home') {
       <!-- Member Pill -->
       <a href="#profile" class="btn-secondary nav-member-pill" style="padding: 0.4rem 0.9rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
         <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-gold-foil);"></span>
-        <span>${user.firstName}</span>
+        <span>${user?.firstName || 'Member'}</span>
       </a>
 
       <!-- Sign Out -->

@@ -396,13 +396,14 @@ class CandyLevelsEngine {
   }
 
   // Render the Candy Crush Winding Road with Interactive Character Avatar
-  renderSagaMap({ compact = false } = {}) {
+  renderSagaMap({ compact = false, currentPoints = null } = {}) {
     const store = window.AtelierStore;
     const state = store ? store.getState() : {};
     const membership = state.membership || { lifetimeVisits: 27, currentStamps: 7, points: 420 };
-    const points = membership ? (membership.points || 0) : 0;
-    const currentLevelNum = this.calculateCurrentLevel(membership);
-    const levelProgress = this.getLevelProgress(membership);
+    const points = currentPoints !== null && currentPoints !== undefined ? Number(currentPoints) : (membership ? (membership.points || 0) : 0);
+    const activeMembership = { ...membership, points };
+    const currentLevelNum = this.calculateCurrentLevel(activeMembership);
+    const levelProgress = this.getLevelProgress(activeMembership);
     const user = state.user || { firstName: 'Coffee Explorer' };
 
     // Layout configuration - Generous vertical spacing for spatial breathing room
@@ -462,7 +463,7 @@ class CandyLevelsEngine {
       const isCompleted = points >= lvl.pointsToPass;
       const isCurrent = lvl.level === currentLevelNum;
       const isLocked = lvl.level > currentLevelNum;
-      const starsEarned = this.calculateLevelStars(lvl, membership);
+      const starsEarned = this.calculateLevelStars(lvl, activeMembership);
 
       // Star cluster HTML
       let starsHtml = '';
@@ -670,12 +671,12 @@ class CandyLevelsEngine {
           <div class="candy-stats-bar">
             <div class="candy-stat-badge">
               <span class="stat-icon">⭐</span>
-              <span class="stat-val font-mono">${this.calculateTotalStars(membership)}</span>
+              <span class="stat-val font-mono">${this.calculateTotalStars(activeMembership)}</span>
               <span class="stat-lbl">Stars</span>
             </div>
             <div class="candy-stat-badge highlight">
               <span class="stat-icon">💎</span>
-              <span class="stat-val font-mono">${membership.points || 0} Pts</span>
+              <span class="stat-val font-mono">${points} Pts</span>
               <span class="stat-lbl">${levelProgress.pointsInCurrentLevel}/500 in Lvl ${currentLevelNum}</span>
             </div>
             <div class="candy-stat-badge">

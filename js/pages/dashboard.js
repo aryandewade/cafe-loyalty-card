@@ -241,9 +241,9 @@ function initDashboardEvents() {
   // Quick Collect Stamp Button -> Opens Collect Stamp & Saga Level Animation Flow
   document.getElementById('dash-quick-stamp-btn')?.addEventListener('click', () => {
     if (window.openCollectStampModal) {
-      window.openCollectStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 250 });
+      window.openCollectStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 200 });
     } else if (window.openOwnerStampModal) {
-      window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 250 });
+      window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 200 });
     }
   });
 
@@ -253,9 +253,9 @@ function initDashboardEvents() {
     slot.addEventListener('click', (e) => {
       e.stopPropagation();
       if (window.openCollectStampModal) {
-        window.openCollectStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 250 });
+        window.openCollectStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 200 });
       } else if (window.openOwnerStampModal) {
-        window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 250 });
+        window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 200 });
       }
     });
   });

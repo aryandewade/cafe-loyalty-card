@@ -32,7 +32,7 @@ export const App: React.FC = () => {
 
   const [ownerPin, setOwnerPin] = useState('1234');
 
-  const handleAddStamp = (billAmount: number = 250) => {
+  const handleAddStamp = (billAmount: number = 200) => {
     const pointsEarned = Math.floor(billAmount / 10);
     setMembership(prev => {
       const nextStamps = prev.currentStamps >= prev.maxStamps ? 1 : prev.currentStamps + 1;

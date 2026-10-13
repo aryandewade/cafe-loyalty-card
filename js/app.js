@@ -16,7 +16,12 @@ class Router {
 
     // Subscribe to central store for zero-reload reactive updates
     window.AtelierStore.subscribe(() => {
-      this.handleRoute();
+      // If modal is active, do not re-render page to avoid destroying user modal interaction state
+      const modalRoot = document.getElementById('modal-root');
+      const hasActiveModal = modalRoot && modalRoot.children.length > 0;
+      if (!hasActiveModal) {
+        this.handleRoute();
+      }
     });
 
     // Keyboard Shortcuts
@@ -116,7 +121,6 @@ class Router {
       <main id="main-content" class="page-content" tabindex="-1">
         ${pageHtml}
       </main>
-      <div id="modal-root"></div>
     `;
 
     // Rebind component listeners

@@ -1994,6 +1994,20 @@ p, span, div {
   color: var(--color-terracotta);
 }
 
+.auth-error-banner {
+  background: rgba(194, 89, 63, 0.08);
+  border: 1px solid rgba(194, 89, 63, 0.3);
+  color: #a73318;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 1.2rem;
+  display: none;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 .auth-grid-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
