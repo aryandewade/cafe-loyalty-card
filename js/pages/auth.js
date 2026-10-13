@@ -159,6 +159,15 @@ function initAuthEvents() {
     window.openForgotPasswordModal();
   });
 
+  // Initialize Bespoke Atelier Theme Calendar for Date of Birth
+  const regDobInput = document.getElementById('reg-dob');
+  if (regDobInput && window.attachAtelierDatePicker) {
+    window.attachAtelierDatePicker(regDobInput, {
+      placeholder: 'Select Date of Birth',
+      defaultYear: 1998
+    });
+  }
+
   // Login Form Submission -> Authenticates with Supabase
   const loginForm = document.getElementById('login-form');
   if (loginForm) {

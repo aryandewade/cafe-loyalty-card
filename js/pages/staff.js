@@ -10,7 +10,7 @@ function renderStaffPage() {
   const store = window.AtelierStore;
   const state = store.getState();
   const { user, membership, activeRedemptionPass, products, settings } = state;
-  const rupeesPerPoint = settings.rupeesPerPoint || 10;
+  const rupeesPerPoint = settings.rupeesPerPoint || 1;
 
   // Filter products by category
   const filteredProducts = (products || []).filter(prod => {
@@ -188,11 +188,14 @@ function renderStaffPage() {
                   Conversion Rate Presets:
                 </label>
                 <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                  <button class="rate-preset-btn ${rupeesPerPoint === 1 ? 'active' : ''}" data-rate="1">
+                    ₹1 = 1 Pt (100% back • Direct 1:1)
+                  </button>
                   <button class="rate-preset-btn ${rupeesPerPoint === 5 ? 'active' : ''}" data-rate="5">
                     ₹5 = 1 Pt (20% back)
                   </button>
                   <button class="rate-preset-btn ${rupeesPerPoint === 10 ? 'active' : ''}" data-rate="10">
-                    ₹10 = 1 Pt (10% back • Standard)
+                    ₹10 = 1 Pt (10% back)
                   </button>
                   <button class="rate-preset-btn ${rupeesPerPoint === 15 ? 'active' : ''}" data-rate="15">
                     ₹15 = 1 Pt (6.7% back)

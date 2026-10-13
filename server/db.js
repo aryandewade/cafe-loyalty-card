@@ -167,9 +167,19 @@ function seedInitialData() {
   if (!pinSetting) {
     const hashedPin = hashSecret('1234');
     db.run('INSERT INTO settings (key, value) VALUES (?, ?)', ['owner_pin_hash', hashedPin]);
-    db.run('INSERT INTO settings (key, value) VALUES (?, ?)', ['rupees_per_point', '10']);
+    db.run('INSERT INTO settings (key, value) VALUES (?, ?)', ['rupees_per_point', '1']);
     db.run('INSERT INTO settings (key, value) VALUES (?, ?)', ['daily_stamp_limit', '6']);
   }
+
+  // Ensure conversion rate is set to 1:1 rule (₹1 = 1 point)
+  try {
+    const rateSetting = db.get('SELECT value FROM settings WHERE key = ?', ['rupees_per_point']);
+    if (!rateSetting) {
+      db.run('INSERT INTO settings (key, value) VALUES (?, ?)', ['rupees_per_point', '1']);
+    } else if (rateSetting.value === '10') {
+      db.run('UPDATE settings SET value = ? WHERE key = ?', ['1', 'rupees_per_point']);
+    }
+  } catch (e) {}
 
   // 2. Demo User: Arjun Mehta
   const user = db.get('SELECT id FROM users WHERE email = ?', ['arjun.mehta@atelier-coffee.com']);

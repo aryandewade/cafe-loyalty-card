@@ -6,7 +6,7 @@
 const STORAGE_KEY = 'atelier_loyalty_state_v3';
 
 const DEFAULT_SETTINGS = {
-  rupeesPerPoint: 10, // Default Rule: ₹10 spent = 1 point
+  rupeesPerPoint: 1, // Rule: ₹1 spent = 1 point
   ownerStampPin: '1234', // Café Owner PIN / Password required to stamp cards
   currencySymbol: '₹',
   programName: 'Atelier Loyalty Club'
@@ -263,6 +263,11 @@ class Store {
         const parsed = JSON.parse(saved);
         if (!parsed.settings) {
           parsed.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        } else {
+          // If previous cached rate was 10, migrate to new 1:1 rule (₹1 = 1 point)
+          if (!parsed.settings.rupeesPerPoint || parsed.settings.rupeesPerPoint === 10) {
+            parsed.settings.rupeesPerPoint = 1;
+          }
         }
         if (!parsed.products || !Array.isArray(parsed.products) || parsed.products.length === 0) {
           parsed.products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
@@ -384,11 +389,11 @@ class Store {
 
   // Points Conversion & Calculation Engine
   getRupeesPerPoint() {
-    return this.state.settings?.rupeesPerPoint || 10;
+    return this.state.settings?.rupeesPerPoint || 1;
   }
 
   // Calculate points from spend amount using current conversion rate
-  // Default rule: ₹10 spent = 1 point
+  // Rule: ₹1 spent = 1 point
   calculatePoints(amountSpent) {
     const rate = this.getRupeesPerPoint();
     if (!rate || rate <= 0) return 0;

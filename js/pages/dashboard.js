@@ -139,16 +139,6 @@ function renderDashboardPage() {
           </div>
         `}
 
-        <!-- MINIMAL POINTS STRIP -->
-        <div class="dash-points-strip">
-          <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
-            <span class="font-mono" style="font-size: 0.75rem; font-weight: 600; color: var(--color-gold-foil);">₹${state.settings.rupeesPerPoint || 10} = 1 Pt</span>
-            <span style="color: var(--color-cream-border);">•</span>
-            <span class="step-chip">☕ Cappuccino (+18)</span>
-            <span class="step-chip">🏺 Kaapi (+28)</span>
-            <span class="step-chip">🧪 V60 (+36)</span>
-          </div>
-        </div>
 
         <!-- 3. PROGRESS & STATS (MINIMAL) -->
         <div class="dash-stats-card">

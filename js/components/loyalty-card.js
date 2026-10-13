@@ -64,9 +64,6 @@ function renderLoyaltyCard(options = {}) {
     }
   }
 
-  // QR Code for card back
-  const qrSvg = window.generateAtelierQR ? window.generateAtelierQR(`ATELIER-CARD-${user.membershipId}`, 130) : '';
-
   return `
     <div class="loyalty-card-wrapper" id="loyalty-card-wrapper">
       <div class="loyalty-card" id="digital-loyalty-card" ${isInteractive ? 'data-tilt="true"' : ''}>
@@ -89,14 +86,6 @@ function renderLoyaltyCard(options = {}) {
                 <span>${streak}d Streak</span>
                 <span class="streak-multiplier-badge">1.5x</span>
               </div>
-
-              <!-- Tier Pill -->
-              <div class="card-tier-pill">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-                <span>${user.tier}</span>
-              </div>
             </div>
           </div>
 
@@ -108,58 +97,14 @@ function renderLoyaltyCard(options = {}) {
           <!-- Card Footer Bar: Customer Name & Member ID -->
           <div class="card-footer-bar">
             <div class="card-holder-box">
-              <span class="card-holder-tag">CUSTOMER NAME</span>
-              <div class="card-holder-name">${(user.firstName || 'Valued') + ' ' + (user.lastName || 'Guest')}</div>
+              <span class="card-holder-tag">
+              <div class="card-holder-name">${(user.firstName || 'Valued') + ' ' + (user.lastName || 'Guest')}</div></span>
               <div class="card-holder-since">Member since ${user.memberSince || '2024'}</div>
             </div>
             <div style="text-align: right;">
+              <span class="card-holder-tag">MEMBER ID</span>
               <div class="card-member-id">${user.membershipId}</div>
-              <button class="card-flip-hint" id="card-flip-btn" type="button" aria-label="Flip card for QR pass">
-                <span>Pass QR</span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                  <path d="M21 3v5h-5"></path>
-                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                  <path d="M3 21v-5h5"></path>
-                </svg>
-              </button>
             </div>
-          </div>
-        </div>
-
-        <!-- BACK: Pass QR Code for Barista Scanner -->
-        <div class="card-face card-face-back">
-          <div class="card-header-bar" style="margin-bottom: 0.5rem;">
-            <div style="text-align: left;">
-              <span style="font-family: var(--font-serif); font-size: 1.1rem; text-transform: uppercase; font-weight: 600;">Digital Member Pass</span>
-              <div style="font-size: 0.72rem; color: var(--color-roast-medium);">Scan at till for stamp & perks</div>
-            </div>
-            <button class="card-flip-hint" id="card-flip-back-btn" type="button" style="color: var(--color-terracotta);">
-              <span>Front</span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-              </svg>
-            </button>
-          </div>
-
-          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0.4rem 0;">
-            <div style="background: #FFF; padding: 8px; border-radius: 12px; border: 1px solid var(--color-cream-border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-              ${qrSvg}
-            </div>
-            <div style="margin-top: 0.4rem; text-align: center;">
-              <div style="font-size: 0.62rem; color: var(--color-roast-muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 800;">Customer</div>
-              <div style="font-size: 0.95rem; font-weight: 700; color: var(--color-espresso); text-transform: uppercase; letter-spacing: 0.04em;">
-                ${(user.firstName || 'Valued') + ' ' + (user.lastName || 'Guest')}
-              </div>
-            </div>
-            <div class="font-mono" style="font-size: 0.85rem; font-weight: 600; color: var(--color-espresso); margin-top: 0.3rem; letter-spacing: 0.1em;">
-              ${user.membershipId}
-            </div>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--color-roast-medium); border-top: 1px dashed var(--color-cream-border); padding-top: 0.5rem;">
-            <span>${membership.currentStamps}/10 Stamps Earned</span>
-            <span>${membership.points} Reward Points</span>
           </div>
         </div>
       </div>
@@ -196,26 +141,13 @@ function renderLoyaltyCard(options = {}) {
   `;
 }
 
-// 3D Parallax Tilt, Glare & Flip Listeners
+// 3D Parallax Tilt & Glare Tracking
 function initLoyaltyCardInteractions() {
   const card = document.getElementById('digital-loyalty-card');
   const wrapper = document.getElementById('loyalty-card-wrapper');
   if (!card || !wrapper) return;
 
-  const flipBtn = document.getElementById('card-flip-btn');
-  const flipBackBtn = document.getElementById('card-flip-back-btn');
   const glare = document.getElementById('card-holo-glare');
-
-  function toggleFlip(e) {
-    if (e) e.stopPropagation();
-    card.classList.toggle('is-flipped');
-    if (window.AtelierAudio && window.AtelierAudio.playFlipSound) {
-      window.AtelierAudio.playFlipSound();
-    }
-  }
-
-  if (flipBtn) flipBtn.addEventListener('click', toggleFlip);
-  if (flipBackBtn) flipBackBtn.addEventListener('click', toggleFlip);
 
   // Subtle 3D mouse tilt & Holographic Glare Tracking
   wrapper.addEventListener('mousemove', (e) => {

@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS public.security_audit_logs (
 INSERT INTO public.settings (key, value)
 VALUES 
   ('owner_pin_hash', '1a8f9c042971eb0579178e2e28a520bf:81b49048a609d023b7e28b80b06b24d16d6499a0937a44f50937c44df703c15ca85be23b89b4f62bf078c1825fa775796df3f3885d53952ba532599268d06b6b'),
-  ('rupees_per_point', '10'),
+  ('rupees_per_point', '1'),
   ('daily_stamp_limit', '6')
 ON CONFLICT (key) DO NOTHING;
 

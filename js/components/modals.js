@@ -157,7 +157,7 @@ function openReceiptModal(activity) {
   if (!container) return;
 
   const store = window.AtelierStore;
-  const currentRate = store ? store.getRupeesPerPoint() : 10;
+  const currentRate = store ? store.getRupeesPerPoint() : 1;
   const amount = activity.amountSpent !== undefined ? activity.amountSpent : 180;
   const rate = activity.conversionRate || currentRate;
   const points = activity.pointsEarned !== undefined ? activity.pointsEarned : Math.floor(amount / rate);
@@ -236,7 +236,7 @@ function openAddProductModal() {
   if (!container) return;
 
   const store = window.AtelierStore;
-  const rate = store ? store.getRupeesPerPoint() : 10;
+  const rate = store ? store.getRupeesPerPoint() : 1;
 
   container.innerHTML = `
     <div class="modal-backdrop is-active" id="add-product-modal-backdrop">
@@ -948,9 +948,7 @@ function openOwnerStampModal(options = {}) {
             <button type="button" class="owner-bill-chip-btn ${billAmount === 500 ? 'active' : ''}" data-amt="500">₹500</button>
             <button type="button" class="owner-bill-chip-btn ${billAmount === 1000 ? 'active' : ''}" data-amt="1000">₹1,000</button>
           </div>
-          <div class="owner-bill-conversion-pill" id="owner-bill-conversion-badge">
-            <span style="font-size: 0.68rem; color: var(--color-roast-muted);">(₹${rate} = 1 pt)</span>
-          </div>
+          
         </div>
 
         <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-roast-muted); font-weight: 700; margin-bottom: 0.4rem;">
@@ -1511,6 +1509,15 @@ function openEditDobModal() {
     </div>
   `;
 
+  // Initialize Bespoke Atelier Theme Calendar
+  const dobInput = document.getElementById('edit-dob-input');
+  if (dobInput && window.attachAtelierDatePicker) {
+    window.attachAtelierDatePicker(dobInput, {
+      inline: true,
+      defaultYear: 1998
+    });
+  }
+
   document.getElementById('close-edit-dob-btn')?.addEventListener('click', closeAllModals);
   document.getElementById('cancel-edit-dob-btn')?.addEventListener('click', closeAllModals);
   document.getElementById('edit-dob-backdrop')?.addEventListener('click', (e) => {
@@ -1520,7 +1527,10 @@ function openEditDobModal() {
   document.getElementById('edit-dob-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const newDob = document.getElementById('edit-dob-input')?.value;
-    if (!newDob) return;
+    if (!newDob) {
+      window.showToast('Please select your date of birth 🎂');
+      return;
+    }
 
     if (window.AtelierStore?.updateUserProfile) {
       await window.AtelierStore.updateUserProfile({ dob: newDob });

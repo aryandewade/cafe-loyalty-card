@@ -234,7 +234,7 @@ export async function handleRequest(req) {
 
         const membership = await dbGetMembership(user.id);
         const settingsRow = await dbGetSetting('rupees_per_point');
-        const conversionRate = settingsRow ? parseInt(settingsRow.value, 10) : 10;
+        const conversionRate = settingsRow ? parseInt(settingsRow.value, 10) : 1;
         const qrPass = generateSignedQrPass(user.id, user.membership_id);
 
         return sendJson(null, {
@@ -394,7 +394,7 @@ export async function handleRequest(req) {
 
         // Fetch current conversion rate
         const rateRow = await dbGetSetting('rupees_per_point');
-        const rate = rateRow ? parseInt(rateRow.value, 10) : 10;
+        const rate = rateRow ? parseInt(rateRow.value, 10) : 1;
         const pointsEarned = Math.floor(Math.max(0, amountSpent) / rate);
 
         // Update membership state
@@ -483,7 +483,7 @@ export async function handleRequest(req) {
       if (pathname === '/api/products' && req.method === 'GET') {
         const products = await dbGetProducts();
         const rateRow = await dbGetSetting('rupees_per_point');
-        const rate = rateRow ? parseInt(rateRow.value, 10) : 10;
+        const rate = rateRow ? parseInt(rateRow.value, 10) : 1;
 
         return sendJson(null, {
           success: true,
@@ -508,7 +508,7 @@ export async function handleRequest(req) {
         const spent = product ? product.price : parseFloat(body.amountSpent || 180);
 
         const rateRow = await dbGetSetting('rupees_per_point');
-        const rate = rateRow ? parseInt(rateRow.value, 10) : 10;
+        const rate = rateRow ? parseInt(rateRow.value, 10) : 1;
         const pointsEarned = Math.floor(spent / rate);
 
         const membership = await dbGetMembership(userId);
@@ -560,7 +560,7 @@ export async function handleRequest(req) {
         const rateRow = await dbGetSetting('rupees_per_point');
         return sendJson(null, {
           success: true,
-          rupeesPerPoint: rateRow ? parseInt(rateRow.value, 10) : 10,
+          rupeesPerPoint: rateRow ? parseInt(rateRow.value, 10) : 1,
           currencySymbol: '₹'
         });
       }

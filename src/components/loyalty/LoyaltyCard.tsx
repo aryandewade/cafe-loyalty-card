@@ -170,12 +170,6 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
                     1.5x
                   </span>
                 </div>
-
-                {/* Tier Badge */}
-                <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#C89D4B]/15 border border-[#C89D4B]/40 rounded-full text-[11px] font-semibold text-[#E2BC6E] uppercase">
-                  <span>★</span>
-                  <span>{user.tier}</span>
-                </div>
               </div>
             </div>
 
@@ -196,17 +190,16 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
                         setShowPinModal(true);
                       }
                     }}
-                    className={`aspect-square rounded-full flex items-center justify-center transition-all ${
-                      isStamped
+                    className={`aspect-square rounded-full flex items-center justify-center transition-all ${isStamped
                         ? skin === 'matcha'
                           ? 'bg-gradient-to-br from-[#78A77E] to-[#3B5F43] border border-[#A9D5AF] shadow-md'
                           : skin === 'cyber'
-                          ? 'bg-gradient-to-br from-[#FF7B25] to-[#B84705] border border-[#FFAA70] shadow-[0_0_12px_rgba(255,120,20,0.5)]'
-                          : 'bg-gradient-to-br from-[#D89F43] to-[#B27C27] border border-[#FFE6AA]/60 shadow-md'
+                            ? 'bg-gradient-to-br from-[#FF7B25] to-[#B84705] border border-[#FFAA70] shadow-[0_0_12px_rgba(255,120,20,0.5)]'
+                            : 'bg-gradient-to-br from-[#D89F43] to-[#B27C27] border border-[#FFE6AA]/60 shadow-md'
                         : isNext
-                        ? 'border-2 border-[#C89D4B] bg-black/20 animate-pulse text-[#C89D4B] hover:scale-110 hover:border-white cursor-pointer shadow-[0_0_12px_rgba(200,157,75,0.6)]'
-                        : 'border border-dashed border-[#C89D4B]/30 bg-black/20 text-[#FAF6ED]/40'
-                    }`}
+                          ? 'border-2 border-[#C89D4B] bg-black/20 animate-pulse text-[#C89D4B] hover:scale-110 hover:border-white cursor-pointer shadow-[0_0_12px_rgba(200,157,75,0.6)]'
+                          : 'border border-dashed border-[#C89D4B]/30 bg-black/20 text-[#FAF6ED]/40'
+                      }`}
                     style={isStamped ? { transform: `rotate(${rot}deg)` } : undefined}
                     title={isNext ? 'Tap to stamp card (Requires Owner PIN)' : undefined}
                   >
@@ -216,7 +209,7 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
                         <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
                       </svg>
                     ) : (
-                      <span className="font-mono text-xs">{num}</span>
+                      <span className="font-mono text-xs leading-none flex items-center justify-center w-full h-full text-center select-none translate-y-[0.5px]">{num}</span>
                     )}
                   </div>
                 );
@@ -230,46 +223,9 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
                 <div className="text-[10px] text-[#AA9588]">Member since {user.memberSince}</div>
               </div>
               <div className="text-right">
+                <span className="text-[9px] font-extrabold tracking-widest text-[#C89D4B] block leading-none mb-0.5">MEMBER ID</span>
                 <div className="text-[#C89D4B]">{user.membershipId}</div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsFlipped(!isFlipped);
-                  }}
-                  className="text-[11px] text-[#B5A196] hover:text-[#FAF4EA] flex items-center gap-1 mt-0.5"
-                >
-                  Pass QR ↻
-                </button>
               </div>
-            </div>
-          </div>
-
-          {/* BACK: Pass QR */}
-          <div
-            className="card-face card-face-back absolute inset-0 rounded-[22px] p-6 flex flex-col justify-between bg-[#FAF8F4] text-[#1A1310] rotate-y-180 backface-hidden shadow-2xl border border-[#E8E2D8]"
-            onClick={() => setIsFlipped(false)}
-          >
-            <div className="flex justify-between items-start">
-              <div className="text-left">
-                <div className="font-serif text-lg font-semibold uppercase">Digital Member Pass</div>
-                <div className="text-xs text-[#6E5A52]">Scan at till for stamp & perks</div>
-              </div>
-              <span className="text-xs text-[#BC5A2B] font-medium">Front ↻</span>
-            </div>
-
-            <div className="flex flex-col items-center justify-center my-1">
-              <div className="bg-white p-2.5 rounded-xl border border-[#E8E2D8] shadow-sm">
-                <div className="w-28 h-28 bg-[#181311] rounded-lg flex items-center justify-center text-white font-mono text-sm">
-                  [QR PASS]
-                </div>
-              </div>
-              <div className="font-mono text-sm font-semibold tracking-widest mt-2">{user.membershipId}</div>
-            </div>
-
-            <div className="flex justify-between text-xs text-[#6E5A52] border-t border-dashed border-[#E8E2D8] pt-2">
-              <span>{stamps}/10 Stamps Earned</span>
-              <span>{membership.points} Reward Points</span>
             </div>
           </div>
         </motion.div>
@@ -280,44 +236,40 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
         <button
           type="button"
           onClick={() => setSkin('espresso')}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-            skin === 'espresso'
+          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${skin === 'espresso'
               ? 'bg-[#181311] text-[#FAF6ED] border-[#181311] shadow-sm'
               : 'bg-white text-[#6E5A52] border-[#E8E2D8] hover:border-[#C89D4B]'
-          }`}
+            }`}
         >
           ☕ Espresso Noir
         </button>
         <button
           type="button"
           onClick={() => setSkin('holo')}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-            skin === 'holo'
+          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${skin === 'holo'
               ? 'bg-[#2A1F45] text-white border-[#A882DD] shadow-[0_0_12px_rgba(168,130,221,0.5)]'
               : 'bg-white text-[#6E5A52] border-[#E8E2D8] hover:border-[#A882DD]'
-          }`}
+            }`}
         >
           🪩 Prismatic Holo
         </button>
         <button
           type="button"
           onClick={() => setSkin('matcha')}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-            skin === 'matcha'
+          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${skin === 'matcha'
               ? 'bg-[#1C2E24] text-white border-[#4E8062] shadow-sm'
               : 'bg-white text-[#6E5A52] border-[#E8E2D8] hover:border-[#4E8062]'
-          }`}
+            }`}
         >
           🍵 Matcha Sage
         </button>
         <button
           type="button"
           onClick={() => setSkin('cyber')}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-            skin === 'cyber'
+          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${skin === 'cyber'
               ? 'bg-[#0E0C0B] text-[#FFA26B] border-[#FF6B00] shadow-[0_0_12px_rgba(255,107,0,0.4)]'
               : 'bg-white text-[#6E5A52] border-[#E8E2D8] hover:border-[#FF6B00]'
-          }`}
+            }`}
         >
           ⚡ Cyber Amber
         </button>
@@ -352,9 +304,8 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className={`w-full max-w-[340px] bg-white rounded-3xl p-6 text-center shadow-2xl border border-[#E8E2D8] ${
-                pinError ? 'animate-[shake_0.45s_ease-in-out]' : ''
-              }`}
+              className={`w-full max-w-[340px] bg-white rounded-3xl p-6 text-center shadow-2xl border border-[#E8E2D8] ${pinError ? 'animate-[shake_0.45s_ease-in-out]' : ''
+                }`}
             >
               <div className="flex justify-end mb-1">
                 <button
@@ -379,7 +330,7 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
               </h3>
               <p className="text-xs text-[#6E5A52] mt-1 mb-3">
                 {isLocked ? (
-                  <span className="text-red-600 font-bold">⛔ Security Lockout: 5 failed attempts.<br/>Keypad locked for 5 minutes.</span>
+                  <span className="text-red-600 font-bold">⛔ Security Lockout: 5 failed attempts.<br />Keypad locked for 5 minutes.</span>
                 ) : pinSuccess ? (
                   <span className="text-[#2E473B] font-semibold">✓ Cryptographically Verified! Stamping card...</span>
                 ) : pinError ? (
@@ -409,11 +360,10 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
                       key={amt}
                       type="button"
                       onClick={() => setBillAmount(amt)}
-                      className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border transition ${
-                        billAmount === amt
+                      className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border transition ${billAmount === amt
                           ? 'bg-[#181311] text-white border-[#181311]'
                           : 'bg-white text-[#6E5A52] border-[#E8E2D8] hover:border-[#C89D4B]'
-                      }`}
+                        }`}
                     >
                       ₹{amt === 1000 ? '1,000' : amt}
                     </button>
@@ -430,15 +380,14 @@ export const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
                 {[0, 1, 2, 3].map(idx => (
                   <div
                     key={idx}
-                    className={`w-4 h-4 rounded-full border-2 transition-all duration-200 ${
-                      pinSuccess
+                    className={`w-4 h-4 rounded-full border-2 transition-all duration-200 ${pinSuccess
                         ? 'bg-[#2E473B] border-[#2E473B]'
                         : pinError
-                        ? 'bg-red-600 border-red-600'
-                        : idx < enteredPin.length
-                        ? 'bg-[#181311] border-[#181311] scale-110'
-                        : 'border-[#E8E2D8] bg-transparent'
-                    }`}
+                          ? 'bg-red-600 border-red-600'
+                          : idx < enteredPin.length
+                            ? 'bg-[#181311] border-[#181311] scale-110'
+                            : 'border-[#E8E2D8] bg-transparent'
+                      }`}
                   />
                 ))}
               </div>
