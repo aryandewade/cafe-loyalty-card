@@ -405,10 +405,12 @@
       this.input.dispatchEvent(new Event('input', { bubbles: true }));
       this.input.dispatchEvent(new Event('change', { bubbles: true }));
 
-      // Update trigger label
-      const formatted = formatDisplayDate(isoString);
-      this.labelEl.textContent = formatted;
-      this.labelEl.classList.add('has-value');
+      // Update trigger label if element exists
+      if (this.labelEl) {
+        const formatted = formatDisplayDate(isoString);
+        this.labelEl.textContent = formatted;
+        this.labelEl.classList.add('has-value');
+      }
 
       if (window.AtelierAudio?.playCandyClick) {
         window.AtelierAudio.playCandyClick();
@@ -434,8 +436,10 @@
       this.input.dispatchEvent(new Event('input', { bubbles: true }));
       this.input.dispatchEvent(new Event('change', { bubbles: true }));
 
-      this.labelEl.textContent = this.options.placeholder;
-      this.labelEl.classList.remove('has-value');
+      if (this.labelEl) {
+        this.labelEl.textContent = this.options.placeholder;
+        this.labelEl.classList.remove('has-value');
+      }
 
       this.render();
     }
@@ -455,9 +459,11 @@
         this.viewYear = y;
         this.viewMonth = m;
         this.input.value = isoString;
-        const formatted = formatDisplayDate(isoString);
-        this.labelEl.textContent = formatted;
-        this.labelEl.classList.add('has-value');
+        if (this.labelEl) {
+          const formatted = formatDisplayDate(isoString);
+          this.labelEl.textContent = formatted;
+          this.labelEl.classList.add('has-value');
+        }
       }
     }
   }
