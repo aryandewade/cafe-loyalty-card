@@ -229,7 +229,20 @@
       };
 
       // 3. Insert User into Supabase
-      const createdUsers = await this.insert('users', userRecord);
+      let createdUsers;
+      try {
+        createdUsers = await this.insert('users', userRecord);
+      } catch (insertErr) {
+        // Graceful fallback if 'dob' column is not yet migrated in Supabase table
+        if (insertErr && insertErr.message && insertErr.message.includes('dob')) {
+          console.warn('[Supabase] Missing dob column in users table; falling back without dob:', insertErr.message);
+          const userWithoutDob = { ...userRecord };
+          delete userWithoutDob.dob;
+          createdUsers = await this.insert('users', userWithoutDob);
+        } else {
+          throw insertErr;
+        }
+      }
       const user = createdUsers[0] || userRecord;
 
       // 4. Insert Membership into Supabase

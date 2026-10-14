@@ -327,35 +327,71 @@ function openAddProductModal() {
 }
 
 // 4. Forgot Password Modal
-function openForgotPasswordModal() {
+// 4. Forgot Password & Password Recovery Modal
+function openForgotPasswordModal(prefilledEmail = '') {
   closeAllModals();
   const container = document.getElementById('modal-root');
   if (!container) return;
 
-  const currentEmail = window.AtelierStore?.getState()?.user?.email || '';
+  const currentEmail = prefilledEmail || window.AtelierStore?.getState()?.user?.email || '';
 
   container.innerHTML = `
     <div class="modal-backdrop is-active" id="forgot-password-backdrop">
-      <div class="modal-card" style="max-width: 420px; padding: 2rem;">
+      <div class="modal-card" style="max-width: 440px; padding: 2.2rem; border-radius: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem;">
           <div>
-            <h3 style="font-size: 1.4rem; font-family: var(--font-serif);">Reset Your Key</h3>
-            <p style="font-size: 0.85rem; color: var(--color-roast-medium); margin-top: 3px;">
-              Enter your email to receive a password reset link.
+            <h3 style="font-size: 1.4rem; font-family: var(--font-serif); color: var(--color-espresso);">Password Recovery</h3>
+            <p style="font-size: 0.85rem; color: var(--color-roast-medium); margin-top: 4px;" id="forgot-modal-desc">
+              Enter your registered email to receive a recovery code and reset link.
             </p>
           </div>
-          <button class="btn-text" id="close-forgot-btn" style="font-size: 1.2rem;">✕</button>
+          <button class="btn-text" id="close-forgot-btn" style="font-size: 1.2rem; color: var(--color-roast-medium);">✕</button>
         </div>
 
-        <form id="forgot-form" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div id="forgot-error-banner" style="display: none; background: rgba(184, 51, 42, 0.08); border: 1px solid rgba(184, 51, 42, 0.25); color: #B8332A; padding: 0.65rem 0.9rem; border-radius: 10px; font-size: 0.85rem; margin-bottom: 1rem;"></div>
+
+        <!-- Step 1: Request Code -->
+        <form id="forgot-step1-form" style="display: flex; flex-direction: column; gap: 1.1rem;">
           <div>
-            <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem;">Email Address</label>
-            <input type="email" id="forgot-email" required placeholder="name@example.com" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: var(--font-sans); font-size: 0.9rem;" value="${currentEmail}">
+            <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem; color: var(--color-espresso);">Email Address</label>
+            <input type="email" id="forgot-email" required placeholder="name@example.com" class="auth-input" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: var(--font-sans); font-size: 0.92rem; background: var(--bg-surface); color: var(--color-espresso); box-sizing: border-box;" value="${currentEmail}">
           </div>
 
-          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">
-            <span>Send Instructions</span>
+          <button type="submit" id="forgot-send-btn" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; margin-top: 0.2rem;">
+            <span class="btn-label">Send Recovery Code</span>
           </button>
+        </form>
+
+        <!-- Step 2: Enter Code & Change Password (Hidden initially) -->
+        <form id="forgot-step2-form" style="display: none; flex-direction: column; gap: 1rem;">
+          <div style="background: rgba(200, 157, 75, 0.08); border: 1px dashed #C89D4B; border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--color-roast-deep);">
+            ✉️ Recovery instructions sent to <strong id="step2-email-display"></strong>.
+            <div id="dev-otp-helper" style="display: none; margin-top: 6px; font-size: 0.8rem; color: #C89D4B; cursor: pointer; text-decoration: underline;"></div>
+          </div>
+
+          <div>
+            <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem; color: var(--color-espresso);">6-Digit Code / Reset Token</label>
+            <input type="text" id="reset-code-input" required placeholder="e.g. 849201" maxlength="64" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: monospace; font-size: 1.1rem; letter-spacing: 0.15em; text-align: center; background: var(--bg-surface); color: var(--color-espresso); box-sizing: border-box;">
+          </div>
+
+          <div>
+            <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem; color: var(--color-espresso);">New Password</label>
+            <input type="password" id="reset-new-password" required minlength="6" placeholder="At least 6 characters" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: var(--font-sans); font-size: 0.92rem; background: var(--bg-surface); color: var(--color-espresso); box-sizing: border-box;">
+          </div>
+
+          <div>
+            <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem; color: var(--color-espresso);">Confirm New Password</label>
+            <input type="password" id="reset-confirm-password" required minlength="6" placeholder="Repeat new password" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: var(--font-sans); font-size: 0.92rem; background: var(--bg-surface); color: var(--color-espresso); box-sizing: border-box;">
+          </div>
+
+          <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem;">
+            <button type="button" id="back-to-step1-btn" class="btn-secondary" style="flex: 1; justify-content: center; padding: 0.75rem;">
+              Back
+            </button>
+            <button type="submit" id="reset-save-btn" class="btn-primary" style="flex: 2; justify-content: center; padding: 0.75rem;">
+              <span class="btn-label">Change Password</span>
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -366,12 +402,177 @@ function openForgotPasswordModal() {
     if (e.target.id === 'forgot-password-backdrop') closeAllModals();
   });
 
-  document.getElementById('forgot-form')?.addEventListener('submit', (e) => {
+  const step1Form = document.getElementById('forgot-step1-form');
+  const step2Form = document.getElementById('forgot-step2-form');
+  const errorBanner = document.getElementById('forgot-error-banner');
+  const sendBtn = document.getElementById('forgot-send-btn');
+  const labelSpan = sendBtn?.querySelector('.btn-label');
+
+  let activeEmail = currentEmail;
+
+  step1Form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('forgot-email')?.value;
-    closeAllModals();
-    window.showToast(`Password reset link sent to ${email}. Please check your inbox.`);
+    const email = document.getElementById('forgot-email')?.value?.trim() || '';
+    if (!email) return;
+
+    activeEmail = email;
+    if (errorBanner) {
+      errorBanner.style.display = 'none';
+      errorBanner.textContent = '';
+    }
+    if (sendBtn) sendBtn.disabled = true;
+    if (labelSpan) labelSpan.textContent = 'Sending email...';
+
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to send recovery email.');
+      }
+
+      // Switch to Step 2
+      step1Form.style.display = 'none';
+      step2Form.style.display = 'flex';
+      const emailDisplay = document.getElementById('step2-email-display');
+      if (emailDisplay) emailDisplay.textContent = email;
+
+      const desc = document.getElementById('forgot-modal-desc');
+      if (desc) desc.textContent = 'Check your email for the 6-digit code to choose a new password.';
+
+      // Dev helper if SMTP is running locally
+      if (data.devOtp) {
+        const helper = document.getElementById('dev-otp-helper');
+        if (helper) {
+          helper.style.display = 'block';
+          helper.textContent = `💡 Dev Mode Code: ${data.devOtp} (Click to auto-fill)`;
+          helper.onclick = () => {
+            const input = document.getElementById('reset-code-input');
+            if (input) input.value = data.devOtp;
+          };
+        }
+      }
+
+      window.showToast(`Recovery instructions sent to ${email} ✉️`);
+    } catch (err) {
+      if (errorBanner) {
+        errorBanner.textContent = err.message || 'Could not send recovery email. Please check network.';
+        errorBanner.style.display = 'block';
+      }
+      window.showToast(err.message || 'Error sending recovery email');
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
+      if (labelSpan) labelSpan.textContent = 'Send Recovery Code';
+    }
   });
+
+  document.getElementById('back-to-step1-btn')?.addEventListener('click', () => {
+    step2Form.style.display = 'none';
+    step1Form.style.display = 'flex';
+    if (errorBanner) errorBanner.style.display = 'none';
+  });
+
+  step2Form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const tokenOrOtp = document.getElementById('reset-code-input')?.value?.trim();
+    const newPassword = document.getElementById('reset-new-password')?.value || '';
+    const confirmPassword = document.getElementById('reset-confirm-password')?.value || '';
+    const resetBtn = document.getElementById('reset-save-btn');
+    const resetLabel = resetBtn?.querySelector('.btn-label');
+
+    if (!tokenOrOtp || !newPassword) {
+      if (errorBanner) {
+        errorBanner.textContent = 'Please enter both your code and new password.';
+        errorBanner.style.display = 'block';
+      }
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      if (errorBanner) {
+        errorBanner.textContent = 'Passwords do not match. Please re-enter.';
+        errorBanner.style.display = 'block';
+      }
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      if (errorBanner) {
+        errorBanner.textContent = 'Password must be at least 6 characters.';
+        errorBanner.style.display = 'block';
+      }
+      return;
+    }
+
+    if (errorBanner) errorBanner.style.display = 'none';
+    if (resetBtn) resetBtn.disabled = true;
+    if (resetLabel) resetLabel.textContent = 'Updating password...';
+
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: activeEmail,
+          token: tokenOrOtp,
+          newPassword
+        })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to reset password. Please check your code.');
+      }
+
+      closeAllModals();
+      window.showToast('Password updated successfully! Please sign in with your new password. 🎉');
+
+      // Pre-fill email on auth page and focus password
+      if (window.location.hash !== '#auth') {
+        window.location.hash = '#auth';
+      }
+      setTimeout(() => {
+        const loginEmailInput = document.getElementById('login-email');
+        if (loginEmailInput) loginEmailInput.value = activeEmail;
+        const loginPassInput = document.getElementById('login-password');
+        if (loginPassInput) loginPassInput.focus();
+      }, 150);
+    } catch (err) {
+      if (errorBanner) {
+        errorBanner.textContent = err.message || 'Failed to update password.';
+        errorBanner.style.display = 'block';
+      }
+      window.showToast(err.message || 'Failed to update password');
+    } finally {
+      if (resetBtn) resetBtn.disabled = false;
+      if (resetLabel) resetLabel.textContent = 'Change Password';
+    }
+  });
+}
+
+// Direct Reset Password Modal (invoked when visiting #reset-password?token=...&email=...)
+function openResetPasswordModal({ email = '', token = '' } = {}) {
+  openForgotPasswordModal(email);
+  // Auto-advance to Step 2 if token is provided
+  if (token) {
+    setTimeout(() => {
+      const step1 = document.getElementById('forgot-step1-form');
+      const step2 = document.getElementById('forgot-step2-form');
+      const codeInput = document.getElementById('reset-code-input');
+      const emailDisplay = document.getElementById('step2-email-display');
+      if (step1 && step2) {
+        step1.style.display = 'none';
+        step2.style.display = 'flex';
+        if (emailDisplay) emailDisplay.textContent = email;
+        if (codeInput) codeInput.value = token;
+      }
+    }, 50);
+  }
 }
 
 // 5. Redemption Confirmation Modal (Editorial In-App Dialog)
@@ -1667,6 +1868,7 @@ window.openCollectStampModal = openOwnerStampModal;
 window.openOwnerStampModal = openOwnerStampModal;
 window.openSagaLevelAdvanceModal = openSagaLevelAdvanceModal;
 window.openForgotPasswordModal = openForgotPasswordModal;
+window.openResetPasswordModal = openResetPasswordModal;
 window.openEditDobModal = openEditDobModal;
 window.openEditPhoneModal = openEditPhoneModal;
 window.closeAllModals = closeAllModals;

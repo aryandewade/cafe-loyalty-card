@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { db, initDatabase, logSecurityEvent as logSqliteAudit } from './db.js';
 import { isSupabaseConfigured, supabase } from './supabase.js';
+import { smtp } from './smtp.js';
 import {
   hashSecret,
   verifySecret,
@@ -187,6 +189,83 @@ async function dbGetAuditLogs(limit = 40) {
   return db.all('SELECT * FROM security_audit_logs ORDER BY id DESC LIMIT 40');
 }
 
+async function dbCreatePasswordReset(email, token, otp, expiresAt) {
+  const id = 'pr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.insert('password_resets', {
+        id,
+        email,
+        token,
+        otp,
+        expires_at: expiresAt.toISOString(),
+        used: 0
+      });
+      return { id, email, token, otp, expiresAt };
+    } catch (e) {
+      console.warn('Supabase createPasswordReset error, using SQLite:', e.message);
+    }
+  }
+  db.run(
+    'INSERT INTO password_resets (id, email, token, otp, expires_at, used) VALUES (?, ?, ?, ?, ?, 0)',
+    [id, email, token, otp, expiresAt.toISOString()]
+  );
+  return { id, email, token, otp, expiresAt };
+}
+
+async function dbGetValidPasswordReset(email, tokenOrOtp) {
+  const cleanEmail = email.toLowerCase().trim();
+  const cleanToken = tokenOrOtp.trim();
+  const nowIso = new Date().toISOString();
+
+  if (isSupabaseConfigured) {
+    try {
+      const rows = await supabase.select('password_resets', {
+        email: `eq.${cleanEmail}`,
+        used: 'eq.0',
+        order: 'created_at.desc',
+        limit: '10'
+      });
+      if (rows && rows.length > 0) {
+        const match = rows.find(r => (r.token === cleanToken || r.otp === cleanToken) && new Date(r.expires_at) > new Date());
+        if (match) return match;
+      }
+    } catch (e) {
+      console.warn('Supabase getValidPasswordReset error, using SQLite:', e.message);
+    }
+  }
+
+  const row = db.get(
+    'SELECT * FROM password_resets WHERE LOWER(email) = LOWER(?) AND (token = ? OR otp = ?) AND used = 0 AND expires_at > ? ORDER BY created_at DESC LIMIT 1',
+    [cleanEmail, cleanToken, cleanToken, nowIso]
+  );
+  return row || null;
+}
+
+async function dbMarkPasswordResetUsed(id) {
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.update('password_resets', { used: 1 }, 'id', id);
+      return;
+    } catch (e) {
+      console.warn('Supabase markPasswordResetUsed error, using SQLite:', e.message);
+    }
+  }
+  db.run('UPDATE password_resets SET used = 1 WHERE id = ?', [id]);
+}
+
+async function dbUpdateUserPassword(email, newPasswordHash) {
+  const cleanEmail = email.toLowerCase().trim();
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.update('users', { password_hash: newPasswordHash }, 'email', cleanEmail);
+    } catch (e) {
+      console.warn('Supabase updateUserPassword error, using SQLite:', e.message);
+    }
+  }
+  db.run('UPDATE users SET password_hash = ? WHERE LOWER(email) = LOWER(?)', [newPasswordHash, cleanEmail]);
+}
+
 /**
  * Main Web Request Handler (W3C standard Request -> Response)
  */
@@ -306,6 +385,160 @@ export async function handleRequest(req) {
             role: user.role,
             membershipId: user.membership_id
           }
+        });
+      }
+
+      // POST /api/auth/forgot-password (Request recovery email)
+      if (pathname === '/api/auth/forgot-password' && req.method === 'POST') {
+        const body = await req.json().catch(() => ({}));
+        const email = String(body.email || '').toLowerCase().trim();
+        if (!email || !email.includes('@')) {
+          return sendError(null, 'A valid email address is required.', 400);
+        }
+
+        const user = await dbGetUser(email);
+        if (!user) {
+          // Security practice: Return identical message to prevent user enumeration
+          return sendJson(null, {
+            success: true,
+            message: 'If an account exists with this email address, password recovery instructions have been sent.'
+          });
+        }
+
+        const token = crypto.randomBytes(32).toString('hex');
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+        await dbCreatePasswordReset(email, token, otp, expiresAt);
+
+        const host = req.headers.get('host') || `localhost:${PORT}`;
+        const protocol = req.headers.get('x-forwarded-proto') || 'http';
+        const origin = req.headers.get('origin') || `${protocol}://${host}`;
+        const resetLink = `${origin}/#reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+        const emailHtml = `
+          <div style="font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, Arial, sans-serif; background: #FBF9F5; padding: 2.5rem 1.5rem; color: #1E1714;">
+            <div style="max-width: 540px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #EFE9DE; padding: 2.5rem; box-shadow: 0 10px 30px rgba(30,23,20,0.04);">
+              <div style="text-align: center; margin-bottom: 2rem; border-bottom: 1px solid #F0ECE4; padding-bottom: 1.5rem;">
+                <h1 style="font-family: Georgia, serif; font-size: 1.8rem; margin: 0; color: #1E1714; letter-spacing: 0.08em;">ATELIER</h1>
+                <p style="font-size: 0.75rem; color: #8C7B70; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.15em;">Specialty Coffee & Roastery Club</p>
+              </div>
+
+              <h2 style="font-size: 1.3rem; font-family: Georgia, serif; margin: 0 0 1rem 0; color: #1E1714;">Password Recovery Request</h2>
+              <p style="font-size: 0.95rem; line-height: 1.6; color: #4A3E38; margin-bottom: 1.5rem;">
+                Hello <strong>${user.first_name || 'Member'}</strong>,<br>
+                We received a request to reset your password for your Atelier Connoisseur account. Use your 6-digit recovery code below:
+              </p>
+
+              <div style="text-align: center; margin: 2rem 0; background: #F6F1E8; padding: 1.2rem; border-radius: 12px; border: 1px dashed #C89D4B;">
+                <div style="font-size: 2.2rem; font-weight: 700; letter-spacing: 0.3em; color: #C89D4B; font-family: monospace;">
+                  ${otp}
+                </div>
+                <div style="font-size: 0.78rem; color: #8C7B70; margin-top: 6px;">Valid for 15 minutes</div>
+              </div>
+
+              <div style="text-align: center; margin: 2rem 0;">
+                <a href="${resetLink}" style="display: inline-block; background: #1E1714; color: #FBF9F5; padding: 0.9rem 2.2rem; border-radius: 999px; text-decoration: none; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.03em;">
+                  Reset Password Directly &rarr;
+                </a>
+              </div>
+
+              <p style="font-size: 0.8rem; color: #8C7B70; line-height: 1.5; margin-top: 2rem; border-top: 1px solid #F0ECE4; padding-top: 1.2rem;">
+                If you did not request a password reset, you can safely ignore this email. Your password will not change.
+              </p>
+            </div>
+          </div>
+        `;
+
+        try {
+          await smtp.sendMail({
+            to: email,
+            subject: 'Atelier Specialty Coffee — Password Recovery Code',
+            html: emailHtml,
+            text: `Atelier Specialty Coffee — Password Recovery\n\nYour 6-digit verification code is: ${otp}\n\nOr click this direct reset link:\n${resetLink}\n\nThis code will expire in 15 minutes.`
+          });
+        } catch (mailErr) {
+          console.error('SMTP send error:', mailErr.message);
+        }
+
+        await dbLogSecurityEvent({
+          eventType: 'PASSWORD_RESET_REQUESTED',
+          userId: user.id,
+          ipAddress: clientIp,
+          status: 'SUCCESS',
+          details: `Password recovery token issued for ${email}`
+        });
+
+        return sendJson(null, {
+          success: true,
+          message: 'If an account exists with this email address, password recovery instructions have been sent.',
+          // Expose in dev mode if SMTP is not configured so user can test seamlessly
+          devToken: !smtp.isConfigured() ? token : undefined,
+          devOtp: !smtp.isConfigured() ? otp : undefined
+        });
+      }
+
+      // POST /api/auth/verify-reset-token
+      if (pathname === '/api/auth/verify-reset-token' && req.method === 'POST') {
+        const body = await req.json().catch(() => ({}));
+        const email = String(body.email || '').toLowerCase().trim();
+        const tokenOrOtp = String(body.token || body.otp || '').trim();
+
+        if (!email || !tokenOrOtp) {
+          return sendError(null, 'Email and recovery code or link are required.', 400);
+        }
+
+        const record = await dbGetValidPasswordReset(email, tokenOrOtp);
+        if (!record) {
+          return sendError(null, 'The recovery code or link is invalid or has expired. Please request a new one.', 400);
+        }
+
+        return sendJson(null, { success: true, valid: true });
+      }
+
+      // POST /api/auth/reset-password (Change password with token or OTP)
+      if (pathname === '/api/auth/reset-password' && req.method === 'POST') {
+        const body = await req.json().catch(() => ({}));
+        const email = String(body.email || '').toLowerCase().trim();
+        const tokenOrOtp = String(body.token || body.otp || '').trim();
+        const newPassword = String(body.newPassword || '').trim();
+
+        if (!email || !tokenOrOtp || !newPassword) {
+          return sendError(null, 'Email, recovery code, and new password are required.', 400);
+        }
+
+        if (newPassword.length < 6) {
+          return sendError(null, 'New password must be at least 6 characters long.', 400);
+        }
+
+        const record = await dbGetValidPasswordReset(email, tokenOrOtp);
+        if (!record) {
+          return sendError(null, 'Invalid or expired recovery code or link. Please request a new one.', 400);
+        }
+
+        const user = await dbGetUser(email);
+        if (!user) {
+          return sendError(null, 'User account not found.', 404);
+        }
+
+        // Generate salted PBKDF2 hash
+        const salt = crypto.randomBytes(16).toString('hex');
+        const newHash = hashSecret(newPassword, salt);
+
+        await dbUpdateUserPassword(email, newHash);
+        await dbMarkPasswordResetUsed(record.id);
+
+        await dbLogSecurityEvent({
+          eventType: 'PASSWORD_RESET_SUCCESS',
+          userId: user.id,
+          ipAddress: clientIp,
+          status: 'SUCCESS',
+          details: `Password reset completed for ${email}`
+        });
+
+        return sendJson(null, {
+          success: true,
+          message: 'Your password has been successfully reset. You can now sign in with your new password.'
         });
       }
 
@@ -710,6 +943,7 @@ const dbLabel = isSupabaseConfigured
 if (isBun) {
   try {
     const server = Bun.serve({
+      hostname: '0.0.0.0',
       port: PORT,
       fetch: handleRequest
     });

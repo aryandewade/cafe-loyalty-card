@@ -156,8 +156,7 @@ export const SECURITY_HEADERS = {
   'X-Frame-Options': 'SAMEORIGIN',
   'X-XSS-Protection': '1; mode=block',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com data: blob:; img-src 'self' data: blob: https:;"
+  'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com data: blob:; connect-src 'self' https://*.supabase.co https://dxcguohrlybyjovlxqjy.supabase.co wss://*.supabase.co http://localhost:* ws://localhost:*; img-src 'self' data: blob: https:;"
 };
 
 /**

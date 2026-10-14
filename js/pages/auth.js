@@ -206,7 +206,10 @@ function initAuthEvents() {
         window.showToast(`Welcome back, ${name}! Signed in successfully. ☕`);
         window.location.hash = '#dashboard';
       } catch (err) {
-        const msg = err.message || 'Unable to sign in. Please verify your credentials.';
+        let msg = err.message || 'Unable to sign in. Please verify your credentials.';
+        if (msg === 'Failed to fetch') {
+          msg = 'Unable to connect to database. Please check your network connection or server status.';
+        }
         if (errorBanner) {
           errorBanner.textContent = msg;
           errorBanner.style.display = 'flex';
@@ -290,7 +293,10 @@ function initAuthEvents() {
         }
         window.location.hash = '#dashboard';
       } catch (err) {
-        const msg = err.message || 'Registration failed. Please try again.';
+        let msg = err.message || 'Registration failed. Please try again.';
+        if (msg === 'Failed to fetch') {
+          msg = 'Unable to connect to database. Please check your network connection or server status.';
+        }
         if (errorBanner) {
           errorBanner.textContent = msg;
           errorBanner.style.display = 'flex';

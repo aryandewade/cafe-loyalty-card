@@ -35,8 +35,24 @@ class Router {
   }
 
   handleRoute() {
-    let hash = window.location.hash.replace('#', '') || 'home';
+    let rawHash = window.location.hash.replace('#', '') || 'home';
+    let [hash, queryString] = rawHash.split('?');
     const isAuth = window.AtelierStore.getState().isAuthenticated;
+
+    // Handle Direct Password Reset Link: #reset-password?token=...&email=...
+    if (hash === 'reset-password') {
+      const params = new URLSearchParams(queryString || '');
+      const token = params.get('token') || '';
+      const email = params.get('email') || '';
+      this.currentRoute = 'login';
+      this.render();
+      setTimeout(() => {
+        if (window.openResetPasswordModal) {
+          window.openResetPasswordModal({ email, token });
+        }
+      }, 120);
+      return;
+    }
 
     // Handle anchor links on landing page
     if (['how-it-works', 'rewards-preview', 'locations'].includes(hash)) {
@@ -86,6 +102,7 @@ class Router {
         pageHtml = window.renderLandingPage();
         break;
       case 'login':
+      case 'auth':
         pageHtml = window.renderAuthPage('login');
         break;
       case 'register':

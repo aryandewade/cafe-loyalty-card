@@ -12,11 +12,15 @@ CREATE TABLE IF NOT EXISTS public.users (
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
   phone TEXT,
+  dob TEXT,
   tier TEXT DEFAULT 'Gold Member',
   membership_id TEXT UNIQUE NOT NULL,
   favorite_drink TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Ensure migration if table already existed without dob:
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS dob TEXT;
 
 CREATE TABLE IF NOT EXISTS public.memberships (
   user_id TEXT PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
@@ -69,6 +73,16 @@ CREATE TABLE IF NOT EXISTS public.security_audit_logs (
   timestamp TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS public.password_resets (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL,
+  token TEXT NOT NULL,
+  otp TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  used INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 2. Seed Initial Administrative Settings & PIN Hash
 INSERT INTO public.settings (key, value)
 VALUES 
@@ -111,6 +125,7 @@ ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.security_audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.password_resets ENABLE ROW LEVEL SECURITY;
 
 -- Allow anon/service role access through Backend API
 CREATE POLICY "Allow public read and write" ON public.users FOR ALL USING (true) WITH CHECK (true);
@@ -119,3 +134,4 @@ CREATE POLICY "Allow public read and write" ON public.products FOR ALL USING (tr
 CREATE POLICY "Allow public read and write" ON public.transactions FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public read and write" ON public.settings FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public read and write" ON public.security_audit_logs FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public read and write" ON public.password_resets FOR ALL USING (true) WITH CHECK (true);
