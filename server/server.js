@@ -398,11 +398,7 @@ export async function handleRequest(req) {
 
         const user = await dbGetUser(email);
         if (!user) {
-          // Security practice: Return identical message to prevent user enumeration
-          return sendJson(null, {
-            success: true,
-            message: 'If an account exists with this email address, password recovery instructions have been sent.'
-          });
+          return sendError(null, 'No account found with this email address. Please verify your spelling or create a new account.', 404);
         }
 
         const token = crypto.randomBytes(32).toString('hex');

@@ -424,6 +424,23 @@ function openForgotPasswordModal(prefilledEmail = '') {
     if (labelSpan) labelSpan.textContent = 'Sending email...';
 
     try {
+      // 1. Instant check in Supabase if user exists
+      if (window.AtelierSupabase) {
+        try {
+          const existing = await window.AtelierSupabase.select('users', {
+            email: `eq.${email.toLowerCase()}`,
+            select: 'id,email'
+          });
+          if (!existing || existing.length === 0) {
+            throw new Error('No account found with this email address. Please check your spelling or sign up.');
+          }
+        } catch (checkErr) {
+          if (checkErr.message && checkErr.message.includes('No account found')) {
+            throw checkErr;
+          }
+        }
+      }
+
       const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -433,7 +450,7 @@ function openForgotPasswordModal(prefilledEmail = '') {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to send recovery email.');
+        throw new Error(data.error || 'Unable to send recovery email. Please verify that your email is registered or try again later.');
       }
 
       // Switch to Step 2
