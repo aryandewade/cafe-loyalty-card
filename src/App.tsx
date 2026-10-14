@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { LoyaltyCard } from './components/loyalty/LoyaltyCard';
 import { User, Membership, Reward } from './types';
 
@@ -76,6 +77,7 @@ export const App: React.FC = () => {
           </button>
         </div>
       </div>
+      <Analytics />
     </div>
   );
 };
