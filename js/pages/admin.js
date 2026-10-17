@@ -2,17 +2,32 @@
    ATELIER CAFÉ OWNER ADMIN PORTAL
    High-end executive dashboard with date-wise & period-wise financial intelligence:
    - Total Revenue (Daily, Weekly, 15 Days, Monthly, Quarterly, 6 Months, Year, Custom)
-   - Date-wise Picker for Daily transactions
+   - Date-wise Picker for Daily transactions with future-date blocking
+   - Smart Next button: Only visible when viewing previous/past dates or periods
    - Week, 15-Day Fortnight, Month, Quarter, Half-Year, and Year pickers
-   - Custom Date Range selection
-   - Period-specific Transactions Ledger (Receipt #, Customer, Items, Method, Amount, Status)
+   - Custom Date Range selection (clamped to today)
    - Number of Customers & Member Directory (Visits, Spends, DOB, Number / Mail, Search & Sort)
    - No Average Transaction (AOV removed as requested)
    - Real-time integration with AtelierStore
    ========================================================================== */
 
+function getTodayIso() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function formatDateIso(dateObj) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const d = String(dateObj.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 let adminTimeframe = 'daily'; // 'daily' | 'weekly' | '15days' | 'monthly' | 'quarterly' | '6months' | 'year' | 'custom'
-let adminSelectedDate = '2026-10-17'; // YYYY-MM-DD
+let adminSelectedDate = getTodayIso(); // defaults to today (e.g. 2026-10-18)
 let adminSelectedWeek = '2026-W42';
 let adminSelectedFortnight = '2026-10-F1';
 let adminSelectedMonth = '2026-10';
@@ -20,14 +35,12 @@ let adminSelectedQuarter = '2026-Q4';
 let adminSelectedHalfYear = '2026-H2';
 let adminSelectedYear = '2026';
 let adminCustomFrom = '2026-10-01';
-let adminCustomTo = '2026-10-17';
+let adminCustomTo = getTodayIso();
 
-let adminTxSearch = '';
-let adminTxMethod = 'all'; // 'all' | 'UPI' | 'Card' | 'Cash'
 let adminCustomerSearch = '';
 let adminCustomerSort = 'spends_desc'; // 'spends_desc' | 'visits_desc' | 'name_asc' | 'dob'
 
-// Period Selector Definitions
+// Period Selector Definitions (index 0 is current period)
 const WEEK_OPTIONS = [
   { id: '2026-W42', label: 'Oct 12 – Oct 18, 2026 (This Week)' },
   { id: '2026-W41', label: 'Oct 05 – Oct 11, 2026 (Last Week)' },
@@ -189,36 +202,7 @@ const BASE_CUSTOMERS = [
   }
 ];
 
-// Master order templates to generate realistic transactions
-const SAMPLE_PRODUCTS = [
-  'Chikmagalur Pour Over + Saffron Brioche',
-  'Monsooned Malabar Aeropress x2 + Tartine',
-  'Oat Flat White & Cinnamon Twist',
-  'Artisanal South Indian Kaapi',
-  'Araku Valley Cold Drip Beans (250g)',
-  'Avocado Zaatar Sourdough Tartine',
-  'Coorg Sun-Dried Cortado',
-  'Double Espresso + Morning Brioche',
-  'Cardamom & Saffron Brioche x2',
-  'Pour Over Tasting Flight (3 Cups)'
-];
-
-const SAMPLE_CUSTOMERS = [
-  { name: 'Arjun Mehta', id: 'AT-48291' },
-  { name: 'Ananya Sharma', id: 'AT-39102' },
-  { name: 'Devendra Rao', id: 'AT-10492' },
-  { name: 'Priya Nair', id: 'AT-61840' },
-  { name: 'Meera Singhania', id: 'AT-88129' },
-  { name: 'Rohan Deshmukh', id: 'AT-55201' },
-  { name: 'Kabir Sen', id: 'AT-29401' },
-  { name: 'Zoya Merchant', id: 'AT-77319' },
-  { name: 'Walk-in Guest', id: '' },
-  { name: 'Walk-in Guest', id: '' }
-];
-
-const PAYMENT_METHODS = ['UPI', 'Card', 'Cash', 'UPI', 'Card'];
-
-// Simple pseudo-random hash generator for deterministic date data
+// Simple pseudo-random hash generator for deterministic past date data
 function pseudoHash(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -228,103 +212,74 @@ function pseudoHash(str) {
   return Math.abs(hash);
 }
 
-// Generate realistic transactions for a specific date
-function generateDailyTransactions(dateStr) {
-  const hash = pseudoHash(dateStr);
-  const count = 18 + (hash % 9); // 18 to 26 transactions per day
-  const txList = [];
-  const times = [
-    '08:15 AM', '08:40 AM', '09:05 AM', '09:30 AM', '09:55 AM',
-    '10:20 AM', '10:45 AM', '11:15 AM', '11:50 AM', '12:25 PM',
-    '01:10 PM', '01:45 PM', '02:30 PM', '03:15 PM', '03:50 PM',
-    '04:30 PM', '05:10 PM', '05:45 PM', '06:20 PM', '07:05 PM',
-    '07:45 PM', '08:15 PM', '08:40 PM', '09:10 PM', '09:30 PM'
-  ];
-
-  let totalRev = 0;
-
-  for (let i = 0; i < count; i++) {
-    const itemIdx = (hash + i * 3) % SAMPLE_PRODUCTS.length;
-    const custIdx = (hash + i * 7) % SAMPLE_CUSTOMERS.length;
-    const methodIdx = (hash + i * 2) % PAYMENT_METHODS.length;
-    const cust = SAMPLE_CUSTOMERS[custIdx];
-    const receiptNum = `RCP-${10400 + ((hash + i * 37) % 8900)}`;
-    const baseAmounts = [280, 340, 380, 420, 520, 570, 650, 780, 940, 1080];
-    const amount = baseAmounts[(hash + i * 5) % baseAmounts.length];
-    totalRev += amount;
-
-    txList.push({
-      id: `tx_${dateStr}_${i}`,
-      date: dateStr,
-      time: times[i] || '08:00 PM',
-      receiptNumber: receiptNum,
-      customerName: cust.name,
-      customerId: cust.id,
-      items: SAMPLE_PRODUCTS[itemIdx],
-      method: PAYMENT_METHODS[methodIdx],
-      amount: amount,
-      status: 'Settled'
-    });
-  }
-
-  // Prepend live session activities from AtelierStore if viewing today
-  const store = window.AtelierStore;
-  const todayIso = new Date().toISOString().slice(0, 10);
-  if (store && dateStr === todayIso) {
-    const liveActivities = store.getState().activities || [];
-    liveActivities.forEach((act, idx) => {
-      if (act.type === 'transaction' && act.amountSpent) {
-        txList.unshift({
-          id: act.id || `live_tx_${idx}`,
-          date: dateStr,
-          time: act.time || 'Live Session',
-          receiptNumber: act.receiptNumber || `RCP-LIVE-${idx + 1}`,
-          customerName: store.getState().user?.firstName || 'Current Member',
-          customerId: store.getState().user?.membershipId || 'AT-MEMBER',
-          items: act.productName || act.subtitle || 'Café Order',
-          method: 'UPI',
-          amount: Number(act.amountSpent),
-          status: 'Settled'
-        });
-        totalRev += Number(act.amountSpent);
-      }
-    });
-  }
-
-  return { transactions: txList, revenue: totalRev };
-}
-
-// Generate Period Data & Metrics
+// Generate Period Data & Metrics (Zero revenue/orders for any future dates)
 function getPeriodReportData() {
   const tf = adminTimeframe;
+  const todayIso = getTodayIso();
 
   if (tf === 'daily') {
-    const dateStr = adminSelectedDate || '2026-10-17';
-    const { transactions, revenue } = generateDailyTransactions(dateStr);
-    const dateObj = new Date(dateStr);
+    let dateStr = adminSelectedDate || todayIso;
+    const isFuture = dateStr > todayIso;
+
+    const parts = dateStr.split('-');
+    const dateObj = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     const dateFormatted = isNaN(dateObj.getTime())
       ? dateStr
       : dateObj.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
 
-    // Hourly intervals calculation
+    // Prevent showing future date data
+    if (isFuture) {
+      return {
+        label: `Daily • ${dateFormatted} (Future)`,
+        periodName: `${dateFormatted} (No Data Yet)`,
+        revenue: 0,
+        orders: 0,
+        growth: '0.0%',
+        intervals: [
+          { label: '8 AM', value: 0 },
+          { label: '10 AM', value: 0 },
+          { label: '12 PM', value: 0 },
+          { label: '2 PM', value: 0 },
+          { label: '4 PM', value: 0 },
+          { label: '6 PM', value: 0 },
+          { label: '8 PM', value: 0 }
+        ]
+      };
+    }
+
+    const hash = pseudoHash(dateStr);
+    let baseRev = 8420 + (hash % 3800);
+    let baseOrders = 20 + (hash % 9);
+
+    // Live session sync if today
+    const store = window.AtelierStore;
+    if (store && dateStr === todayIso) {
+      const liveActivities = store.getState().activities || [];
+      liveActivities.forEach(act => {
+        if (act.type === 'transaction' && act.amountSpent) {
+          baseRev += Number(act.amountSpent);
+          baseOrders += 1;
+        }
+      });
+    }
+
     const intervals = [
-      { label: '8 AM', value: Math.round(revenue * 0.12) },
-      { label: '10 AM', value: Math.round(revenue * 0.26) },
-      { label: '12 PM', value: Math.round(revenue * 0.19) },
-      { label: '2 PM', value: Math.round(revenue * 0.11) },
-      { label: '4 PM', value: Math.round(revenue * 0.17) },
-      { label: '6 PM', value: Math.round(revenue * 0.10) },
-      { label: '8 PM', value: Math.round(revenue * 0.05) }
+      { label: '8 AM', value: Math.round(baseRev * 0.12) },
+      { label: '10 AM', value: Math.round(baseRev * 0.26) },
+      { label: '12 PM', value: Math.round(baseRev * 0.19) },
+      { label: '2 PM', value: Math.round(baseRev * 0.11) },
+      { label: '4 PM', value: Math.round(baseRev * 0.17) },
+      { label: '6 PM', value: Math.round(baseRev * 0.10) },
+      { label: '8 PM', value: Math.round(baseRev * 0.05) }
     ];
 
     return {
       label: `Daily • ${dateFormatted}`,
       periodName: dateFormatted,
-      revenue: revenue,
-      orders: transactions.length,
+      revenue: baseRev,
+      orders: baseOrders,
       growth: '+8.4%',
-      intervals: intervals,
-      transactions: transactions
+      intervals: intervals
     };
   }
 
@@ -340,19 +295,13 @@ function getPeriodReportData() {
       value: Math.round(baseRev * weights[i])
     }));
 
-    // Representative transactions across the week
-    const { transactions } = generateDailyTransactions('2026-10-16');
-    const { transactions: tx2 } = generateDailyTransactions('2026-10-17');
-    const combinedTx = tx2.slice(0, 15).concat(transactions.slice(0, 15));
-
     return {
       label: `Weekly • ${weekObj.label}`,
       periodName: weekObj.label,
       revenue: baseRev,
       orders: baseOrders,
       growth: '+12.1%',
-      intervals: intervals,
-      transactions: combinedTx
+      intervals: intervals
     };
   }
 
@@ -368,8 +317,6 @@ function getPeriodReportData() {
       { label: 'Day 10-12', value: Math.round(baseRev * 0.21) },
       { label: 'Day 13-15', value: Math.round(baseRev * 0.20) }
     ];
-    const { transactions } = generateDailyTransactions('2026-10-14');
-    const { transactions: tx2 } = generateDailyTransactions('2026-10-15');
 
     return {
       label: `15 Days • ${fnObj.label}`,
@@ -377,8 +324,7 @@ function getPeriodReportData() {
       revenue: baseRev,
       orders: baseOrders,
       growth: '+10.5%',
-      intervals: intervals,
-      transactions: tx2.concat(transactions).slice(0, 28)
+      intervals: intervals
     };
   }
 
@@ -393,8 +339,6 @@ function getPeriodReportData() {
       { label: 'Week 3', value: Math.round(baseRev * 0.24) },
       { label: 'Week 4', value: Math.round(baseRev * 0.29) }
     ];
-    const { transactions } = generateDailyTransactions('2026-10-12');
-    const { transactions: tx2 } = generateDailyTransactions('2026-10-17');
 
     return {
       label: `Monthly • ${moObj.label}`,
@@ -402,8 +346,7 @@ function getPeriodReportData() {
       revenue: baseRev,
       orders: baseOrders,
       growth: '+14.2%',
-      intervals: intervals,
-      transactions: tx2.concat(transactions).slice(0, 30)
+      intervals: intervals
     };
   }
 
@@ -417,8 +360,6 @@ function getPeriodReportData() {
       { label: 'Month 2', value: Math.round(baseRev * 0.34) },
       { label: 'Month 3', value: Math.round(baseRev * 0.35) }
     ];
-    const { transactions } = generateDailyTransactions('2026-09-15');
-    const { transactions: tx2 } = generateDailyTransactions('2026-10-17');
 
     return {
       label: `Quarterly • ${qtrObj.label}`,
@@ -426,8 +367,7 @@ function getPeriodReportData() {
       revenue: baseRev,
       orders: baseOrders,
       growth: '+16.8%',
-      intervals: intervals,
-      transactions: tx2.concat(transactions).slice(0, 30)
+      intervals: intervals
     };
   }
 
@@ -444,8 +384,6 @@ function getPeriodReportData() {
       { label: 'M5', value: Math.round(baseRev * 0.17) },
       { label: 'M6', value: Math.round(baseRev * 0.18) }
     ];
-    const { transactions } = generateDailyTransactions('2026-08-20');
-    const { transactions: tx2 } = generateDailyTransactions('2026-10-17');
 
     return {
       label: `6 Months • ${hyObj.label}`,
@@ -453,8 +391,7 @@ function getPeriodReportData() {
       revenue: baseRev,
       orders: baseOrders,
       growth: '+18.4%',
-      intervals: intervals,
-      transactions: tx2.concat(transactions).slice(0, 30)
+      intervals: intervals
     };
   }
 
@@ -469,8 +406,6 @@ function getPeriodReportData() {
       { label: 'Q3', value: Math.round(baseRev * 0.26) },
       { label: 'Q4', value: Math.round(baseRev * 0.28) }
     ];
-    const { transactions } = generateDailyTransactions('2026-07-10');
-    const { transactions: tx2 } = generateDailyTransactions('2026-10-17');
 
     return {
       label: `Annual • ${yrObj.label}`,
@@ -478,14 +413,14 @@ function getPeriodReportData() {
       revenue: baseRev,
       orders: baseOrders,
       growth: '+22.5%',
-      intervals: intervals,
-      transactions: tx2.concat(transactions).slice(0, 30)
+      intervals: intervals
     };
   }
 
   // Custom Range
   const fromD = adminCustomFrom || '2026-10-01';
-  const toD = adminCustomTo || '2026-10-17';
+  let toD = adminCustomTo || todayIso;
+  if (toD > todayIso) toD = todayIso;
   const diffTime = Math.max(1, Math.abs(new Date(toD) - new Date(fromD)));
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
   const hash = pseudoHash(fromD + toD);
@@ -499,17 +434,13 @@ function getPeriodReportData() {
     { label: 'P4', value: Math.round(baseRev * 0.28) }
   ];
 
-  const { transactions } = generateDailyTransactions(fromD);
-  const { transactions: tx2 } = generateDailyTransactions(toD);
-
   return {
     label: `Custom Range • ${fromD} to ${toD}`,
     periodName: `${fromD} to ${toD} (${diffDays} Days)`,
     revenue: baseRev,
     orders: baseOrders,
     growth: '+11.8%',
-    intervals: intervals,
-    transactions: tx2.concat(transactions).slice(0, 30)
+    intervals: intervals
   };
 }
 
@@ -553,20 +484,25 @@ function formatInr(val) {
 // Render the period chooser control bar based on active timeframe tab
 function renderPeriodControlBar() {
   const tf = adminTimeframe;
+  const todayIso = getTodayIso();
 
   if (tf === 'daily') {
-    const dateObj = new Date(adminSelectedDate);
+    const parts = (adminSelectedDate || todayIso).split('-');
+    const dateObj = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     const dayName = isNaN(dateObj.getTime())
       ? ''
       : dateObj.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+
+    // "Next Day" is only rendered if user is viewing a previous date (i.e. not on current/today)
+    const isCurrentDate = (adminSelectedDate >= todayIso);
 
     return `
       <div class="admin-period-control-bar">
         <div class="admin-period-control-inner">
           <button type="button" class="admin-ctrl-btn" id="admin-prev-day-btn" title="Previous Day">‹ Prev Day</button>
-          <input type="date" id="admin-daily-date-picker" class="admin-ctrl-input" value="${adminSelectedDate}">
+          <input type="date" id="admin-daily-date-picker" class="admin-ctrl-input" value="${adminSelectedDate}" max="${todayIso}">
           <button type="button" class="admin-ctrl-btn" id="admin-today-btn">Today</button>
-          <button type="button" class="admin-ctrl-btn" id="admin-next-day-btn" title="Next Day">Next Day ›</button>
+          ${!isCurrentDate ? `<button type="button" class="admin-ctrl-btn" id="admin-next-day-btn" title="Next Day">Next Day ›</button>` : ''}
           <span class="admin-ctrl-badge font-mono">${dayName}</span>
         </div>
       </div>
@@ -578,6 +514,8 @@ function renderPeriodControlBar() {
       <option value="${w.id}" ${w.id === adminSelectedWeek ? 'selected' : ''}>${w.label}</option>
     `).join('');
 
+    const isCurrentWeek = (adminSelectedWeek === WEEK_OPTIONS[0].id);
+
     return `
       <div class="admin-period-control-bar">
         <div class="admin-period-control-inner">
@@ -585,7 +523,7 @@ function renderPeriodControlBar() {
           <select id="admin-week-select" class="admin-ctrl-select">
             ${optionsHtml}
           </select>
-          <button type="button" class="admin-ctrl-btn" id="admin-next-week-btn">Next Week ›</button>
+          ${!isCurrentWeek ? `<button type="button" class="admin-ctrl-btn" id="admin-next-week-btn">Next Week ›</button>` : ''}
         </div>
       </div>
     `;
@@ -596,6 +534,8 @@ function renderPeriodControlBar() {
       <option value="${f.id}" ${f.id === adminSelectedFortnight ? 'selected' : ''}>${f.label}</option>
     `).join('');
 
+    const isCurrentFortnight = (adminSelectedFortnight === FORTNIGHT_OPTIONS[0].id);
+
     return `
       <div class="admin-period-control-bar">
         <div class="admin-period-control-inner">
@@ -603,7 +543,7 @@ function renderPeriodControlBar() {
           <select id="admin-fn-select" class="admin-ctrl-select">
             ${optionsHtml}
           </select>
-          <button type="button" class="admin-ctrl-btn" id="admin-next-fn-btn">Next 15 Days ›</button>
+          ${!isCurrentFortnight ? `<button type="button" class="admin-ctrl-btn" id="admin-next-fn-btn">Next 15 Days ›</button>` : ''}
         </div>
       </div>
     `;
@@ -614,6 +554,8 @@ function renderPeriodControlBar() {
       <option value="${m.id}" ${m.id === adminSelectedMonth ? 'selected' : ''}>${m.label}</option>
     `).join('');
 
+    const isCurrentMonth = (adminSelectedMonth === MONTH_OPTIONS[0].id);
+
     return `
       <div class="admin-period-control-bar">
         <div class="admin-period-control-inner">
@@ -621,7 +563,7 @@ function renderPeriodControlBar() {
           <select id="admin-mo-select" class="admin-ctrl-select">
             ${optionsHtml}
           </select>
-          <button type="button" class="admin-ctrl-btn" id="admin-next-mo-btn">Next Month ›</button>
+          ${!isCurrentMonth ? `<button type="button" class="admin-ctrl-btn" id="admin-next-mo-btn">Next Month ›</button>` : ''}
         </div>
       </div>
     `;
@@ -632,6 +574,8 @@ function renderPeriodControlBar() {
       <option value="${q.id}" ${q.id === adminSelectedQuarter ? 'selected' : ''}>${q.label}</option>
     `).join('');
 
+    const isCurrentQuarter = (adminSelectedQuarter === QUARTER_OPTIONS[0].id);
+
     return `
       <div class="admin-period-control-bar">
         <div class="admin-period-control-inner">
@@ -639,7 +583,7 @@ function renderPeriodControlBar() {
           <select id="admin-qtr-select" class="admin-ctrl-select">
             ${optionsHtml}
           </select>
-          <button type="button" class="admin-ctrl-btn" id="admin-next-qtr-btn">Next Quarter ›</button>
+          ${!isCurrentQuarter ? `<button type="button" class="admin-ctrl-btn" id="admin-next-qtr-btn">Next Quarter ›</button>` : ''}
         </div>
       </div>
     `;
@@ -650,6 +594,8 @@ function renderPeriodControlBar() {
       <option value="${h.id}" ${h.id === adminSelectedHalfYear ? 'selected' : ''}>${h.label}</option>
     `).join('');
 
+    const isCurrentHalfYear = (adminSelectedHalfYear === HALFYEAR_OPTIONS[0].id);
+
     return `
       <div class="admin-period-control-bar">
         <div class="admin-period-control-inner">
@@ -657,7 +603,7 @@ function renderPeriodControlBar() {
           <select id="admin-hy-select" class="admin-ctrl-select">
             ${optionsHtml}
           </select>
-          <button type="button" class="admin-ctrl-btn" id="admin-next-hy-btn">Next 6M ›</button>
+          ${!isCurrentHalfYear ? `<button type="button" class="admin-ctrl-btn" id="admin-next-hy-btn">Next 6M ›</button>` : ''}
         </div>
       </div>
     `;
@@ -668,6 +614,8 @@ function renderPeriodControlBar() {
       <option value="${y.id}" ${y.id === adminSelectedYear ? 'selected' : ''}>${y.label}</option>
     `).join('');
 
+    const isCurrentYear = (adminSelectedYear === YEAR_OPTIONS[0].id);
+
     return `
       <div class="admin-period-control-bar">
         <div class="admin-period-control-inner">
@@ -675,7 +623,7 @@ function renderPeriodControlBar() {
           <select id="admin-yr-select" class="admin-ctrl-select">
             ${optionsHtml}
           </select>
-          <button type="button" class="admin-ctrl-btn" id="admin-next-yr-btn">Next Year ›</button>
+          ${!isCurrentYear ? `<button type="button" class="admin-ctrl-btn" id="admin-next-yr-btn">Next Year ›</button>` : ''}
         </div>
       </div>
     `;
@@ -686,9 +634,9 @@ function renderPeriodControlBar() {
     <div class="admin-period-control-bar">
       <div class="admin-period-control-inner">
         <span style="font-size: 0.8rem; font-weight: 600; color: var(--color-roast-muted);">From:</span>
-        <input type="date" id="admin-custom-from-input" class="admin-ctrl-input" value="${adminCustomFrom}">
+        <input type="date" id="admin-custom-from-input" class="admin-ctrl-input" value="${adminCustomFrom}" max="${todayIso}">
         <span style="font-size: 0.8rem; font-weight: 600; color: var(--color-roast-muted);">To:</span>
-        <input type="date" id="admin-custom-to-input" class="admin-ctrl-input" value="${adminCustomTo}">
+        <input type="date" id="admin-custom-to-input" class="admin-ctrl-input" value="${adminCustomTo}" max="${todayIso}">
         <button type="button" id="admin-custom-apply-btn" class="admin-ctrl-btn is-primary">Apply Range</button>
       </div>
     </div>
@@ -723,19 +671,6 @@ function renderAdminPage() {
     filteredCustomers.sort((a, b) => a.dob.localeCompare(b.dob));
   }
 
-  // Filter Transactions by search and payment method
-  const tQuery = adminTxSearch.toLowerCase().trim();
-  let filteredTx = (report.transactions || []).filter(tx => {
-    if (adminTxMethod !== 'all' && tx.method !== adminTxMethod) return false;
-    if (!tQuery) return true;
-    return (
-      tx.receiptNumber.toLowerCase().includes(tQuery) ||
-      tx.customerName.toLowerCase().includes(tQuery) ||
-      (tx.customerId && tx.customerId.toLowerCase().includes(tQuery)) ||
-      tx.items.toLowerCase().includes(tQuery)
-    );
-  });
-
   // Sparkline Bars
   const maxInterval = Math.max(...report.intervals.map(i => i.value), 1);
   const sparklineBarsHtml = report.intervals.map(item => {
@@ -750,36 +685,6 @@ function renderAdminPage() {
       </div>
     `;
   }).join('');
-
-  // Transactions Table Rows
-  const transactionRowsHtml = filteredTx.length === 0
-    ? `<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--color-roast-muted);">No transactions match this period and filter.</td></tr>`
-    : filteredTx.map(tx => `
-        <tr class="admin-table-row">
-          <td class="font-mono" style="font-size: 0.82rem; color: var(--color-espresso); white-space: nowrap;">
-            ${tx.time}
-          </td>
-          <td class="font-mono" style="font-weight: 600; font-size: 0.82rem; color: var(--color-roast-muted); white-space: nowrap;">
-            ${tx.receiptNumber}
-          </td>
-          <td style="white-space: nowrap;">
-            <div style="font-weight: 600; font-size: 0.86rem; color: var(--color-espresso);">${tx.customerName}</div>
-            ${tx.customerId ? `<div class="font-mono" style="font-size: 0.72rem; color: var(--color-roast-muted);">${tx.customerId}</div>` : ''}
-          </td>
-          <td style="font-size: 0.84rem; color: var(--color-espresso); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            ${tx.items}
-          </td>
-          <td style="white-space: nowrap;">
-            <span class="admin-tx-method-badge font-mono ${tx.method.toLowerCase()}">${tx.method}</span>
-          </td>
-          <td class="font-mono admin-highlight-number" style="white-space: nowrap;">
-            ${formatInr(tx.amount)}
-          </td>
-          <td style="white-space: nowrap;">
-            <span class="admin-tx-pill admin-tx-settled">✓ ${tx.status}</span>
-          </td>
-        </tr>
-      `).join('');
 
   // Customer Table Rows
   const customerRowsHtml = filteredCustomers.map(c => {
@@ -890,7 +795,7 @@ function renderAdminPage() {
           <!-- Specific Date & Period Picker Bar -->
           ${renderPeriodControlBar()}
 
-          <!-- Hero Number & Bento Grid (AOV Removed as requested: 3 balanced cards) -->
+          <!-- Hero Number & Bento Grid (AOV Removed: 3 balanced cards) -->
           <div class="admin-bento-grid">
             
             <!-- Primary Revenue Bento -->
@@ -939,63 +844,7 @@ function renderAdminPage() {
 
         </div>
 
-        <!-- 2. DATE-WISE TRANSACTIONS LEDGER SECTION FOR CHOSEN DATE/PERIOD -->
-        <div class="admin-card-surface" style="margin-bottom: 2rem;">
-          
-          <div class="admin-ledger-header">
-            <div>
-              <span class="admin-section-eyebrow">TRANSACTIONS LEDGER</span>
-              <h2 style="font-size: 1.4rem; margin: 2px 0 0; font-family: var(--font-serif);">
-                Orders for ${report.periodName} (${filteredTx.length})
-              </h2>
-            </div>
-
-            <!-- Search & Payment Filter Controls -->
-            <div class="admin-ledger-controls">
-              <!-- Search Input -->
-              <div class="admin-search-wrap">
-                <input 
-                  type="text" 
-                  id="admin-tx-search-input" 
-                  class="admin-search-input" 
-                  placeholder="Search receipt, customer, item..." 
-                  value="${adminTxSearch}"
-                >
-              </div>
-
-              <!-- Payment Method Filter -->
-              <select id="admin-tx-payment-select" class="admin-select-input">
-                <option value="all" ${adminTxMethod === 'all' ? 'selected' : ''}>All Methods</option>
-                <option value="UPI" ${adminTxMethod === 'UPI' ? 'selected' : ''}>UPI</option>
-                <option value="Card" ${adminTxMethod === 'Card' ? 'selected' : ''}>Card</option>
-                <option value="Cash" ${adminTxMethod === 'Cash' ? 'selected' : ''}>Cash</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Transactions Table -->
-          <div class="admin-table-container">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Time / Date</th>
-                  <th>Receipt #</th>
-                  <th>Customer</th>
-                  <th>Items Ordered</th>
-                  <th>Payment</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${transactionRowsHtml}
-              </tbody>
-            </table>
-          </div>
-
-        </div>
-
-        <!-- 3. CUSTOMERS DIRECTORY SECTION -->
+        <!-- 2. CUSTOMERS DIRECTORY SECTION -->
         <div class="admin-card-surface">
           
           <div class="admin-ledger-header">
@@ -1056,6 +905,8 @@ function renderAdminPage() {
 }
 
 function initAdminEvents() {
+  const todayIso = getTodayIso();
+
   // Timeframe Filter Tabs
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1072,7 +923,9 @@ function initAdminEvents() {
   const dailyPicker = document.getElementById('admin-daily-date-picker');
   if (dailyPicker) {
     dailyPicker.addEventListener('change', (e) => {
-      adminSelectedDate = e.target.value;
+      let val = e.target.value;
+      if (val > todayIso) val = todayIso;
+      adminSelectedDate = val;
       if (window.router) window.router.render();
     });
   }
@@ -1081,9 +934,10 @@ function initAdminEvents() {
   const prevDayBtn = document.getElementById('admin-prev-day-btn');
   if (prevDayBtn) {
     prevDayBtn.addEventListener('click', () => {
-      const d = new Date(adminSelectedDate);
+      const parts = (adminSelectedDate || todayIso).split('-');
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
       d.setDate(d.getDate() - 1);
-      adminSelectedDate = d.toISOString().slice(0, 10);
+      adminSelectedDate = formatDateIso(d);
       if (window.router) window.router.render();
     });
   }
@@ -1091,7 +945,7 @@ function initAdminEvents() {
   const todayBtn = document.getElementById('admin-today-btn');
   if (todayBtn) {
     todayBtn.addEventListener('click', () => {
-      adminSelectedDate = new Date().toISOString().slice(0, 10);
+      adminSelectedDate = todayIso;
       if (window.router) window.router.render();
     });
   }
@@ -1099,10 +953,15 @@ function initAdminEvents() {
   const nextDayBtn = document.getElementById('admin-next-day-btn');
   if (nextDayBtn) {
     nextDayBtn.addEventListener('click', () => {
-      const d = new Date(adminSelectedDate);
+      if (adminSelectedDate >= todayIso) return;
+      const parts = adminSelectedDate.split('-');
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
       d.setDate(d.getDate() + 1);
-      adminSelectedDate = d.toISOString().slice(0, 10);
-      if (window.router) window.router.render();
+      const nextIso = formatDateIso(d);
+      if (nextIso <= todayIso) {
+        adminSelectedDate = nextIso;
+        if (window.router) window.router.render();
+      }
     });
   }
 
@@ -1288,32 +1147,11 @@ function initAdminEvents() {
       const toEl = document.getElementById('admin-custom-to-input');
       if (fromEl && toEl) {
         adminCustomFrom = fromEl.value;
-        adminCustomTo = toEl.value;
+        let toVal = toEl.value;
+        if (toVal > todayIso) toVal = todayIso;
+        adminCustomTo = toVal;
         if (window.router) window.router.render();
       }
-    });
-  }
-
-  // Transactions Search
-  const txSearch = document.getElementById('admin-tx-search-input');
-  if (txSearch) {
-    txSearch.addEventListener('input', (e) => {
-      adminTxSearch = e.target.value;
-      if (window.router) window.router.render();
-      const newEl = document.getElementById('admin-tx-search-input');
-      if (newEl) {
-        newEl.focus();
-        newEl.setSelectionRange(newEl.value.length, newEl.value.length);
-      }
-    });
-  }
-
-  // Transactions Payment Filter
-  const txFilter = document.getElementById('admin-tx-payment-select');
-  if (txFilter) {
-    txFilter.addEventListener('change', (e) => {
-      adminTxMethod = e.target.value;
-      if (window.router) window.router.render();
     });
   }
 
@@ -1344,3 +1182,26 @@ function initAdminEvents() {
 
 window.renderAdminPage = renderAdminPage;
 window.initAdminEvents = initAdminEvents;
+window.getPeriodReportData = getPeriodReportData;
+
+window.AtelierAdminState = {
+  get timeframe() { return adminTimeframe; },
+  set timeframe(v) { adminTimeframe = v; },
+  get selectedDate() { return adminSelectedDate; },
+  set selectedDate(v) { adminSelectedDate = v; },
+  get selectedWeek() { return adminSelectedWeek; },
+  set selectedWeek(v) { adminSelectedWeek = v; },
+  get selectedFortnight() { return adminSelectedFortnight; },
+  set selectedFortnight(v) { adminSelectedFortnight = v; },
+  get selectedMonth() { return adminSelectedMonth; },
+  set selectedMonth(v) { adminSelectedMonth = v; },
+  get selectedQuarter() { return adminSelectedQuarter; },
+  set selectedQuarter(v) { adminSelectedQuarter = v; },
+  get selectedHalfYear() { return adminSelectedHalfYear; },
+  set selectedHalfYear(v) { adminSelectedHalfYear = v; },
+  get selectedYear() { return adminSelectedYear; },
+  set selectedYear(v) { adminSelectedYear = v; },
+  getPeriodReportData,
+  getTodayIso,
+  formatDateIso
+};
