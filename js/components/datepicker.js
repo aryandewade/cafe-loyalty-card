@@ -15,8 +15,8 @@
   const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-  // Helper: Format YYYY-MM-DD to human readable (e.g., "14 Oct 1998")
-  function formatDisplayDate(isoString) {
+  // Helper: Format YYYY-MM-DD to human readable or dd-mm-yyyy
+  function formatDisplayDate(isoString, format = 'human') {
     if (!isoString) return '';
     const parts = isoString.split('-');
     if (parts.length !== 3) return isoString;
@@ -24,6 +24,9 @@
     const month = parseInt(parts[1], 10) - 1;
     const day = parseInt(parts[2], 10);
     if (isNaN(year) || isNaN(month) || isNaN(day)) return isoString;
+    if (format === 'dd-mm-yyyy') {
+      return `${pad(day)}-${pad(month + 1)}-${year}`;
+    }
     return `${day} ${MONTH_SHORT[month] || ''} ${year}`;
   }
 
@@ -43,6 +46,8 @@
         maxYear: new Date().getFullYear(),
         defaultYear: 1998, // Sensible starting year for adults if empty
         placeholder: 'Select Date of Birth',
+        format: 'human',
+        topLabel: null,
         onSelect: null
       }, options);
 
@@ -79,33 +84,52 @@
         // Create Trigger Button for Popover Mode
         const trigger = document.createElement('button');
         trigger.type = 'button';
-        trigger.className = 'atelier-datepicker-trigger';
+        trigger.className = 'atelier-datepicker-trigger' + (this.options.topLabel ? ' has-top-label' : '');
         trigger.setAttribute('aria-haspopup', 'dialog');
         trigger.setAttribute('aria-expanded', 'false');
 
         const initialFormatted = this.selectedDate
-          ? formatDisplayDate(`${this.selectedDate.getFullYear()}-${pad(this.selectedDate.getMonth() + 1)}-${pad(this.selectedDate.getDate())}`)
+          ? formatDisplayDate(`${this.selectedDate.getFullYear()}-${pad(this.selectedDate.getMonth() + 1)}-${pad(this.selectedDate.getDate())}`, this.options.format)
           : '';
 
-        trigger.innerHTML = `
-          <span class="atelier-dp-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-              <circle cx="12" cy="15" r="1.5" fill="currentColor"></circle>
-            </svg>
-          </span>
-          <span class="atelier-dp-label ${initialFormatted ? 'has-value' : ''}">
-            ${initialFormatted || this.options.placeholder}
-          </span>
-          <span class="atelier-dp-arrow">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </span>
-        `;
+        if (this.options.topLabel) {
+          trigger.innerHTML = `
+            <div class="atelier-dp-stacked">
+              <span class="atelier-dp-top-label">${this.options.topLabel}</span>
+              <span class="atelier-dp-label ${initialFormatted ? 'has-value' : ''}">
+                ${initialFormatted || this.options.placeholder}
+              </span>
+            </div>
+            <span class="atelier-dp-cal-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </span>
+          `;
+        } else {
+          trigger.innerHTML = `
+            <span class="atelier-dp-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+                <circle cx="12" cy="15" r="1.5" fill="currentColor"></circle>
+              </svg>
+            </span>
+            <span class="atelier-dp-label ${initialFormatted ? 'has-value' : ''}">
+              ${initialFormatted || this.options.placeholder}
+            </span>
+            <span class="atelier-dp-arrow">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          `;
+        }
 
         wrapper.appendChild(trigger);
         this.trigger = trigger;
@@ -407,7 +431,7 @@
 
       // Update trigger label if element exists
       if (this.labelEl) {
-        const formatted = formatDisplayDate(isoString);
+        const formatted = formatDisplayDate(isoString, this.options.format);
         this.labelEl.textContent = formatted;
         this.labelEl.classList.add('has-value');
       }
