@@ -4424,6 +4424,70 @@ div {
   font-weight: 600;
 }
 
+/* Google Review Modal Styling */
+.google-review-btn {
+  background: #1A73E8;
+  color: #FFFFFF !important;
+  border: none;
+  border-radius: 999px;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(26, 115, 232, 0.35);
+  transition: all 0.2s var(--ease-spring);
+  text-decoration: none;
+}
+
+.google-review-btn:hover {
+  background: #1557B0;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(26, 115, 232, 0.45);
+}
+
+.google-review-btn:active {
+  transform: scale(0.98);
+}
+
+.google-review-location-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-canvas-subtle);
+  border: 1px solid var(--color-cream-border);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: var(--color-roast-medium);
+  margin-bottom: 0.65rem;
+}
+
+.google-review-bonus-callout {
+  background: rgba(200, 157, 75, 0.12);
+  border: 1px dashed rgba(200, 157, 75, 0.45);
+  color: #B57F26;
+  border-radius: 12px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin: 0.75rem 0 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+[data-theme="dark"] .google-review-bonus-callout {
+  background: rgba(230, 190, 107, 0.15);
+  border-color: rgba(230, 190, 107, 0.35);
+  color: #E6BE6B;
+}
+
 /* ==========================================================================
    CAFÉ OWNER STAMP AUTHORIZATION KEYPAD & PIN MODAL
    ========================================================================== */

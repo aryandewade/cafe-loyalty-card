@@ -805,90 +805,119 @@ function roundRect(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
-// Interactive Tasting & Experience Review Modal
-function openReviewModal() {
+// 5. Interactive Google Review Modal (Post-Stamping & Saga Progression)
+function openGoogleReviewModal({ location = 'Bandra West Flagship, Mumbai', drinkName = 'Café Order' } = {}) {
   closeAllModals();
   const container = document.getElementById('modal-root');
   if (!container) return;
 
-  let currentRating = 5;
   const store = window.AtelierStore;
-  const state = store.getState();
+  let currentRating = 5;
+
+  // Resolve specific Google Review search query or direct review link for that café
+  function resolveGoogleReviewUrl(loc) {
+    const custom = store?.getState()?.settings?.googleReviewUrl;
+    if (custom && typeof custom === 'string' && custom.startsWith('http')) return custom;
+
+    const lower = (loc || '').toLowerCase();
+    if (lower.includes('bengaluru') || lower.includes('indiranagar')) {
+      return 'https://www.google.com/search?q=Atelier+Coffee+Indiranagar+Bengaluru+reviews';
+    } else if (lower.includes('delhi') || lower.includes('khan market')) {
+      return 'https://www.google.com/search?q=Atelier+Coffee+Khan+Market+New+Delhi+reviews';
+    } else if (lower.includes('pune') || lower.includes('koregaon')) {
+      return 'https://www.google.com/search?q=Atelier+Coffee+Koregaon+Park+Pune+reviews';
+    }
+    return 'https://www.google.com/search?q=Atelier+Coffee+Bandra+West+Mumbai+reviews';
+  }
+
+  const reviewUrl = resolveGoogleReviewUrl(location);
+  const cleanLocationName = (location || 'Bandra West, Mumbai')
+    .replace('Flagship,', '')
+    .replace('Roastery,', '')
+    .replace('Tasting Room,', '')
+    .trim();
 
   container.innerHTML = `
-    <div class="modal-backdrop is-active" id="review-modal-backdrop">
-      <div class="modal-card" style="max-width: 410px; padding: 1.6rem 1.4rem; text-align: center;">
+    <div class="modal-backdrop is-active" id="google-review-backdrop">
+      <div class="modal-card" style="max-width: 410px; padding: 1.8rem 1.5rem; text-align: center; border-radius: 24px; box-shadow: 0 24px 60px rgba(0,0,0,0.25);">
         
-        <div style="display: flex; justify-content: flex-end; margin-bottom: -0.4rem;">
-          <button class="btn-text" id="close-review-btn" style="font-size: 1.3rem; color: var(--color-roast-muted); padding: 0.2rem;">✕</button>
+        <!-- Close Button in Corner -->
+        <div style="display: flex; justify-content: flex-end; margin-top: -0.4rem; margin-bottom: 0.2rem;">
+          <button class="btn-text" id="close-google-review-btn" style="font-size: 1.3rem; color: var(--color-roast-muted); padding: 0.2rem;" aria-label="Close">✕</button>
         </div>
 
-        <div style="width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--bg-canvas-subtle); border: 1.5px solid var(--color-gold-foil); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-size: 1.35rem;">
-          ☕
+        <!-- Google Logo & Pill Header -->
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(66, 133, 244, 0.08); border: 1px solid rgba(66, 133, 244, 0.22); border-radius: 999px; padding: 4px 12px; margin-bottom: 0.75rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.9c2.28-2.1 3.645-5.2 3.645-9.15z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.03 1.16-3.1 0-5.74-2.09-6.68-4.9H1.28v3.15C3.3 21.36 7.37 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.32 14.3c-.24-.72-.37-1.49-.37-2.3s.13-1.58.37-2.3V6.55H1.28C.46 8.18 0 10.03 0 12c0 1.97.46 3.82 1.28 5.45l4.04-3.15z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.3 2.64 1.28 6.55l4.04 3.15c.94-2.81 3.58-4.9 6.68-4.9z"/>
+          </svg>
+          <span style="font-size: 0.76rem; font-weight: 700; color: #1A73E8; letter-spacing: 0.04em;">Google Review</span>
         </div>
 
-        <h3 style="font-family: var(--font-serif); font-size: 1.55rem; color: var(--color-espresso); margin-bottom: 0.25rem;">
-          Review Tasting Ritual
+        <h3 style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--color-espresso); margin: 0.15rem 0 0.35rem; line-height: 1.25;">
+          How was your coffee today?
         </h3>
-        <p style="font-size: 0.8rem; color: var(--color-roast-medium); line-height: 1.35; margin-bottom: 0.8rem;">
-          Share your tasting impressions with our Master Roasters and earn <strong>+25 Loyalty Points</strong>.
-        </p>
 
-        <!-- Star Rating Row -->
-        <div class="review-star-row" id="review-stars-container">
-          <button class="review-star-btn is-active" data-val="1">★</button>
-          <button class="review-star-btn is-active" data-val="2">★</button>
-          <button class="review-star-btn is-active" data-val="3">★</button>
-          <button class="review-star-btn is-active" data-val="4">★</button>
-          <button class="review-star-btn is-active" data-val="5">★</button>
-        </div>
-        <div id="review-rating-label" style="font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; color: var(--color-gold-foil); margin-bottom: 0.9rem;">
-          5 / 5 • Exceptional Single-Origin Brew
+        <!-- Location Pill -->
+        <div class="google-review-location-pill">
+          <span>📍</span>
+          <span>Atelier Café • ${cleanLocationName}</span>
         </div>
 
-        <!-- Flavor & Ambience Tags -->
-        <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-roast-muted); font-weight: 600; text-align: left; margin-bottom: 0.35rem;">
-          Tasting Highlights:
+        <!-- 5-Star Row with interactive feedback -->
+        <div class="review-star-row" id="google-review-stars" style="margin: 0.35rem 0 0.2rem;">
+          <button type="button" class="review-star-btn is-active" data-val="1" aria-label="1 star">★</button>
+          <button type="button" class="review-star-btn is-active" data-val="2" aria-label="2 stars">★</button>
+          <button type="button" class="review-star-btn is-active" data-val="3" aria-label="3 stars">★</button>
+          <button type="button" class="review-star-btn is-active" data-val="4" aria-label="4 stars">★</button>
+          <button type="button" class="review-star-btn is-active" data-val="5" aria-label="5 stars">★</button>
         </div>
-        <div class="review-tags-container">
-          <button type="button" class="review-tag-chip selected" data-tag="Silky Microfoam">Silky Microfoam 🥛</button>
-          <button type="button" class="review-tag-chip selected" data-tag="Floral Jasmine Notes">Floral Notes 🌸</button>
-          <button type="button" class="review-tag-chip" data-tag="Perfect Extraction">Hand Extraction ⚖️</button>
-          <button type="button" class="review-tag-chip" data-tag="Warm Hospitality">Warm Hospitality 🖤</button>
-          <button type="button" class="review-tag-chip" data-tag="Attikan Estate Reserve">Attikan Reserve 🌿</button>
-        </div>
-
-        <!-- Feedback Textarea -->
-        <div style="margin: 0.9rem 0;">
-          <textarea id="review-comment-input" rows="3" placeholder="Notes on roast profile, extraction, or roastery ambience..." style="width: 100%; border: 1px solid var(--color-cream-border); border-radius: 12px; padding: 0.75rem; font-family: var(--font-sans); font-size: 0.82rem; background: var(--bg-surface); color: var(--color-espresso); resize: none;"></textarea>
+        <div id="google-review-label" style="font-size: 0.8rem; font-weight: 600; color: var(--color-gold-foil); margin-bottom: 0.5rem;">
+          5 Stars • Exceptional Roast & Service!
         </div>
 
-        <button id="submit-review-btn" class="btn-primary btn-terracotta" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.9rem;">
-          <span>Submit Review (+25 Points)</span>
+        <!-- Bonus Points Callout -->
+        <div class="google-review-bonus-callout">
+          <span>✨</span>
+          <span>Leave a review on Google & earn +25 Points!</span>
+        </div>
+
+        <!-- Primary CTA: Go to Google Review -->
+        <button type="button" id="open-google-review-link-btn" class="google-review-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span>Write a Google Review ↗</span>
         </button>
+
+        <!-- Secondary Dismiss -->
+        <div style="margin-top: 0.75rem;">
+          <button type="button" id="google-review-skip-btn" class="btn-text" style="font-size: 0.82rem; color: var(--color-roast-muted); cursor: pointer;">
+            Maybe next time
+          </button>
+        </div>
+
       </div>
     </div>
   `;
 
-  // Hide dock and prevent scroll
+  // Prevent background scroll
   document.body.style.overflow = 'hidden';
-  const dock = document.getElementById('mobile-app-dock');
-  if (dock) {
-    dock.style.opacity = '0';
-    dock.style.pointerEvents = 'none';
-  }
 
-  // Star Rating Interaction
-  const ratingLabels = [
+  // Interactive Stars
+  const starBtns = container.querySelectorAll('.review-star-btn');
+  const labelEl = container.querySelector('#google-review-label');
+  const starLabels = [
     '',
-    '1 / 5 • Sub-optimal Extraction',
-    '2 / 5 • Fair Cup',
-    '3 / 5 • Enjoyable Roast',
-    '4 / 5 • Excellent Craft',
-    '5 / 5 • Exceptional Single-Origin Brew'
+    '1 Star • Needs improvement',
+    '2 Stars • Fair cup',
+    '3 Stars • Good coffee',
+    '4 Stars • Great brew & hospitality',
+    '5 Stars • Exceptional Roast & Service!'
   ];
-  const starBtns = document.querySelectorAll('.review-star-btn');
-  const ratingLabelEl = document.getElementById('review-rating-label');
 
   starBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -901,33 +930,35 @@ function openReviewModal() {
           b.classList.remove('is-active');
         }
       });
-      if (ratingLabelEl) ratingLabelEl.textContent = ratingLabels[val] || `${val} / 5`;
+      if (labelEl) labelEl.textContent = starLabels[val] || `${val} Stars`;
       if (window.AtelierAudio && typeof window.AtelierAudio.playStarSlam === 'function') {
         window.AtelierAudio.playStarSlam(Math.min(3, Math.max(1, Math.floor(val / 2))));
       }
     });
   });
 
-  // Tag Chips Toggle
-  document.querySelectorAll('.review-tag-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      chip.classList.toggle('selected');
-      if (window.AtelierAudio && typeof window.AtelierAudio.playTap === 'function') {
-        window.AtelierAudio.playTap();
-      }
-    });
+  const handleDismiss = () => {
+    closeAllModals();
+    if (window.router) window.router.render();
+  };
+
+  container.querySelector('#close-google-review-btn')?.addEventListener('click', handleDismiss);
+  container.querySelector('#google-review-skip-btn')?.addEventListener('click', handleDismiss);
+  container.querySelector('#google-review-backdrop')?.addEventListener('click', (e) => {
+    if (e.target.id === 'google-review-backdrop') handleDismiss();
   });
 
-  // Close Handlers
-  document.getElementById('close-review-btn')?.addEventListener('click', closeAllModals);
-  document.getElementById('review-modal-backdrop')?.addEventListener('click', (e) => {
-    if (e.target.id === 'review-modal-backdrop') closeAllModals();
-  });
+  // Action on Clicking Google Review Button:
+  container.querySelector('#open-google-review-link-btn')?.addEventListener('click', () => {
+    // Open Google Review in new tab
+    window.open(reviewUrl, '_blank', 'noopener,noreferrer');
 
-  // Submit Handler
-  document.getElementById('submit-review-btn')?.addEventListener('click', () => {
-    store.awardPoints(25);
+    // Award bonus loyalty points
+    if (store && typeof store.awardPoints === 'function') {
+      store.awardPoints(25);
+    }
 
+    // Audio & Confetti
     if (window.AtelierAudio && typeof window.AtelierAudio.playCandyFanfare === 'function') {
       window.AtelierAudio.playCandyFanfare();
     }
@@ -936,8 +967,15 @@ function openReviewModal() {
     }
 
     closeAllModals();
-    window.showToast('⭐ Thank you for your review! +25 Loyalty Points added to your pass.');
+    if (window.router) window.router.render();
+    if (typeof window.showToast === 'function') {
+      window.showToast('⭐ Thank you for reviewing us on Google! +25 Points added.');
+    }
   });
+}
+
+function openReviewModal(options = {}) {
+  openGoogleReviewModal(options);
 }
 
 // 6. Caffeine Wrapped Story Export Modal
@@ -1486,7 +1524,7 @@ function openOwnerStampModal(options = {}) {
 }
 
 // 8. Saga Level Progress Popup & Animated Road Character March
-function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned = 0, newVisits = 1, drinkName = 'Café Order' } = {}) {
+function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned = 0, newVisits = 1, drinkName = 'Café Order', location = 'Bandra West Flagship, Mumbai' } = {}) {
   closeAllModals();
   const container = document.getElementById('modal-root');
   if (!container) return;
@@ -1698,10 +1736,17 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
     }, 420);
   }, 50);
 
-  // Close handlers
+  // Close handlers: After completing the stamping and level pop up, ask for a review again using the Google review pop up
   const handleClose = () => {
     closeAllModals();
     if (window.router) window.router.render();
+    setTimeout(() => {
+      if (typeof openGoogleReviewModal === 'function') {
+        openGoogleReviewModal({ location, drinkName });
+      } else if (typeof window.openGoogleReviewModal === 'function') {
+        window.openGoogleReviewModal({ location, drinkName });
+      }
+    }, 280);
   };
   document.getElementById('close-saga-advance-btn')?.addEventListener('click', handleClose);
   document.getElementById('saga-modal-continue-btn')?.addEventListener('click', handleClose);
@@ -1881,6 +1926,7 @@ window.openReceiptModal = openReceiptModal;
 window.openAddProductModal = openAddProductModal;
 window.openCaffeineWrappedModal = openCaffeineWrappedModal;
 window.openReviewModal = openReviewModal;
+window.openGoogleReviewModal = openGoogleReviewModal;
 window.openCollectStampModal = openOwnerStampModal;
 window.openOwnerStampModal = openOwnerStampModal;
 window.openSagaLevelAdvanceModal = openSagaLevelAdvanceModal;

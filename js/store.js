@@ -9,7 +9,8 @@ const DEFAULT_SETTINGS = {
   rupeesPerPoint: 1, // Rule: ₹1 spent = 1 point
   ownerStampPin: '1234', // Café Owner PIN / Password required to stamp cards
   currencySymbol: '₹',
-  programName: 'Atelier Loyalty Club'
+  programName: 'Atelier Loyalty Club',
+  googleReviewUrl: 'https://www.google.com/search?q=Atelier+Coffee+Bandra+West+Mumbai+reviews'
 };
 
 const DEFAULT_PRODUCTS = [
