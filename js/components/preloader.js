@@ -15,21 +15,21 @@
     const preloaderEl = document.getElementById('atelier-preloader');
     if (!preloaderEl) return;
 
-    // Check session storage (Play once per session)
-    const hasSeenIntro = sessionStorage.getItem('atelier_intro_shown');
-    if (hasSeenIntro) {
-      preloaderEl.style.display = 'none';
-      return;
-    }
+    // Clean up any legacy session flag so it always plays on every load
+    try { sessionStorage.removeItem('atelier_intro_shown'); } catch (e) {}
 
     const progressBar = preloaderEl.querySelector('.preloader-progress-fill');
     const skipBtn = preloaderEl.querySelector('#preloader-skip-btn');
     let isDismissed = false;
 
+    // Reset progress bar to 0% for replay / fresh load
+    if (progressBar) {
+      progressBar.style.width = '0%';
+    }
+
     function dismissPreloader() {
       if (isDismissed) return;
       isDismissed = true;
-      sessionStorage.setItem('atelier_intro_shown', 'true');
 
       preloaderEl.classList.add('is-dissolving');
       setTimeout(() => {
@@ -70,7 +70,6 @@
 
   // Allow manual replay anytime
   window.replayIntroAnimation = function () {
-    sessionStorage.removeItem('atelier_intro_shown');
     const preloaderEl = document.getElementById('atelier-preloader');
     if (preloaderEl) {
       preloaderEl.style.display = 'flex';
