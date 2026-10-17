@@ -22,8 +22,11 @@ function loadEnvFallback() {
 }
 loadEnvFallback();
 
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || '';
+const DEFAULT_SUPABASE_URL = 'https://dxcguohrlybyjovlxqjy.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4Y2d1b2hybHlieWpvdmx4cWp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NDUyNzIsImV4cCI6MjEwNzEyMTI3Mn0.Rm-4-1tt2WheskT3_5OW8HTo7IfT7wQC-MCig8xN3Zs';
+
+const SUPABASE_URL = process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || DEFAULT_SUPABASE_KEY;
 
 export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_KEY);
 

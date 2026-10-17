@@ -7,14 +7,14 @@ import tls from 'node:tls';
  */
 export class SmtpClient {
   constructor(config = {}) {
-    this.host = config.host || process.env.SMTP_HOST || '';
+    this.host = config.host || process.env.SMTP_HOST || 'smtp.gmail.com';
     this.port = parseInt(config.port || process.env.SMTP_PORT || '587', 10);
     this.secure = config.secure !== undefined 
       ? Boolean(config.secure) 
       : (process.env.SMTP_SECURE === 'true' || this.port === 465);
-    this.user = config.user || process.env.SMTP_USER || '';
-    this.pass = (config.pass || process.env.SMTP_PASS || '').replace(/\s+/g, '');
-    this.from = config.from || process.env.SMTP_FROM || this.user || 'no-reply@atelier-coffee.com';
+    this.user = config.user || process.env.SMTP_USER || 'aryandewade16@gmail.com';
+    this.pass = (config.pass || process.env.SMTP_PASS || 'sgxfoizhobhhgoob').replace(/\s+/g, '');
+    this.from = config.from || process.env.SMTP_FROM || '"Atelier Specialty Coffee" <aryandewade16@gmail.com>';
   }
 
   isConfigured() {

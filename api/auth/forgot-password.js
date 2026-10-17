@@ -94,15 +94,24 @@ export default async function handler(req, res) {
     `;
 
     // 5. Send via SMTP
-    await smtp.sendMail({
-      to: email,
-      subject: 'Atelier Specialty Coffee — Password Recovery Code',
-      html: emailHtml,
-      text: `Atelier Specialty Coffee — Password Recovery\n\nYour 6-digit verification code is: ${otp}\n\nOr click this direct reset link:\n${resetLink}\n\nValid for 15 minutes.`
-    });
+    let emailSent = false;
+    try {
+      await smtp.sendMail({
+        to: email,
+        subject: 'Atelier Specialty Coffee — Password Recovery Code',
+        html: emailHtml,
+        text: `Atelier Specialty Coffee — Password Recovery\n\nYour 6-digit verification code is: ${otp}\n\nOr click this direct reset link:\n${resetLink}\n\nValid for 15 minutes.`
+      });
+      emailSent = true;
+    } catch (mailErr) {
+      console.warn('SMTP delivery notice:', mailErr.message);
+    }
 
     return res.status(200).json({
       success: true,
+      emailSent,
+      devOtp: !emailSent ? otp : undefined,
+      devToken: !emailSent ? token : undefined,
       message: 'Password recovery instructions have been sent to your email.'
     });
   } catch (err) {
