@@ -34,8 +34,8 @@ class Router {
     this.handleRoute();
   }
 
-  handleRoute() {
-    let rawHash = window.location.hash.replace('#', '') || 'home';
+  handleRoute(targetHash) {
+    let rawHash = (typeof targetHash === 'string' && targetHash ? targetHash : window.location.hash).replace('#', '') || 'home';
     let [hash, queryString] = rawHash.split('?');
     const isAuth = window.AtelierStore.getState().isAuthenticated;
 
@@ -127,6 +127,9 @@ class Router {
       case 'staff':
         pageHtml = window.renderStaffPage();
         break;
+      case 'admin':
+        pageHtml = window.renderAdminPage ? window.renderAdminPage() : '<p>Admin Portal Loading...</p>';
+        break;
       default:
         pageHtml = window.renderLandingPage();
         break;
@@ -167,6 +170,9 @@ class Router {
         break;
       case 'staff':
         window.initStaffEvents();
+        break;
+      case 'admin':
+        if (window.initAdminEvents) window.initAdminEvents();
         break;
     }
   }

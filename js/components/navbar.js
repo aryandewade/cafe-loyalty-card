@@ -354,7 +354,7 @@ function renderNavbar(currentPage = 'home') {
     </div>
 
     <!-- Mobile Bottom Dock (Authenticated Mode) -->
-    ${isAuth ? `
+    ${isAuth && currentPage !== 'admin' ? `
       <div class="mobile-dock" id="mobile-app-dock">
         <a href="#dashboard" class="dock-item ${currentPage === 'dashboard' || currentPage === 'levels' ? 'active' : ''}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">

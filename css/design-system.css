@@ -7102,3 +7102,476 @@ div {
   box-shadow: 0 0 8px #F5D77F;
   transition: width 1.85s cubic-bezier(0.1, 0.85, 0.25, 1);
 }
+
+/* ==========================================================================
+   CAFÉ OWNER ADMIN PORTAL & FOOTER ADMIN BUTTON
+   Minimalist luxury aesthetic, monospace financial data, responsive bento grid
+   ========================================================================== */
+
+.admin-portal-root {
+  min-height: calc(100vh - 80px);
+  padding: 3rem 0 5rem;
+  background: var(--color-parchment, #FAF4EA);
+  color: var(--color-roast-charcoal, #1E140F);
+}
+
+.admin-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.admin-page-title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--color-espresso, #140D09);
+  margin: 0.35rem 0 0.4rem;
+  letter-spacing: -0.02em;
+}
+
+.admin-page-subtitle {
+  font-size: 0.95rem;
+  color: var(--color-roast-muted, #7E6E65);
+  margin: 0;
+  max-width: 580px;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-card-surface {
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle, rgba(45, 30, 22, 0.1));
+  border-radius: var(--radius-card, 16px);
+  padding: 2rem;
+  box-shadow: 0 4px 24px rgba(28, 19, 13, 0.04);
+}
+
+.admin-section-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-gold-foil, #C89D4B);
+  display: block;
+}
+
+.admin-revenue-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(45, 30, 22, 0.06);
+}
+
+.admin-timeframe-tabs {
+  display: inline-flex;
+  background: rgba(45, 30, 22, 0.04);
+  padding: 3px;
+  border-radius: 999px;
+  gap: 2px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.admin-tab-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-roast-muted, #7E6E65);
+  padding: 0.42rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-tab-btn:hover {
+  color: var(--color-espresso, #140D09);
+}
+
+.admin-tab-btn.is-active {
+  background: #FFFFFF;
+  color: var(--color-espresso, #140D09);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Bento Grid */
+.admin-bento-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.admin-bento-card {
+  background: rgba(248, 245, 240, 0.6);
+  border: 1px solid rgba(45, 30, 22, 0.06);
+  border-radius: 12px;
+  padding: 1.4rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-bento-card:hover {
+  border-color: rgba(200, 157, 75, 0.3);
+  transform: translateY(-2px);
+}
+
+.admin-bento-hero {
+  background: linear-gradient(135deg, #1A120D 0%, #291C15 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(200, 157, 75, 0.25);
+  box-shadow: 0 10px 24px -6px rgba(26, 18, 13, 0.2);
+}
+
+.admin-bento-hero .admin-bento-subhead {
+  color: var(--color-gold-light, #F5D77F);
+}
+
+.admin-bento-subhead {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-roast-muted, #7E6E65);
+  margin-bottom: 0.5rem;
+}
+
+.admin-hero-number {
+  font-size: clamp(2rem, 3.5vw, 2.9rem);
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.65rem;
+}
+
+.admin-trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #55B574;
+  font-weight: 600;
+}
+
+.admin-bento-number {
+  font-size: 2.1rem;
+  font-weight: 600;
+  color: var(--color-espresso, #140D09);
+  line-height: 1.1;
+  margin-bottom: 0.35rem;
+}
+
+.admin-bento-foot {
+  font-size: 0.74rem;
+  color: var(--color-roast-muted, #7E6E65);
+}
+
+/* Sparkline Distribution */
+.admin-sparkline-section {
+  padding-top: 1.5rem;
+  border-top: 1px dashed rgba(45, 30, 22, 0.1);
+}
+
+.admin-spark-chart-grid {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  height: 130px;
+  padding-top: 1rem;
+}
+
+.admin-spark-bar-col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.admin-spark-bar-wrap {
+  width: 100%;
+  max-width: 42px;
+  height: 80px;
+  background: rgba(45, 30, 22, 0.04);
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  position: relative;
+}
+
+.admin-spark-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, var(--color-gold-foil, #C89D4B) 0%, var(--color-terracotta, #9E472A) 100%);
+  border-radius: 6px 6px 0 0;
+  transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-spark-bar-col:hover .admin-spark-bar-fill {
+  filter: brightness(1.15);
+}
+
+.admin-spark-bar-label {
+  font-size: 0.72rem;
+  color: var(--color-roast-muted, #7E6E65);
+  text-align: center;
+}
+
+.admin-spark-bar-val {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-espresso, #140D09);
+  text-align: center;
+}
+
+/* Customer Directory */
+.admin-ledger-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-ledger-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-search-input {
+  width: 260px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.84rem;
+  border: 1px solid var(--border-subtle, rgba(45, 30, 22, 0.15));
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: var(--color-espresso, #140D09);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-search-input:focus {
+  border-color: var(--color-gold-foil, #C89D4B);
+  box-shadow: 0 0 0 3px rgba(200, 157, 75, 0.15);
+}
+
+.admin-select-input {
+  padding: 0.5rem 0.8rem;
+  font-size: 0.84rem;
+  border: 1px solid var(--border-subtle, rgba(45, 30, 22, 0.15));
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: var(--color-espresso, #140D09);
+  outline: none;
+  cursor: pointer;
+}
+
+.admin-table-container {
+  overflow-x: auto;
+  margin: 0 -0.5rem;
+  padding: 0 0.5rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.88rem;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-roast-muted, #7E6E65);
+  border-bottom: 1px solid rgba(45, 30, 22, 0.08);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 1.05rem 1rem;
+  border-bottom: 1px solid rgba(45, 30, 22, 0.05);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.admin-table-row {
+  transition: background-color 0.15s ease;
+}
+
+.admin-table-row:hover {
+  background-color: rgba(248, 245, 240, 0.7);
+}
+
+.admin-customer-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-terracotta, #9E472A), var(--color-espresso, #140D09));
+  color: #FAF4EA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.admin-customer-name {
+  font-weight: 600;
+  color: var(--color-espresso, #140D09);
+  line-height: 1.2;
+}
+
+.admin-customer-id {
+  font-size: 0.72rem;
+  color: var(--color-roast-muted, #7E6E65);
+  margin-top: 2px;
+}
+
+.admin-number-pill {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  background: rgba(45, 30, 22, 0.05);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: var(--color-espresso, #140D09);
+}
+
+.admin-highlight-number {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-terracotta, #9E472A);
+  letter-spacing: -0.01em;
+}
+
+.admin-birthday-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(200, 157, 75, 0.15);
+  color: #926A18;
+}
+
+.admin-contact-phone {
+  font-size: 0.84rem;
+  color: var(--color-espresso, #140D09);
+}
+
+.admin-contact-email {
+  font-size: 0.78rem;
+  color: var(--color-roast-muted, #7E6E65);
+  margin-top: 2px;
+}
+
+.admin-tier-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+}
+
+.admin-tier-badge.gold {
+  background: rgba(200, 157, 75, 0.14);
+  color: #926A18;
+  border: 1px solid rgba(200, 157, 75, 0.25);
+}
+
+.admin-tier-badge.vip {
+  background: rgba(26, 18, 13, 0.08);
+  color: #1A120D;
+  border: 1px solid rgba(26, 18, 13, 0.2);
+}
+
+/* Footer Admin Icon Button */
+.footer-admin-link-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.footer-admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  color: var(--color-roast-muted, #7E6E65);
+  text-decoration: none;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(45, 30, 22, 0.12);
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+.footer-admin-btn:hover {
+  color: var(--color-espresso, #140D09);
+  border-color: var(--color-gold-foil, #C89D4B);
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .admin-bento-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .admin-bento-hero {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-bento-hero {
+    grid-column: span 1;
+  }
+  .admin-card-surface {
+    padding: 1.25rem;
+  }
+  .admin-search-input {
+    width: 100%;
+  }
+  .admin-ledger-controls {
+    width: 100%;
+  }
+  .admin-search-wrap, .admin-select-input {
+    width: 100%;
+  }
+}
