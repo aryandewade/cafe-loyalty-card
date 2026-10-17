@@ -54,6 +54,18 @@ class Router {
       return;
     }
 
+    // Direct shortcut route to review modal: #review or #google-review
+    if (hash === 'review' || hash === 'google-review') {
+      this.currentRoute = isAuth ? 'dashboard' : 'home';
+      this.render();
+      setTimeout(() => {
+        if (window.openGoogleReviewModal) {
+          window.openGoogleReviewModal();
+        }
+      }, 100);
+      return;
+    }
+
     // Handle anchor links on landing page
     if (['how-it-works', 'rewards-preview', 'locations'].includes(hash)) {
       if (this.currentRoute !== 'home') {
