@@ -839,63 +839,111 @@ function openGoogleReviewModal({ location = 'Bandra West Flagship, Mumbai', drin
 
   container.innerHTML = `
     <div class="modal-backdrop is-active" id="google-review-backdrop">
-      <div class="modal-card" style="max-width: 410px; padding: 1.8rem 1.5rem; text-align: center; border-radius: 24px; box-shadow: 0 24px 60px rgba(0,0,0,0.25);">
+      <div class="modal-card google-review-modal-card">
         
-        <!-- Close Button in Corner -->
-        <div style="display: flex; justify-content: flex-end; margin-top: -0.4rem; margin-bottom: 0.2rem;">
-          <button class="btn-text" id="close-google-review-btn" style="font-size: 1.3rem; color: var(--color-roast-muted); padding: 0.2rem;" aria-label="Close">✕</button>
+        <!-- Top Bar: Brand Eyebrow & Sleek Close Button -->
+        <div class="gr-modal-top-bar">
+          <div class="gr-brand-eyebrow">
+            <span>✦</span>
+            <span>ATELIER SPECIALTY ROASTERS</span>
+          </div>
+          <button class="gr-close-btn" id="close-google-review-btn" aria-label="Close review modal">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
 
-        <!-- Google Logo & Pill Header -->
-        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(66, 133, 244, 0.08); border: 1px solid rgba(66, 133, 244, 0.22); border-radius: 999px; padding: 4px 12px; margin-bottom: 0.75rem;">
-          <svg width="18" height="18" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.9c2.28-2.1 3.645-5.2 3.645-9.15z"/>
-            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.03 1.16-3.1 0-5.74-2.09-6.68-4.9H1.28v3.15C3.3 21.36 7.37 24 12 24z"/>
-            <path fill="#FBBC05" d="M5.32 14.3c-.24-.72-.37-1.49-.37-2.3s.13-1.58.37-2.3V6.55H1.28C.46 8.18 0 10.03 0 12c0 1.97.46 3.82 1.28 5.45l4.04-3.15z"/>
-            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.3 2.64 1.28 6.55l4.04 3.15c.94-2.81 3.58-4.9 6.68-4.9z"/>
-          </svg>
-          <span style="font-size: 0.76rem; font-weight: 700; color: #1A73E8; letter-spacing: 0.04em;">Google Review</span>
+        <!-- Hero Badge: Artisan Roastery Cup + Official Google Badge -->
+        <div class="gr-hero-badge-wrap">
+          <div class="gr-coffee-avatar">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+              <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+              <line x1="6" y1="1" x2="6" y2="4"></line>
+              <line x1="10" y1="1" x2="10" y2="4"></line>
+              <line x1="14" y1="1" x2="14" y2="4"></line>
+            </svg>
+          </div>
+          <div class="gr-google-badge" title="Google Verified Reviews">
+            <svg width="15" height="15" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.9c2.28-2.1 3.645-5.2 3.645-9.15z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.03 1.16-3.1 0-5.74-2.09-6.68-4.9H1.28v3.15C3.3 21.36 7.37 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.32 14.3c-.24-.72-.37-1.49-.37-2.3s.13-1.58.37-2.3V6.55H1.28C.46 8.18 0 10.03 0 12c0 1.97.46 3.82 1.28 5.45l4.04-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.3 2.64 1.28 6.55l4.04 3.15c.94-2.81 3.58-4.9 6.68-4.9z"/>
+            </svg>
+          </div>
         </div>
 
-        <h3 style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--color-espresso); margin: 0.15rem 0 0.35rem; line-height: 1.25;">
-          How was your coffee today?
-        </h3>
+        <!-- Editorial Title -->
+        <h3 class="gr-modal-title">How was your coffee today?</h3>
 
         <!-- Location Pill -->
         <div class="google-review-location-pill">
-          <span>📍</span>
+          <span class="gr-loc-dot"></span>
           <span>Atelier Café • ${cleanLocationName}</span>
         </div>
 
-        <!-- 5-Star Row with interactive feedback -->
-        <div class="review-star-row" id="google-review-stars" style="margin: 0.35rem 0 0.2rem;">
-          <button type="button" class="review-star-btn is-active" data-val="1" aria-label="1 star">★</button>
-          <button type="button" class="review-star-btn is-active" data-val="2" aria-label="2 stars">★</button>
-          <button type="button" class="review-star-btn is-active" data-val="3" aria-label="3 stars">★</button>
-          <button type="button" class="review-star-btn is-active" data-val="4" aria-label="4 stars">★</button>
-          <button type="button" class="review-star-btn is-active" data-val="5" aria-label="5 stars">★</button>
+        <!-- 5-Star Row with vector star icons -->
+        <div class="review-star-row" id="google-review-stars">
+          <button type="button" class="review-star-btn is-active" data-val="1" aria-label="1 star">
+            <svg class="gr-star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+          <button type="button" class="review-star-btn is-active" data-val="2" aria-label="2 stars">
+            <svg class="gr-star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+          <button type="button" class="review-star-btn is-active" data-val="3" aria-label="3 stars">
+            <svg class="gr-star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+          <button type="button" class="review-star-btn is-active" data-val="4" aria-label="4 stars">
+            <svg class="gr-star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+          <button type="button" class="review-star-btn is-active" data-val="5" aria-label="5 stars">
+            <svg class="gr-star-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
         </div>
-        <div id="google-review-label" style="font-size: 0.8rem; font-weight: 600; color: var(--color-gold-foil); margin-bottom: 0.5rem;">
+        <div id="google-review-label" class="gr-rating-label">
           5 Stars • Exceptional Roast & Service!
         </div>
 
-        <!-- Bonus Points Callout -->
-        <div class="google-review-bonus-callout">
-          <span>✨</span>
-          <span>Leave a review on Google & earn +25 Points!</span>
+        <!-- Quick Compliments Tag Chips -->
+        <div class="gr-tag-chips-row">
+          <button type="button" class="gr-tag-chip is-selected" data-tag="Perfect Pour Over">☕ Perfect Pour Over</button>
+          <button type="button" class="gr-tag-chip is-selected" data-tag="Lovely Vibe">✨ Lovely Vibe</button>
+          <button type="button" class="gr-tag-chip" data-tag="Warm Hospitality">🤍 Warm Hospitality</button>
+          <button type="button" class="gr-tag-chip" data-tag="Fresh Pastry">🥐 Fresh Pastry</button>
         </div>
 
-        <!-- Primary CTA: Go to Google Review -->
+        <!-- Loyalty Points Incentive Ribbon (Replaces old dashed box) -->
+        <div class="google-review-bonus-callout">
+          <div class="gr-reward-token font-mono">
+            <span>+25</span>
+            <span class="gr-pts-label">PTS</span>
+          </div>
+          <div class="gr-reward-copy">
+            <div class="gr-reward-title">Google Review Reward</div>
+            <div class="gr-reward-subtitle">25 bonus loyalty points unlocked upon review</div>
+          </div>
+        </div>
+
+        <!-- Primary CTA: Bespoke Google Verified Action Button -->
         <button type="button" id="open-google-review-link-btn" class="google-review-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-          <span>Write a Google Review ↗</span>
+          <div class="gr-google-btn-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.9c2.28-2.1 3.645-5.2 3.645-9.15z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.03 1.16-3.1 0-5.74-2.09-6.68-4.9H1.28v3.15C3.3 21.36 7.37 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.32 14.3c-.24-.72-.37-1.49-.37-2.3s.13-1.58.37-2.3V6.55H1.28C.46 8.18 0 10.03 0 12c0 1.97.46 3.82 1.28 5.45l4.04-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.3 2.64 1.28 6.55l4.04 3.15c.94-2.81 3.58-4.9 6.68-4.9z"/>
+            </svg>
+          </div>
+          <span>Write a Google Review</span>
+          <span class="gr-btn-arrow">↗</span>
         </button>
 
         <!-- Secondary Dismiss -->
-        <div style="margin-top: 0.75rem;">
-          <button type="button" id="google-review-skip-btn" class="btn-text" style="font-size: 0.82rem; color: var(--color-roast-muted); cursor: pointer;">
+        <div>
+          <button type="button" id="google-review-skip-btn" class="gr-skip-btn">
             Maybe next time
           </button>
         </div>
@@ -933,6 +981,16 @@ function openGoogleReviewModal({ location = 'Bandra West Flagship, Mumbai', drin
       if (labelEl) labelEl.textContent = starLabels[val] || `${val} Stars`;
       if (window.AtelierAudio && typeof window.AtelierAudio.playStarSlam === 'function') {
         window.AtelierAudio.playStarSlam(Math.min(3, Math.max(1, Math.floor(val / 2))));
+      }
+    });
+  });
+
+  // Interactive Quick Compliment Chips
+  container.querySelectorAll('.gr-tag-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('is-selected');
+      if (window.AtelierAudio && typeof window.AtelierAudio.playTap === 'function') {
+        window.AtelierAudio.playTap();
       }
     });
   });
