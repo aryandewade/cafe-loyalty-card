@@ -13,32 +13,6 @@ function renderAuthPage(initialMode = 'login') {
   return `
     <div class="auth-page-root">
       
-      <!-- Ambient Decorative Backdrop (Sparkles, Coffee Bean & Warm Radial Bokeh) -->
-      <div class="auth-ambient-wrapper" aria-hidden="true">
-        <!-- Soft glowing radial orbs -->
-        <div class="auth-ambient-orb orb-top-right"></div>
-        <div class="auth-ambient-orb orb-bottom-left"></div>
-        <div class="auth-ambient-orb orb-center-glow"></div>
-
-        <!-- Four-point Sparkle Stars (as in screenshot) -->
-        <svg class="auth-ambient-star star-tr" width="30" height="30" viewBox="0 0 24 24" fill="#E6C37F">
-          <path d="M12 0L14.4 9.6L24 12L14.4 14.4L12 24L9.6 14.4L0 12L9.6 9.6L12 0Z"/>
-        </svg>
-        <svg class="auth-ambient-star star-bl" width="24" height="24" viewBox="0 0 24 24" fill="#E6C37F">
-          <path d="M12 0L14.4 9.6L24 12L14.4 14.4L12 24L9.6 14.4L0 12L9.6 9.6L12 0Z"/>
-        </svg>
-
-        <!-- Roasted Coffee Bean (Bottom Left) -->
-        <div class="auth-ambient-bean-wrap">
-          <svg width="42" height="42" viewBox="0 0 42 42" fill="none">
-            <g transform="rotate(-35 21 21)">
-              <ellipse cx="21" cy="21" rx="14" ry="19" fill="#B38758" />
-              <path d="M21 4C19.5 12 23 21 20 38" stroke="#5C3B1E" stroke-width="2.4" stroke-linecap="round" />
-            </g>
-          </svg>
-        </div>
-      </div>
-
       <!-- Main Boutique Card Container -->
       <div class="auth-boutique-card">
         
