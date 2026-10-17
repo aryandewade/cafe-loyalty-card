@@ -81,7 +81,7 @@ function renderRewardsPage() {
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
-                <span>${visitsNeeded} more visits needed</span>
+                <span>${visitsNeeded} visits left</span>
               </button>
             `}
           </div>
@@ -96,7 +96,6 @@ function renderRewardsPage() {
         
         <!-- Header -->
         <div style="max-width: 680px; margin-bottom: 1.5rem;">
-          <div class="eyebrow eyebrow-accent">Catalog</div>
           <h1 style="margin-bottom: 0.3rem; font-size: clamp(1.8rem, 4vw, 2.3rem);">Rewards</h1>
           <p style="color: var(--color-roast-medium); font-size: 0.88rem; margin: 0;">
             Claim reserve drinks and bakery perks.
@@ -106,10 +105,10 @@ function renderRewardsPage() {
         <!-- Filter Tabs -->
         <div style="display: flex; gap: 0.6rem; margin-bottom: 2.2rem; flex-wrap: wrap;">
           <button class="btn-secondary filter-tab-btn ${activeFilter === 'all' ? 'btn-terracotta' : ''}" data-filter="all" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
-            All Privileges (${rewards.length})
+            All (${rewards.length})
           </button>
           <button class="btn-secondary filter-tab-btn ${activeFilter === 'ready' ? 'btn-terracotta' : ''}" data-filter="ready" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
-            Ready to Redeem (${rewards.filter(r => r.status === 'ready').length})
+            Ready (${rewards.filter(r => r.status === 'ready').length})
           </button>
           <button class="btn-secondary filter-tab-btn ${activeFilter === 'progress' ? 'btn-terracotta' : ''}" data-filter="progress" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
             In Progress (${rewards.filter(r => r.status === 'in-progress').length})

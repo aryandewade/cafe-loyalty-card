@@ -31,11 +31,7 @@ function renderProfilePage() {
         
         <!-- Header -->
         <div style="margin-bottom: 1.5rem;">
-          <div class="eyebrow eyebrow-accent">Identity</div>
           <h1 style="margin-bottom: 0.3rem; font-size: clamp(1.8rem, 4vw, 2.3rem);">Profile</h1>
-          <p style="color: var(--color-roast-medium); font-size: 0.88rem; margin: 0;">
-            Account details & preferences.
-          </p>
         </div>
 
         <!-- 1. Hero Identity Card -->
@@ -58,7 +54,7 @@ function renderProfilePage() {
                   ${user.email} • Member since ${user.memberSince}
                 </div>
                 <div class="font-mono" style="font-size: 0.78rem; color: var(--color-gold-foil); margin-top: 4px; letter-spacing: 0.08em;">
-                  CARD ID: ${user.membershipId}
+                  ID: ${user.membershipId}
                 </div>
               </div>
             </div>
@@ -93,9 +89,9 @@ function renderProfilePage() {
 
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--color-cream-border-subtle);">
               <div>
-                <div style="font-weight: 600; font-size: 0.95rem;">Date of Birth (DOB)</div>
+                <div style="font-weight: 600; font-size: 0.95rem;">Date of Birth</div>
                 <div style="font-size: 0.85rem; color: var(--color-roast-medium);">
-                  ${user.dob ? `${user.dob} • Birthday Reserve Perk Active 🎂` : 'Not set • Add birth date for birthday perks 🎂'}
+                  ${user.dob ? `${user.dob} • Birthday perk active` : 'Not set • Add for birthday perk'}
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -106,16 +102,16 @@ function renderProfilePage() {
 
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--color-cream-border-subtle);">
               <div>
-                <div style="font-weight: 600; font-size: 0.95rem;">Passcode & Security</div>
-                <div style="font-size: 0.85rem; color: var(--color-roast-medium);">•••••••••••• (Encrypted)</div>
+                <div style="font-weight: 600; font-size: 0.95rem;">Password</div>
+                <div style="font-size: 0.85rem; color: var(--color-roast-medium);">••••••••••••</div>
               </div>
               <button class="btn-text" id="change-pwd-btn">Update</button>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <div style="font-weight: 600; font-size: 0.95rem;">Digital Member Card Copy</div>
-                <div style="font-size: 0.85rem; color: var(--color-roast-medium);">Copy membership identifier to clipboard</div>
+                <div style="font-weight: 600; font-size: 0.95rem;">Membership ID</div>
+                <div style="font-size: 0.85rem; color: var(--color-roast-medium);">${user.membershipId}</div>
               </div>
               <button class="btn-secondary" id="copy-card-id-btn" style="padding: 0.4rem 0.9rem; font-size: 0.82rem;">
                 <span>Copy ID</span>
@@ -127,7 +123,7 @@ function renderProfilePage() {
         <!-- Sign Out Action -->
         <div style="text-align: center;">
           <button id="profile-signout-btn" class="btn-secondary" style="border-color: #E27B7B; color: #B33939; padding: 0.65rem 1.8rem; cursor: pointer;">
-            <span>Sign Out of Account</span>
+            <span>Sign Out</span>
           </button>
         </div>
 

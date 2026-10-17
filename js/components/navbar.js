@@ -19,9 +19,9 @@ function renderNavbar(currentPage = 'home') {
     `;
   } else {
     linksHtml = `
-      <li class="nav-link-item"><a href="#home" class="${currentPage === 'home' ? 'active' : ''}">Experience</a></li>
-      <li class="nav-link-item"><a href="#how-it-works" class="${currentPage === 'how-it-works' ? 'active' : ''}">The Club</a></li>
-      <li class="nav-link-item"><a href="#rewards-preview" class="${currentPage === 'rewards-preview' ? 'active' : ''}">Privileges</a></li>
+      <li class="nav-link-item"><a href="#home" class="${currentPage === 'home' ? 'active' : ''}">Home</a></li>
+      <li class="nav-link-item"><a href="#how-it-works" class="${currentPage === 'how-it-works' ? 'active' : ''}">How It Works</a></li>
+      <li class="nav-link-item"><a href="#rewards-preview" class="${currentPage === 'rewards-preview' ? 'active' : ''}">Rewards</a></li>
       <li class="nav-link-item"><a href="#locations" class="${currentPage === 'locations' ? 'active' : ''}">Locations</a></li>
     `;
   }
@@ -105,7 +105,7 @@ function renderNavbar(currentPage = 'home') {
             <div class="mobile-sheet-logo">A</div>
             <div>
               <div class="mobile-sheet-title">Atelier Café</div>
-              <div class="mobile-sheet-sub">Specialty Roastery Pass</div>
+              <div class="mobile-sheet-sub">Member Pass</div>
             </div>
           </div>
           <button id="mobile-menu-close" class="mobile-sheet-close" aria-label="Close navigation menu">
@@ -131,7 +131,7 @@ function renderNavbar(currentPage = 'home') {
         ` : ''}
 
         <!-- Menu Navigation List -->
-        <div class="mobile-nav-section-label">${isAuth ? 'Member Sanctuary' : 'Explore Roastery'}</div>
+        <div class="mobile-nav-section-label">${isAuth ? 'Account' : 'Navigation'}</div>
         <ul class="mobile-nav-list">
           ${isAuth ? `
             <li>
@@ -208,8 +208,8 @@ function renderNavbar(currentPage = 'home') {
                     </svg>
                   </div>
                   <div class="mobile-nav-texts">
-                    <span class="mobile-nav-title">Member Profile</span>
-                    <span class="mobile-nav-desc">Tasting notes, taste & pass settings</span>
+                    <span class="mobile-nav-title">Profile</span>
+                    <span class="mobile-nav-desc">Account & settings</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">
@@ -230,8 +230,8 @@ function renderNavbar(currentPage = 'home') {
                     </svg>
                   </div>
                   <div class="mobile-nav-texts">
-                    <span class="mobile-nav-title">Experience</span>
-                    <span class="mobile-nav-desc">Tasting rooms & philosophy</span>
+                    <span class="mobile-nav-title">Home</span>
+                    <span class="mobile-nav-desc">Digital loyalty pass</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">
@@ -253,7 +253,7 @@ function renderNavbar(currentPage = 'home') {
                   </div>
                   <div class="mobile-nav-texts">
                     <span class="mobile-nav-title">How It Works</span>
-                    <span class="mobile-nav-desc">Tiers, digital stamps & levels</span>
+                    <span class="mobile-nav-desc">Stamps, points & levels</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">
@@ -272,8 +272,8 @@ function renderNavbar(currentPage = 'home') {
                     </svg>
                   </div>
                   <div class="mobile-nav-texts">
-                    <span class="mobile-nav-title">Club Privileges</span>
-                    <span class="mobile-nav-desc">Single-origin perks & tastings</span>
+                    <span class="mobile-nav-title">Rewards</span>
+                    <span class="mobile-nav-desc">Complimentary brews & bakes</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">

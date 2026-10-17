@@ -13,24 +13,24 @@ function renderLandingPage() {
       <section class="section section-hero">
         <div class="container">
           <div class="hero-grid">
-            <!-- Left: Editorial Typography & CTAs -->
+            <!-- Left: Typography & CTAs -->
             <div class="hero-content">
               <div class="eyebrow eyebrow-accent">
                 <span>✦</span>
-                <span>The Atelier Loyalty Club</span>
+                <span>Loyalty Pass</span>
               </div>
 
               <h1 class="hero-title">
-                Every cup brings you closer to something special.
+                Collect stamps on every cup.
               </h1>
 
               <p class="hero-description">
-                Join our private loyalty circle. Collect visits across our roasteries in Mumbai, Bengaluru, Delhi, and Pune, unlock rare seasonal estate harvests, and savor the ritual of thoughtful coffee.
+                Scan your pass at our roasteries to earn stamps, level up, and unlock complimentary single-origin brews.
               </p>
 
               <div class="hero-ctas">
                 <a href="#register" class="btn-primary" id="hero-join-btn">
-                  <span>Join the Loyalty Club</span>
+                  <span>Join Club</span>
                   <div class="btn-icon-wrapper">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                       <line x1="7" y1="17" x2="17" y2="7"></line>
@@ -40,39 +40,14 @@ function renderLandingPage() {
                 </a>
 
                 <a href="#login" class="btn-secondary">
-                  <span>Already a member? Sign in</span>
+                  <span>Sign In</span>
                 </a>
-              </div>
-
-              <!-- Social Proof / Stats -->
-              <div class="hero-stats">
-                <div class="stat-item">
-                  <span class="stat-value">10 Visits</span>
-                  <span class="stat-label">To Reserve Reward</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-value">4 Roasteries</span>
-                  <span class="stat-label">Pan-India Club</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-value">88+ Score</span>
-                  <span class="stat-label">Micro-Lot Coffees</span>
-                </div>
               </div>
             </div>
 
             <!-- Right: Interactive Live Loyalty Card Stage -->
             <div class="hero-stage">
               <div class="hero-stage-backdrop"></div>
-
-              <!-- Floating Micro Badge 1 -->
-              <div class="floating-badge badge-top">
-                <span style="font-size: 1.1rem;">☕</span>
-                <div>
-                  <div style="font-size: 0.72rem; color: var(--color-roast-muted); text-transform: uppercase;">Latest Stamp</div>
-                  <div style="font-weight: 600; font-size: 0.82rem;">Chikmagalur Pour Over</div>
-                </div>
-              </div>
 
               <!-- The Card -->
               <div class="hero-card-container">
@@ -83,29 +58,16 @@ function renderLandingPage() {
                   </button>
                 </div>
               </div>
-
-              <!-- Floating Micro Badge 2 -->
-              <div class="floating-badge badge-bottom">
-                <span style="font-size: 1.1rem; color: var(--color-gold-foil);">✦</span>
-                <div>
-                  <div style="font-size: 0.72rem; color: var(--color-roast-muted); text-transform: uppercase;">Next Privilege</div>
-                  <div style="font-weight: 600; font-size: 0.82rem;">Chikmagalur Free Brew</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 2. THE PHILOSOPHY / HOW IT WORKS -->
+      <!-- 2. HOW IT WORKS -->
       <section class="section section-ritual" id="how-it-works">
         <div class="container">
           <div class="section-heading-centered">
-            <div class="eyebrow">The Ritual</div>
-            <h2>Crafted for genuine coffee lovers.</h2>
-            <p>
-              No convoluted tiers or expiring plastic cards. A tactile digital pass honoring your daily visits.
-            </p>
+            <h2>How it works</h2>
           </div>
 
           <div class="ritual-steps-grid">
@@ -113,9 +75,9 @@ function renderLandingPage() {
             <div class="double-bezel">
               <div class="double-bezel-inner ritual-step-card">
                 <div class="ritual-step-num">01</div>
-                <h3 class="ritual-step-title">Sip & Scan</h3>
+                <h3 class="ritual-step-title">Order & Scan</h3>
                 <p class="ritual-step-desc">
-                  Order your customary flat white or pour over at any Atelier location. Simply show your digital pass QR code at the till.
+                  Show your member QR code at the counter with any order.
                 </p>
               </div>
             </div>
@@ -124,9 +86,9 @@ function renderLandingPage() {
             <div class="double-bezel">
               <div class="double-bezel-inner ritual-step-card">
                 <div class="ritual-step-num">02</div>
-                <h3 class="ritual-step-title">Collect Harvest Stamps</h3>
+                <h3 class="ritual-step-title">Collect Stamps</h3>
                 <p class="ritual-step-desc">
-                  Every drink orders yields a physical ink-style digital stamp with haptic feedback, tracking your path toward curated privileges.
+                  Earn digital stamps and points with tactile haptic feedback.
                 </p>
               </div>
             </div>
@@ -135,9 +97,9 @@ function renderLandingPage() {
             <div class="double-bezel">
               <div class="double-bezel-inner ritual-step-card">
                 <div class="ritual-step-num">03</div>
-                <h3 class="ritual-step-title">Unlock Reserve Privileges</h3>
+                <h3 class="ritual-step-title">Claim Rewards</h3>
                 <p class="ritual-step-desc">
-                  Enjoy complimentary single-origins, handcrafted morning brioche buns, rare micro-lot beans, or private tasting flights.
+                  Redeem complimentary pour overs, fresh pastries, and whole-bean bags.
                 </p>
               </div>
             </div>
@@ -150,11 +112,10 @@ function renderLandingPage() {
         <div class="container">
           <div class="rewards-preview-header">
             <div>
-              <div class="eyebrow eyebrow-accent">Curated Privileges</div>
-              <h2>Rewards that honor the palate.</h2>
+              <h2>Member rewards</h2>
             </div>
-            <a href="#register" class="btn-secondary">
-              <span>View Full Catalog ↗</span>
+            <a href="#rewards" class="btn-secondary">
+              <span>View Catalog ↗</span>
             </a>
           </div>
 
@@ -166,13 +127,13 @@ function renderLandingPage() {
                   <div class="reward-icon-box">☕</div>
                   <span class="reward-badge ready">5 Visits</span>
                 </div>
-                <h3 class="reward-title">Chikmagalur Single-Estate Pour Over</h3>
+                <h3 class="reward-title">Chikmagalur Pour Over</h3>
                 <p class="reward-description">
-                  A bespoke hand-poured V60 extraction highlighting bright stone fruit, mandarin, and sweet jaggery notes from our shade-grown harvest in Baba Budangiri.
+                  Single-estate hand-brewed V60 with bright stone fruit notes.
                 </p>
                 <div class="reward-meta-row">
                   <span>Requirement</span>
-                  <span>5 Visits / 125 Pts</span>
+                  <span>5 Visits</span>
                 </div>
               </div>
             </div>
@@ -184,13 +145,13 @@ function renderLandingPage() {
                   <div class="reward-icon-box">🥐</div>
                   <span class="reward-badge progress">8 Visits</span>
                 </div>
-                <h3 class="reward-title">Cardamom & Saffron Morning Brioche</h3>
+                <h3 class="reward-title">Cardamom Saffron Brioche</h3>
                 <p class="reward-description">
-                  Morning viennoiserie hand-twisted daily, laminated with 84% cultured butter, crushed green Idukki cardamom, and delicate Kashmiri saffron glaze.
+                  Fresh flaky pastry laminated with cultured butter and cardamom glaze.
                 </p>
                 <div class="reward-meta-row">
                   <span>Requirement</span>
-                  <span>8 Visits / 200 Pts</span>
+                  <span>8 Visits</span>
                 </div>
               </div>
             </div>
@@ -202,13 +163,13 @@ function renderLandingPage() {
                   <div class="reward-icon-box">🫘</div>
                   <span class="reward-badge locked">12 Visits</span>
                 </div>
-                <h3 class="reward-title">Araku Valley Micro-Lot (250g)</h3>
+                <h3 class="reward-title">Araku Valley Beans (250g)</h3>
                 <p class="reward-description">
-                  Direct-trade, high-altitude organic Arabica from tribal cooperatives in Eastern Ghats, freshly roasted on our Probat to brew in your home ritual.
+                  Freshly roasted single-origin Arabica from the Eastern Ghats.
                 </p>
                 <div class="reward-meta-row">
                   <span>Requirement</span>
-                  <span>12 Visits / 300 Pts</span>
+                  <span>12 Visits</span>
                 </div>
               </div>
             </div>
@@ -220,9 +181,7 @@ function renderLandingPage() {
       <section class="section section-locations" id="locations">
         <div class="container">
           <div class="section-heading-centered">
-            <div class="eyebrow">Our Houses</div>
-            <h2>Visit our roasteries across India.</h2>
-            <p>Your loyalty card is recognized seamlessly across all four Atelier coffee houses.</p>
+            <h2>Locations</h2>
           </div>
 
           <div class="locations-grid">
@@ -279,38 +238,36 @@ function renderLandingPage() {
                 <span class="nav-brand-text footer-brand-name">Atelier Café</span>
               </div>
               <p class="footer-brand-bio">
-                Specialty roastery and intentional hospitality. Dedicated to single-origin cultivation, seasonal micro-lots, and digital craftsmanship.
+                Specialty coffee roasters and digital member pass.
               </p>
             </div>
 
             <div class="footer-links-group">
               <div class="footer-col">
-                <div class="footer-col-title">Loyalty Club</div>
+                <div class="footer-col-title">Club</div>
                 <ul class="footer-links-list">
                   <li><a href="#how-it-works">How It Works</a></li>
-                  <li><a href="#rewards-preview">Privileges</a></li>
-                  <li><a href="#register">Create Account</a></li>
-                  <li><a href="#login">Member Login</a></li>
+                  <li><a href="#rewards-preview">Rewards</a></li>
+                  <li><a href="#register">Join</a></li>
+                  <li><a href="#login">Sign In</a></li>
                 </ul>
               </div>
 
               <div class="footer-col">
-                <div class="footer-col-title">Roastery</div>
+                <div class="footer-col-title">Houses</div>
                 <ul class="footer-links-list">
-                  <li><a href="#locations">Houses & Hours</a></li>
-                  <li><a href="#home">Ethical Sourcing</a></li>
-                  <li><a href="#home">Reserve Harvests</a></li>
+                  <li><a href="#locations">Locations</a></li>
+                  <li><a href="#home">Roastery</a></li>
                 </ul>
               </div>
             </div>
           </div>
 
           <div class="footer-bottom-row">
-            <div class="footer-copyright">© 2026 Atelier Coffee & Roastery Group. All rights reserved.</div>
+            <div class="footer-copyright">© 2026 Atelier Coffee. All rights reserved.</div>
             <div class="footer-legal-links">
-              <span>Terms of Service</span>
-              <span>Privacy Policy</span>
-              <span>Digital Member Pass</span>
+              <span>Privacy</span>
+              <span>Terms</span>
             </div>
           </div>
         </div>

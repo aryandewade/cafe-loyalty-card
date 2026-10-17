@@ -58,7 +58,6 @@ function renderDashboardPage() {
         <div class="dash-greeting-wrap">
           <div>
             <div class="eyebrow eyebrow-accent" style="margin-bottom: 0.3rem;">
-              <span>✦</span>
               <span>${user.tier} • #${user.membershipId}</span>
             </div>
             <h1 style="font-size: clamp(1.75rem, 4vw, 2.3rem); margin-bottom: 0.2rem;">
@@ -122,14 +121,11 @@ function renderDashboardPage() {
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <div class="candy-teaser-avatar-bounce" style="font-size: 1.25rem;">☕</div>
               <div>
-                <div style="font-size: 0.68rem; color: var(--color-gold-foil); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">
-                  LEVEL ${currentLevelNum} • ${membership.points || 0} POINTS
+                <div style="font-size: 0.95rem; font-weight: 600; color: var(--color-espresso); font-family: var(--font-serif);">
+                  Level ${currentLevelNum}: ${currentLevelObj ? currentLevelObj.title : 'Roastery Regular'}
                 </div>
-                <div style="font-size: 0.95rem; font-weight: 600; color: var(--color-espresso); font-family: var(--font-serif); margin-top: 1px;">
-                  ${currentLevelObj ? currentLevelObj.title : 'Roastery Regular'}
-                </div>
-                <div style="font-size: 0.74rem; color: var(--color-roast-medium); margin-top: 2px;">
-                  ${levelProgress.pointsInCurrentLevel}/500 Pts in Level • ${levelProgress.pointsLeftForNextLevel} pts to Level ${currentLevelNum + 1}
+                <div style="font-size: 0.76rem; color: var(--color-roast-medium); margin-top: 2px;">
+                  ${levelProgress.pointsLeftForNextLevel} pts to Level ${currentLevelNum + 1}
                 </div>
               </div>
             </div>
@@ -176,7 +172,7 @@ function renderDashboardPage() {
               <div>
                 <span class="reward-badge ready" style="margin-bottom: 0.2rem; display: inline-block; font-size: 0.65rem; padding: 2px 7px;">Ready</span>
                 <h3 style="font-size: 1.1rem; margin-bottom: 1px;">Chikmagalur V60 Pour Over</h3>
-                <p style="font-size: 0.76rem; color: var(--color-roast-medium); margin: 0;">5 Visits Threshold • Complimentary</p>
+                <p style="font-size: 0.76rem; color: var(--color-roast-medium); margin: 0;">Complimentary</p>
               </div>
             </div>
 
