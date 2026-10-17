@@ -120,10 +120,10 @@ function openWelcomeCeremonyModal(user) {
         <div class="eyebrow eyebrow-accent">Welcome to the Club</div>
         
         <h2 style="font-size: 2.2rem; margin-bottom: 0.6rem;">
-          Welcome, ${user?.first_name || user?.firstName || 'Connoisseur'}.
+          Welcome, ${user?.first_name || user?.firstName || 'Member'}.
         </h2>
-        <p style="color: var(--color-roast-medium); font-size: 0.95rem; margin-bottom: 1.8rem; line-height: 1.6;">
-          Your digital membership card has been crafted. We’ve added your first complimentary welcome stamp and 100 points to start your journey.
+        <p style="color: var(--color-roast-medium); font-size: 0.95rem; margin-bottom: 1.8rem; line-height: 1.5;">
+          Your digital membership card is ready with 100 bonus points.
         </p>
 
         <!-- Preview Card -->
@@ -132,7 +132,7 @@ function openWelcomeCeremonyModal(user) {
         </div>
 
         <button id="welcome-enter-dashboard-btn" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem;">
-          <span>Enter My Tasting Room</span>
+          <span>Go to Dashboard</span>
           <div class="btn-icon-wrapper">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <line x1="7" y1="17" x2="17" y2="7"></line>

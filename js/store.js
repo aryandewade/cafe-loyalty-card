@@ -18,7 +18,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Cappuccino',
     price: 180,
     category: 'Coffee',
-    description: 'Double espresso pulled over silky textured microfoam with dusted dark cocoa.',
+    description: 'Double espresso with textured microfoam.',
     icon: '☕'
   },
   {
@@ -26,7 +26,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Artisan South Indian Kaapi',
     price: 280,
     category: 'Specialty Kaapi',
-    description: 'Slow-dripped brass dabara extraction with estate chicory and frothed A2 milk.',
+    description: 'Traditional brass dabara filter coffee.',
     icon: '🏺'
   },
   {
@@ -34,7 +34,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Chikmagalur Single-Estate V60',
     price: 360,
     category: 'Brew Bar',
-    description: 'Light roast hand-pour from Attikan Estate (notes of nectarine & raw honey).',
+    description: 'Single-estate light roast pour-over.',
     icon: '🧪'
   },
   {
@@ -42,7 +42,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Araku Valley Cold Drip Reserve',
     price: 390,
     category: 'Brew Bar',
-    description: '14-hour chilled Kyoto drip tower extraction from organic Eastern Ghats micro-lot.',
+    description: '14-hour slow chilled extraction.',
     icon: '🧊'
   },
   {
@@ -50,7 +50,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Coorg Sun-Dried Cortado',
     price: 320,
     category: 'Coffee',
-    description: '1:1 ratio of rich espresso and steamed milk cut with green cardamom bitters.',
+    description: 'Espresso with warm steamed milk.',
     icon: '☕'
   },
   {
@@ -58,7 +58,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Oat Flat White',
     price: 340,
     category: 'Coffee',
-    description: 'Velvety microfoam over a double ristretto shot with Swedish Oatly Barista edition.',
+    description: 'Velvety oat milk over double espresso.',
     icon: '🥛'
   },
   {
@@ -66,7 +66,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Cardamom & Saffron Morning Brioche',
     price: 260,
     category: 'Bakery',
-    description: 'Hand-laminated flaky brioche bun with cultured butter and Kashmiri saffron syrup.',
+    description: 'Flaky spiced saffron pastry.',
     icon: '🥐'
   },
   {
@@ -74,7 +74,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Monsooned Malabar Aeropress',
     price: 310,
     category: 'Brew Bar',
-    description: 'Low-acid monsoon-cured beans brewed inverted with sweet earthy finish.',
+    description: 'Smooth low-acid immersion brew.',
     icon: '☕'
   },
   {
@@ -82,7 +82,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Avocado & Zaatar Sourdough Tartine',
     price: 420,
     category: 'Provisions',
-    description: 'Crushed Hass avocado on toasted country loaf with house dukkah & olive oil.',
+    description: 'Crushed avocado on toasted sourdough.',
     icon: '🥑'
   },
   {
@@ -90,7 +90,7 @@ const DEFAULT_PRODUCTS = [
     name: 'Araku Valley Micro-Lot Beans (250g)',
     price: 650,
     category: 'Retail',
-    description: 'Whole-bean coffee bag from tribal farmer collective, freshly roasted in Bandra.',
+    description: 'Organic whole-bean coffee bag (250g).',
     icon: '🫘'
   }
 ];
@@ -115,7 +115,7 @@ const DEFAULT_STATE = {
     {
       id: 'rew_pourover',
       title: 'Chikmagalur Single-Estate Pour Over',
-      description: 'Hand-brewed V60 from our shade-grown harvest in Baba Budangiri & Attikan Estate, Karnataka.',
+      description: 'Single-estate pour-over coffee.',
       requiredVisits: 5,
       icon: '☕',
       category: 'Beverage',
@@ -124,7 +124,7 @@ const DEFAULT_STATE = {
     {
       id: 'rew_pastry',
       title: 'Cardamom & Saffron Morning Brioche',
-      description: 'Hand-laminated morning bun with cultured butter, green Idukki cardamom, and Kashmiri saffron glaze.',
+      description: 'Freshly baked spiced brioche bun.',
       requiredVisits: 8,
       icon: '🥐',
       category: 'Pastry',
@@ -133,7 +133,7 @@ const DEFAULT_STATE = {
     {
       id: 'rew_beans',
       title: 'Araku Valley Micro-Lot Whole Bean (250g)',
-      description: 'Direct-trade, high-altitude organic Arabica from tribal cooperatives in Eastern Ghats, freshly roasted.',
+      description: 'Freshly roasted whole beans (250g).',
       requiredVisits: 12,
       icon: '🫘',
       category: 'Roastery',
@@ -142,7 +142,7 @@ const DEFAULT_STATE = {
     {
       id: 'rew_cupping',
       title: 'Monsooned Malabar & Estate Tasting Flight',
-      description: 'Guided sensory coffee cupping session for two exploring 4 iconic Indian micro-lots with our Master Roaster.',
+      description: 'Guided tasting session for two.',
       requiredVisits: 18,
       icon: '✨',
       category: 'Experience',
@@ -151,7 +151,7 @@ const DEFAULT_STATE = {
     {
       id: 'rew_tumbler',
       title: 'Artisan Brass & Ceramic Davara Tumbler',
-      description: 'Traditional dabara-inspired double-wall ceramic and hammered brass travel vessel.',
+      description: 'Brass & ceramic travel tumbler.',
       requiredVisits: 25,
       icon: '🏺',
       category: 'Provisions',

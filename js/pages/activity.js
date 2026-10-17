@@ -55,15 +55,13 @@ function renderActivityPage() {
         
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
           <div>
+            <div class="eyebrow eyebrow-accent">Ledger</div>
             <h1 style="margin-bottom: 0.3rem; font-size: clamp(1.8rem, 4vw, 2.3rem);">Activity</h1>
-            <p style="color: var(--color-roast-medium); font-size: 0.88rem; margin: 0;">
-              Visit and redemption history.
-            </p>
           </div>
 
           <!-- Total Balance Pill -->
           <div style="background: var(--bg-surface); border: 1px solid var(--color-cream-border); padding: 0.6rem 1.2rem; border-radius: 16px; text-align: right;">
-            <div style="font-size: 0.72rem; color: var(--color-roast-muted); text-transform: uppercase;">Balance</div>
+            <div style="font-size: 0.72rem; color: var(--color-roast-muted); text-transform: uppercase;">Current Balance</div>
             <div class="font-serif" style="font-size: 1.4rem; font-weight: 600; color: var(--color-espresso);">${currentPoints} Points</div>
           </div>
         </div>

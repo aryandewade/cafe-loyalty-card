@@ -131,7 +131,7 @@ function renderNavbar(currentPage = 'home') {
         ` : ''}
 
         <!-- Menu Navigation List -->
-        <div class="mobile-nav-section-label">${isAuth ? 'Account' : 'Navigation'}</div>
+        <div class="mobile-nav-section-label">Navigation</div>
         <ul class="mobile-nav-list">
           ${isAuth ? `
             <li>
@@ -147,7 +147,7 @@ function renderNavbar(currentPage = 'home') {
                   </div>
                   <div class="mobile-nav-texts">
                     <span class="mobile-nav-title">Dashboard</span>
-                    <span class="mobile-nav-desc">Digital stamp pass & perks</span>
+                    <span class="mobile-nav-desc">Card & saga road</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">
@@ -167,8 +167,8 @@ function renderNavbar(currentPage = 'home') {
                     </svg>
                   </div>
                   <div class="mobile-nav-texts">
-                    <span class="mobile-nav-title">Rewards Catalog</span>
-                    <span class="mobile-nav-desc">Reserve brews & redemption items</span>
+                    <span class="mobile-nav-title">Rewards</span>
+                    <span class="mobile-nav-desc">Claim perks & brews</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">
@@ -187,8 +187,8 @@ function renderNavbar(currentPage = 'home') {
                     </svg>
                   </div>
                   <div class="mobile-nav-texts">
-                    <span class="mobile-nav-title">Visit Ledger</span>
-                    <span class="mobile-nav-desc">Audited visits & stamp history</span>
+                    <span class="mobile-nav-title">Activity</span>
+                    <span class="mobile-nav-desc">Visit history & points</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">
@@ -253,7 +253,7 @@ function renderNavbar(currentPage = 'home') {
                   </div>
                   <div class="mobile-nav-texts">
                     <span class="mobile-nav-title">How It Works</span>
-                    <span class="mobile-nav-desc">Stamps, points & levels</span>
+                    <span class="mobile-nav-desc">Stamps & points</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">
@@ -273,7 +273,7 @@ function renderNavbar(currentPage = 'home') {
                   </div>
                   <div class="mobile-nav-texts">
                     <span class="mobile-nav-title">Rewards</span>
-                    <span class="mobile-nav-desc">Complimentary brews & bakes</span>
+                    <span class="mobile-nav-desc">Free brews & bakes</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">
