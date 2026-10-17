@@ -6679,3 +6679,293 @@ div {
     opacity: 0.9;
   }
 }
+
+/* ==========================================================================
+   ATELIER SPECIALTY COFFEE PRELOADER CINEMA
+   Streaming liquid espresso pour, golden crema fill, gold wax seal shockwave,
+   and luxury serif brandmark reveal with once-per-session auto-dismiss.
+   ========================================================================== */
+.atelier-preloader-root {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 45%, #241A14 0%, #150F0C 65%, #0B0705 100%);
+  color: #FAF4EA;
+  overflow: hidden;
+  pointer-events: auto;
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.atelier-preloader-root.is-dissolving {
+  opacity: 0;
+  transform: scale(1.05);
+  pointer-events: none;
+}
+
+/* Corner Skip Pill */
+.preloader-skip-pill {
+  position: absolute;
+  top: max(1.5rem, env(safe-area-inset-top));
+  right: 1.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(200, 157, 75, 0.3);
+  border-radius: 999px;
+  color: #D6C7BC;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-tactile);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.preloader-skip-pill:hover {
+  background: rgba(200, 157, 75, 0.22);
+  color: #FFFFFF;
+  border-color: #E6BE6B;
+}
+
+/* Ambient Floating Embers */
+.preloader-ambient-sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.preloader-ambient-sparks .spark {
+  position: absolute;
+  font-size: 1.25rem;
+  color: #E6BE6B;
+  opacity: 0.55;
+  animation: preloaderSparkFloat 4s ease-in-out infinite alternate;
+}
+
+.preloader-ambient-sparks .s1 {
+  top: 22%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.preloader-ambient-sparks .s2 {
+  top: 72%;
+  right: 18%;
+  font-size: 1.5rem;
+  animation-delay: 1.2s;
+}
+
+.preloader-ambient-sparks .s3 {
+  top: 30%;
+  right: 22%;
+  animation-delay: 2.2s;
+}
+
+@keyframes preloaderSparkFloat {
+  0% {
+    transform: translateY(0) scale(0.9);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-16px) scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+/* Stage Container */
+.preloader-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 440px;
+  width: 90%;
+  z-index: 2;
+  position: relative;
+}
+
+/* Steaming Cup & Pour Wrap */
+.preloader-cup-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.preloader-svg {
+  width: 96px;
+  height: 92px;
+  filter: drop-shadow(0 8px 24px rgba(200, 157, 75, 0.25));
+}
+
+/* Pour Stream Line */
+.preloader-pour-stream {
+  stroke-dasharray: 46;
+  stroke-dashoffset: 46;
+  animation: preloaderStreamPour 0.85s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+
+@keyframes preloaderStreamPour {
+  0% {
+    stroke-dashoffset: 46;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  75% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -46;
+    opacity: 0;
+  }
+}
+
+/* Rising Golden Crema inside Cup */
+.preloader-crema-fill {
+  transform: translateY(0);
+  animation: preloaderCremaRising 1s 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes preloaderCremaRising {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-22px);
+  }
+}
+
+/* Steam Waves */
+.preloader-steam {
+  opacity: 0;
+  animation: preloaderSteamWaves 1.8s 0.6s ease-in-out infinite alternate;
+}
+
+.preloader-steam.steam-1 {
+  animation-delay: 0.5s;
+}
+
+.preloader-steam.steam-2 {
+  animation-delay: 0.7s;
+}
+
+.preloader-steam.steam-3 {
+  animation-delay: 0.9s;
+}
+
+@keyframes preloaderSteamWaves {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scaleY(0.7);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translateY(-6px) scaleY(1.1);
+  }
+  100% {
+    opacity: 0.25;
+    transform: translateY(-14px) scaleY(1.2);
+  }
+}
+
+/* Wax Stamp Shockwave Ring */
+.preloader-stamp-shockwave {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.2);
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px solid #E6BE6B;
+  opacity: 0;
+  pointer-events: none;
+  animation: preloaderShockwaveAnim 0.75s 0.75s ease-out forwards;
+}
+
+@keyframes preloaderShockwaveAnim {
+  0% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.4);
+  }
+}
+
+/* Typography Copy */
+.preloader-copy {
+  margin-bottom: 1.6rem;
+}
+
+.preloader-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #C89D4B;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+  opacity: 0;
+  animation: preloaderFadeInUp 0.75s 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.preloader-title {
+  font-size: clamp(2rem, 5.5vw, 2.6rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #FAF4EA;
+  margin: 0 0 0.35rem;
+  text-shadow: 0 4px 20px rgba(200, 157, 75, 0.3);
+  opacity: 0;
+  animation: preloaderFadeInUp 0.75s 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.preloader-subtitle {
+  font-size: 0.86rem;
+  color: #C8B7AD;
+  letter-spacing: 0.04em;
+  margin: 0;
+  opacity: 0;
+  animation: preloaderFadeInUp 0.75s 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes preloaderFadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hairline Gold Progress Bar */
+.preloader-progress-track {
+  width: 170px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.preloader-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #C89D4B 0%, #F5D77F 100%);
+  box-shadow: 0 0 8px #F5D77F;
+  transition: width 1.85s cubic-bezier(0.1, 0.85, 0.25, 1);
+}
