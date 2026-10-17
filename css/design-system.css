@@ -7514,12 +7514,136 @@ div {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Bento Grid */
+/* Period Controls Bar (Date-wise, Week, 15-day, Month, Quarter, Year, Custom) */
+.admin-period-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(45, 30, 22, 0.03);
+  border: 1px solid rgba(45, 30, 22, 0.07);
+  border-radius: 12px;
+}
+
+.admin-period-control-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-ctrl-btn {
+  background: #FFFFFF;
+  border: 1px solid rgba(45, 30, 22, 0.14);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-espresso, #140D09);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-ctrl-btn:hover {
+  border-color: var(--color-gold-foil, #C89D4B);
+  background: #FFFDF9;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.admin-ctrl-btn.is-primary {
+  background: var(--color-espresso, #140D09);
+  color: #FFFFFF;
+  border-color: var(--color-espresso, #140D09);
+}
+
+.admin-ctrl-btn.is-primary:hover {
+  background: #241812;
+}
+
+.admin-ctrl-input,
+.admin-ctrl-select {
+  background: #FFFFFF;
+  border: 1px solid rgba(45, 30, 22, 0.16);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--color-espresso, #140D09);
+  font-family: var(--font-sans, sans-serif);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-ctrl-input:focus,
+.admin-ctrl-select:focus {
+  border-color: var(--color-gold-foil, #C89D4B);
+  box-shadow: 0 0 0 3px rgba(200, 157, 75, 0.15);
+}
+
+.admin-ctrl-badge {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-espresso, #140D09);
+  margin-left: 0.4rem;
+}
+
+/* Bento Grid (3-column layout without AOV) */
 .admin-bento-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
   gap: 1.25rem;
   margin-bottom: 2rem;
+}
+
+/* Transaction Payment Method Badges */
+.admin-tx-method-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-tx-method-badge.upi {
+  background: rgba(33, 150, 83, 0.12);
+  color: #219653;
+  border: 1px solid rgba(33, 150, 83, 0.25);
+}
+
+.admin-tx-method-badge.card {
+  background: rgba(47, 128, 237, 0.12);
+  color: #2F80ED;
+  border: 1px solid rgba(47, 128, 237, 0.25);
+}
+
+.admin-tx-method-badge.cash {
+  background: rgba(200, 157, 75, 0.15);
+  color: #9A6F1A;
+  border: 1px solid rgba(200, 157, 75, 0.3);
+}
+
+.admin-tx-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.admin-tx-settled {
+  background: rgba(85, 181, 116, 0.12);
+  color: #2D7A47;
+  border: 1px solid rgba(85, 181, 116, 0.25);
 }
 
 .admin-bento-card {
