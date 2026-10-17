@@ -8000,7 +8000,258 @@ div {
   .admin-ledger-controls {
     width: 100%;
   }
-  .admin-search-wrap, .admin-select-input {
-    width: 100%;
-  }
+}
+
+/* ==========================================================================
+   Admin Birthdays (Bdays) Command Center & View Switcher
+   ========================================================================== */
+.admin-view-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(45, 30, 22, 0.05);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(45, 30, 22, 0.08);
+}
+
+.admin-view-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 0.45rem 0.95rem;
+  border-radius: 7px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-roast-muted, #7E6E65);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.admin-view-tab-btn:hover {
+  color: var(--color-espresso, #140D09);
+}
+
+.admin-view-tab-btn.is-active {
+  background: #FFFFFF;
+  color: var(--color-espresso, #140D09);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.admin-bday-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #E53935;
+  box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.3);
+  display: inline-block;
+  animation: pulse-dot 1.8s infinite;
+}
+
+/* Birthday Alert Banner */
+.admin-bday-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, rgba(200, 157, 75, 0.12) 0%, rgba(158, 71, 42, 0.08) 100%);
+  border: 1px solid rgba(200, 157, 75, 0.3);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.admin-bday-banner-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-espresso, #140D09);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin-bday-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-bday-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.admin-bday-chip.today {
+  background: #FFFFFF;
+  color: #B43403;
+  border-color: rgba(229, 57, 53, 0.35);
+  box-shadow: 0 2px 6px rgba(229, 57, 53, 0.12);
+}
+
+.admin-bday-chip.tomorrow {
+  background: #FFFFFF;
+  color: #9A6F1A;
+  border-color: rgba(200, 157, 75, 0.35);
+}
+
+.admin-bday-chip.upcoming {
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--color-espresso, #140D09);
+  border-color: rgba(45, 30, 22, 0.15);
+}
+
+.admin-bday-chip:hover {
+  transform: translateY(-1px);
+}
+
+/* Birthday Groups View */
+.admin-bday-group-wrap {
+  margin-bottom: 2rem;
+}
+
+.admin-bday-group-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-bday-group-title.today {
+  color: #B43403;
+}
+
+.admin-bday-group-title.tomorrow {
+  color: #9A6F1A;
+}
+
+.admin-bday-group-title.upcoming {
+  color: var(--color-espresso, #140D09);
+}
+
+.admin-bday-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1rem;
+}
+
+.admin-bday-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(45, 30, 22, 0.1);
+  border-radius: 12px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.9rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-bday-card:hover {
+  border-color: var(--color-gold-foil, #C89D4B);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.admin-bday-card.highlight-today {
+  border: 2px solid #E53935;
+  background: linear-gradient(180deg, #FFFFFF 0%, rgba(254, 242, 242, 0.5) 100%);
+  box-shadow: 0 4px 14px rgba(229, 57, 53, 0.12);
+}
+
+.admin-bday-card.highlight-tomorrow {
+  border: 1.5px solid #F59E0B;
+  background: linear-gradient(180deg, #FFFFFF 0%, rgba(254, 243, 199, 0.3) 100%);
+}
+
+.admin-bday-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-bday-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+}
+
+.admin-bday-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(45, 30, 22, 0.1);
+  font-size: 0.78rem;
+}
+
+.admin-bday-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(200, 157, 75, 0.35);
+  background: rgba(200, 157, 75, 0.12);
+  color: #926A18;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-bday-action-btn:hover {
+  background: var(--color-gold-foil, #C89D4B);
+  color: #FFFFFF;
+}
+
+.admin-bday-subtabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.admin-bday-subtab-btn {
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(45, 30, 22, 0.12);
+  background: #FFFFFF;
+  color: var(--color-roast-muted, #7E6E65);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-bday-subtab-btn:hover {
+  border-color: var(--color-gold-foil, #C89D4B);
+  color: var(--color-espresso, #140D09);
+}
+
+.admin-bday-subtab-btn.is-active {
+  background: var(--color-espresso, #140D09);
+  color: #FAF4EA;
+  border-color: var(--color-espresso, #140D09);
 }

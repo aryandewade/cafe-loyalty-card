@@ -763,7 +763,7 @@ function downloadWrappedCanvasImage(user, membership) {
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
   ctx.font = '400 22px "Plus Jakarta Sans", sans-serif';
-  ctx.fillText(`${user.tier || 'Gold Member'} • Atelier Specialty Club`, 110, footerY + 95);
+  ctx.fillText('Atelier Specialty Club Member', 110, footerY + 95);
 
   ctx.textAlign = 'right';
   ctx.fillStyle = '#D4B06A';
@@ -1117,7 +1117,7 @@ function openCaffeineWrappedModal() {
                 ${user.membershipId}
               </div>
               <div style="font-size: 0.62rem; color: rgba(255,255,255,0.6);">
-                ${user.tier} • Atelier Club
+                Atelier Club Member
               </div>
             </div>
             <div style="font-size: 0.68rem; color: rgba(255,255,255,0.7); text-align: right;">

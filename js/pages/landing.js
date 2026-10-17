@@ -269,14 +269,14 @@ function renderLandingPage() {
           </div>
 
           <div class="footer-bottom-row">
-            <div class="footer-copyright">© 2026 Atelier Café. All rights reserved.</div>
+            <div class="footer-copyright">© 2026 Atelier Café. All rights reserved. • Powered by <a href="https://engiplex.in" target="_blank" rel="noopener noreferrer">Engiplex Solutions</a></div>
             <div class="footer-admin-link-wrap">
               <a href="#admin" class="footer-admin-btn" title="Café Owner Admin Portal" aria-label="Café Owner Admin Portal">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"></path>
                   <circle cx="12" cy="15" r="1.5"></circle>
                 </svg>
-                <span>Admin Portal</span>
+                <span></span>
               </a>
             </div>
           </div>

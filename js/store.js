@@ -766,7 +766,6 @@ class Store {
       dob: user.dob || '',
       memberSince: user.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'October 2026',
       membershipId: user.membership_id || `AT-${user.id.slice(-5)}`,
-      tier: user.tier || 'Gold Member',
       favoriteDrink: user.favorite_drink || 'Chikmagalur Pour Over (Attikan Estate)',
       milkPreference: 'Oatly Barista / A2 Desi Cow Milk',
       roastPreference: 'Medium-Light (Western Ghats Shade-Grown)',

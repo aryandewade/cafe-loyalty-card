@@ -39,6 +39,8 @@ let adminCustomTo = getTodayIso();
 
 let adminCustomerSearch = '';
 let adminCustomerSort = 'spends_desc'; // 'spends_desc' | 'visits_desc' | 'name_asc' | 'dob'
+let adminCustomerView = 'all'; // 'all' | 'bdays'
+let adminBdayFilter = 'all'; // 'all' | 'today' | 'tomorrow' | 'upcoming'
 
 // Period Selector Definitions (index 0 is current period)
 const WEEK_OPTIONS = [
@@ -94,16 +96,15 @@ const YEAR_OPTIONS = [
   { id: '2024', label: 'Year 2024 (Full Year)' }
 ];
 
-// Baseline Customers
+// Baseline Customers (Tier removed across entire loyalty system)
 const BASE_CUSTOMERS = [
   {
     id: 'usr_arjun_9842',
     name: 'Arjun Mehta',
     membershipId: 'AT-48291',
-    tier: 'Gold Member',
     visits: 27,
     spends: 6840,
-    dob: '14-10-1995',
+    dob: '14-10-1995', // 4 days ago
     phone: '+91 98201 44829',
     email: 'arjun.mehta@atelier-coffee.com',
     favorite: 'Chikmagalur Pour Over',
@@ -113,10 +114,9 @@ const BASE_CUSTOMERS = [
     id: 'usr_ananya_3910',
     name: 'Ananya Sharma',
     membershipId: 'AT-39102',
-    tier: 'Gold Member',
     visits: 34,
     spends: 9280,
-    dob: '22-03-1993',
+    dob: '22-10-1993', // Upcoming in 4 days (22 Oct)
     phone: '+91 98334 12093',
     email: 'ananya.sharma@gmail.com',
     favorite: 'Oat Flat White',
@@ -126,10 +126,9 @@ const BASE_CUSTOMERS = [
     id: 'usr_devendra_1049',
     name: 'Devendra Rao',
     membershipId: 'AT-10492',
-    tier: 'Reserve VIP',
     visits: 51,
     spends: 15800,
-    dob: '02-02-1988',
+    dob: '28-10-1988', // Upcoming in 10 days (28 Oct)
     phone: '+91 98860 33491',
     email: 'd.rao@ventures.in',
     favorite: 'Monsooned Malabar Aeropress',
@@ -139,23 +138,33 @@ const BASE_CUSTOMERS = [
     id: 'usr_priya_6184',
     name: 'Priya Nair',
     membershipId: 'AT-61840',
-    tier: 'Reserve VIP',
     visits: 42,
     spends: 12450,
-    dob: '18-10-1991',
+    dob: '18-10-1991', // TODAY! (18 Oct)
     phone: '+91 97112 34509',
     email: 'priya.nair@techcorp.in',
     favorite: 'Araku Valley Cold Drip',
     lastVisit: '3 days ago'
   },
   {
+    id: 'usr_zoya_7731',
+    name: 'Zoya Merchant',
+    membershipId: 'AT-77319',
+    visits: 16,
+    spends: 4650,
+    dob: '19-10-1997', // TOMORROW! (19 Oct)
+    phone: '+91 98205 66782',
+    email: 'zoya.merchant@creative.design',
+    favorite: 'Avocado Sourdough Tartine',
+    lastVisit: '1 week ago'
+  },
+  {
     id: 'usr_meera_8812',
     name: 'Meera Singhania',
     membershipId: 'AT-88129',
-    tier: 'Gold Member',
     visits: 29,
     spends: 8140,
-    dob: '30-07-1994',
+    dob: '03-11-1994', // Upcoming in 16 days (03 Nov)
     phone: '+91 98199 55410',
     email: 'meera.singhania@heritage.org',
     favorite: 'Cardamom & Saffron Brioche',
@@ -165,10 +174,9 @@ const BASE_CUSTOMERS = [
     id: 'usr_rohan_5520',
     name: 'Rohan Deshmukh',
     membershipId: 'AT-55201',
-    tier: 'Silver Member',
     visits: 19,
     spends: 5120,
-    dob: '05-11-1998',
+    dob: '25-10-1998', // Upcoming in 7 days (25 Oct)
     phone: '+91 99204 88312',
     email: 'rohan.deshmukh@outlook.com',
     favorite: 'Artisan South Indian Kaapi',
@@ -178,29 +186,59 @@ const BASE_CUSTOMERS = [
     id: 'usr_kabir_2940',
     name: 'Kabir Sen',
     membershipId: 'AT-29401',
-    tier: 'Silver Member',
     visits: 14,
     spends: 3980,
-    dob: '11-01-1996',
+    dob: '11-01-1996', // Next Year (January)
     phone: '+91 98450 77123',
     email: 'kabir.sen@senstudios.co',
     favorite: 'Coorg Sun-Dried Cortado',
     lastVisit: '1 week ago'
-  },
-  {
-    id: 'usr_zoya_7731',
-    name: 'Zoya Merchant',
-    membershipId: 'AT-77319',
-    tier: 'Silver Member',
-    visits: 16,
-    spends: 4650,
-    dob: '19-12-1997',
-    phone: '+91 98205 66782',
-    email: 'zoya.merchant@creative.design',
-    favorite: 'Avocado Sourdough Tartine',
-    lastVisit: '1 week ago'
   }
 ];
+
+// Helper to calculate exact birthday timing relative to today
+function getBirthdayDetails(dobStr) {
+  if (!dobStr) return { category: 'other', daysUntil: 999, label: '', formattedDate: '' };
+  
+  let day = 1, month = 1, year = 1990;
+  if (dobStr.includes('-')) {
+    const parts = dobStr.split('-');
+    if (parts[0].length === 4) {
+      year = Number(parts[0]);
+      month = Number(parts[1]);
+      day = Number(parts[2]);
+    } else {
+      day = Number(parts[0]);
+      month = Number(parts[1]);
+      year = Number(parts[2]);
+    }
+  }
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const todayMidnight = new Date(currentYear, now.getMonth(), now.getDate());
+
+  let nextBday = new Date(currentYear, month - 1, day);
+  if (nextBday < todayMidnight) {
+    nextBday = new Date(currentYear + 1, month - 1, day);
+  }
+
+  const diffTime = nextBday.getTime() - todayMidnight.getTime();
+  const daysUntil = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const formattedDate = `${day} ${monthNames[month - 1]}`;
+
+  if (daysUntil === 0) {
+    return { category: 'today', daysUntil: 0, label: "Today's Birthday 🎉", formattedDate };
+  } else if (daysUntil === 1) {
+    return { category: 'tomorrow', daysUntil: 1, label: "Tomorrow's Birthday ⏰", formattedDate };
+  } else if (daysUntil >= 2 && daysUntil <= 30) {
+    return { category: 'upcoming', daysUntil, label: `In ${daysUntil} days`, formattedDate };
+  } else {
+    return { category: 'later', daysUntil, label: `In ${daysUntil} days`, formattedDate };
+  }
+}
 
 // Simple pseudo-random hash generator for deterministic past date data
 function pseudoHash(str) {
@@ -467,7 +505,6 @@ function getAggregatedCustomers() {
     primary.phone = liveUser.phone || primary.phone;
     primary.dob = liveUser.dob || primary.dob;
     primary.membershipId = liveUser.membershipId || primary.membershipId;
-    primary.tier = liveUser.tier || primary.tier;
     if (liveMembership) {
       primary.visits = Math.max(primary.visits, liveMembership.lifetimeVisits || primary.visits);
     }
@@ -686,10 +723,79 @@ function renderAdminPage() {
     `;
   }).join('');
 
-  // Customer Table Rows
+  // Group customers by birthday
+  const birthdayCustomers = customers.map(c => ({
+    ...c,
+    bday: getBirthdayDetails(c.dob)
+  }));
+
+  const todayBdays = birthdayCustomers.filter(c => c.bday.category === 'today');
+  const tomorrowBdays = birthdayCustomers.filter(c => c.bday.category === 'tomorrow');
+  const upcomingBdays = birthdayCustomers.filter(c => c.bday.category === 'upcoming')
+    .sort((a, b) => a.bday.daysUntil - b.bday.daysUntil);
+  const totalBdaysCount = todayBdays.length + tomorrowBdays.length + upcomingBdays.length;
+
+  function renderBdayCard(c, type) {
+    const initials = c.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+    const isToday = type === 'today';
+    const isTomorrow = type === 'tomorrow';
+    
+    return `
+      <div class="admin-bday-card ${isToday ? 'highlight-today' : isTomorrow ? 'highlight-tomorrow' : ''}">
+        <div class="admin-bday-card-head">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="admin-customer-avatar">${initials}</div>
+            <div>
+              <div class="admin-customer-name" style="font-size: 1.05rem;">${c.name}</div>
+              <div class="admin-customer-id font-mono">${c.membershipId}</div>
+            </div>
+          </div>
+          <span class="admin-bday-tag ${type}">
+            ${isToday ? '🎂 Today!' : isTomorrow ? '⏰ Tomorrow' : `In ${c.bday.daysUntil}d`}
+          </span>
+        </div>
+
+        <div class="admin-bday-card-body">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: var(--color-roast-muted);">Date of Birth:</span>
+            <span class="font-mono" style="font-weight: 600; color: var(--color-espresso);">${c.dob} (${c.bday.formattedDate})</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: var(--color-roast-muted);">Phone:</span>
+            <a href="tel:${c.phone}" class="font-mono" style="color: var(--color-terracotta); text-decoration: none; font-weight: 500;">${c.phone}</a>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: var(--color-roast-muted);">Email:</span>
+            <span style="font-size: 0.78rem; color: var(--color-roast-medium);">${c.email}</span>
+          </div>
+        </div>
+
+        <div class="admin-bday-card-foot">
+          <div style="display: flex; gap: 0.85rem; font-size: 0.78rem;">
+            <span><strong>${c.visits}</strong> visits</span>
+            <span><strong>${formatInr(c.spends)}</strong> spent</span>
+          </div>
+          <button type="button" class="admin-bday-action-btn" title="Birthday Perk Status">
+            ${isToday ? '🎉 Perk Ready' : isTomorrow ? '⏰ Schedule Wish' : '📅 Member Perk'}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Customer Table Rows (Tier removed)
   const customerRowsHtml = filteredCustomers.map(c => {
     const initials = c.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-    const isBirthdayMonth = c.dob && (c.dob.includes('-10-') || c.dob.toLowerCase().includes('oct'));
+    const bday = getBirthdayDetails(c.dob);
+
+    let bdayBadgeHtml = '';
+    if (bday.category === 'today') {
+      bdayBadgeHtml = `<span class="admin-birthday-tag today font-mono" title="Birthday Today! 18 Oct">🎂 Today!</span>`;
+    } else if (bday.category === 'tomorrow') {
+      bdayBadgeHtml = `<span class="admin-birthday-tag tomorrow font-mono" title="Birthday Tomorrow! 19 Oct">⏰ Tomorrow</span>`;
+    } else if (bday.category === 'upcoming') {
+      bdayBadgeHtml = `<span class="admin-birthday-tag upcoming font-mono" title="Birthday in ${bday.daysUntil} days (${bday.formattedDate})">📅 In ${bday.daysUntil}d</span>`;
+    }
 
     return `
       <tr class="admin-table-row">
@@ -720,7 +826,7 @@ function renderAdminPage() {
         <td class="admin-td-dob">
           <div style="display: flex; align-items: center; gap: 6px;">
             <span class="font-mono" style="font-size: 0.85rem;">${c.dob}</span>
-            ${isBirthdayMonth ? `<span class="admin-birthday-tag" title="Birthday Perk Active this month!">🎂 Active</span>` : ''}
+            ${bdayBadgeHtml}
           </div>
         </td>
 
@@ -728,13 +834,6 @@ function renderAdminPage() {
         <td class="admin-td-contact">
           <div class="admin-contact-phone font-mono">${c.phone}</div>
           <div class="admin-contact-email">${c.email}</div>
-        </td>
-
-        <!-- Tier / Status Badge -->
-        <td class="admin-td-tier">
-          <span class="admin-tier-badge ${c.tier.toLowerCase().includes('vip') ? 'vip' : 'gold'}">
-            ${c.tier}
-          </span>
         </td>
       </tr>
     `;
@@ -745,7 +844,7 @@ function renderAdminPage() {
       <div class="container">
         
         <!-- Top Executive Header -->
-        <div class="admin-header-row">
+        <div class="admin-header-row" style="margin-bottom: 2rem;">
           <div>
             <div class="eyebrow eyebrow-accent" style="margin-bottom: 0.35rem;">
               <span>✦</span>
@@ -757,15 +856,6 @@ function renderAdminPage() {
             <p class="admin-page-subtitle">
               Date-wise fiscal ledger, multi-period revenue reports, and member directory intelligence.
             </p>
-          </div>
-
-          <div class="admin-header-actions">
-            <a href="#staff" class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">
-              <span>Till Register ↗</span>
-            </a>
-            <a href="#dashboard" class="btn-primary" style="font-size: 0.82rem; padding: 0.45rem 1rem;">
-              <span>Customer View</span>
-            </a>
           </div>
         </div>
 
@@ -844,58 +934,160 @@ function renderAdminPage() {
 
         </div>
 
-        <!-- 2. CUSTOMERS DIRECTORY SECTION -->
+        <!-- 2. CUSTOMERS DIRECTORY & BIRTHDAYS (BDAYS) SECTION -->
         <div class="admin-card-surface">
           
           <div class="admin-ledger-header">
             <div>
-              <span class="admin-section-eyebrow">CUSTOMER DIRECTORY</span>
+              <span class="admin-section-eyebrow">CUSTOMER INTELLIGENCE</span>
               <h2 style="font-size: 1.4rem; margin: 2px 0 0; font-family: var(--font-serif);">
-                Member Accounts (${filteredCustomers.length})
+                ${adminCustomerView === 'bdays' ? 'Member Birthdays (Bdays)' : `Member Accounts (${filteredCustomers.length})`}
               </h2>
             </div>
 
-            <!-- Search & Sort Controls -->
-            <div class="admin-ledger-controls">
-              <!-- Search Input -->
-              <div class="admin-search-wrap">
-                <input 
-                  type="text" 
-                  id="admin-customer-search-input" 
-                  class="admin-search-input" 
-                  placeholder="Search by name, phone, email, ID..." 
-                  value="${adminCustomerSearch}"
-                >
-              </div>
-
-              <!-- Sort Dropdown -->
-              <select id="admin-customer-sort-select" class="admin-select-input">
-                <option value="spends_desc" ${adminCustomerSort === 'spends_desc' ? 'selected' : ''}>Sort by Spends (High → Low)</option>
-                <option value="visits_desc" ${adminCustomerSort === 'visits_desc' ? 'selected' : ''}>Sort by Visits</option>
-                <option value="name_asc" ${adminCustomerSort === 'name_asc' ? 'selected' : ''}>Sort by Name (A-Z)</option>
-                <option value="dob" ${adminCustomerSort === 'dob' ? 'selected' : ''}>Sort by DOB</option>
-              </select>
+            <!-- View Switcher Tabs: All Members vs Bdays -->
+            <div class="admin-view-switcher">
+              <button type="button" class="admin-view-tab-btn ${adminCustomerView === 'all' ? 'is-active' : ''}" id="admin-view-all-btn">
+                <span>All Members (${customers.length})</span>
+              </button>
+              <button type="button" class="admin-view-tab-btn ${adminCustomerView === 'bdays' ? 'is-active' : ''}" id="admin-view-bdays-btn">
+                <span>🎂 Bdays (${totalBdaysCount})</span>
+                ${todayBdays.length > 0 ? `<span class="admin-bday-pulse-dot" title="Birthday Today!"></span>` : ''}
+              </button>
             </div>
+
+            <!-- Search & Sort Controls (only visible when in All Members table view) -->
+            ${adminCustomerView === 'all' ? `
+              <div class="admin-ledger-controls">
+                <!-- Search Input -->
+                <div class="admin-search-wrap">
+                  <input 
+                    type="text" 
+                    id="admin-customer-search-input" 
+                    class="admin-search-input" 
+                    placeholder="Search by name, phone, email, ID..." 
+                    value="${adminCustomerSearch}"
+                  >
+                </div>
+
+                <!-- Sort Dropdown -->
+                <select id="admin-customer-sort-select" class="admin-select-input">
+                  <option value="spends_desc" ${adminCustomerSort === 'spends_desc' ? 'selected' : ''}>Sort by Spends (High → Low)</option>
+                  <option value="visits_desc" ${adminCustomerSort === 'visits_desc' ? 'selected' : ''}>Sort by Visits</option>
+                  <option value="name_asc" ${adminCustomerSort === 'name_asc' ? 'selected' : ''}>Sort by Name (A-Z)</option>
+                  <option value="dob" ${adminCustomerSort === 'dob' ? 'selected' : ''}>Sort by DOB</option>
+                </select>
+              </div>
+            ` : ''}
           </div>
 
-          <!-- Customer Table -->
-          <div class="admin-table-container">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Customer</th>
-                  <th>Visits</th>
-                  <th>Spends</th>
-                  <th>DOB</th>
-                  <th>Number / Mail</th>
-                  <th>Tier</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${customerRowsHtml}
-              </tbody>
-            </table>
-          </div>
+          ${adminCustomerView === 'bdays' ? `
+            <!-- Bdays Subfilter Tabs -->
+            <div class="admin-bday-subtabs-bar">
+              <button type="button" class="admin-bday-subtab-btn ${adminBdayFilter === 'all' ? 'is-active' : ''}" data-bday-filter="all">
+                All Birthdays (${totalBdaysCount})
+              </button>
+              <button type="button" class="admin-bday-subtab-btn ${adminBdayFilter === 'today' ? 'is-active' : ''}" data-bday-filter="today">
+                🎂 Today (${todayBdays.length})
+              </button>
+              <button type="button" class="admin-bday-subtab-btn ${adminBdayFilter === 'tomorrow' ? 'is-active' : ''}" data-bday-filter="tomorrow">
+                ⏰ Tomorrow (${tomorrowBdays.length})
+              </button>
+              <button type="button" class="admin-bday-subtab-btn ${adminBdayFilter === 'upcoming' ? 'is-active' : ''}" data-bday-filter="upcoming">
+                📅 Upcoming (${upcomingBdays.length})
+              </button>
+            </div>
+
+            <!-- 1. Today's Birthdays Group -->
+            ${(adminBdayFilter === 'all' || adminBdayFilter === 'today') ? `
+              <div class="admin-bday-group-wrap">
+                <div class="admin-bday-group-title today">
+                  <span>🎂 TODAY'S BIRTHDAYS (${todayBdays.length})</span>
+                </div>
+                ${todayBdays.length > 0 ? `
+                  <div class="admin-bday-cards-grid">
+                    ${todayBdays.map(c => renderBdayCard(c, 'today')).join('')}
+                  </div>
+                ` : `
+                  <div style="font-size: 0.85rem; color: var(--color-roast-muted); padding: 0.5rem 0;">No member birthdays today.</div>
+                `}
+              </div>
+            ` : ''}
+
+            <!-- 2. Tomorrow's Birthdays Group -->
+            ${(adminBdayFilter === 'all' || adminBdayFilter === 'tomorrow') ? `
+              <div class="admin-bday-group-wrap">
+                <div class="admin-bday-group-title tomorrow">
+                  <span>⏰ TOMORROW'S BIRTHDAYS (${tomorrowBdays.length})</span>
+                </div>
+                ${tomorrowBdays.length > 0 ? `
+                  <div class="admin-bday-cards-grid">
+                    ${tomorrowBdays.map(c => renderBdayCard(c, 'tomorrow')).join('')}
+                  </div>
+                ` : `
+                  <div style="font-size: 0.85rem; color: var(--color-roast-muted); padding: 0.5rem 0;">No member birthdays tomorrow.</div>
+                `}
+              </div>
+            ` : ''}
+
+            <!-- 3. Upcoming Birthdays Group -->
+            ${(adminBdayFilter === 'all' || adminBdayFilter === 'upcoming') ? `
+              <div class="admin-bday-group-wrap">
+                <div class="admin-bday-group-title upcoming">
+                  <span>📅 UPCOMING BIRTHDAYS (NEXT 30 DAYS) (${upcomingBdays.length})</span>
+                </div>
+                ${upcomingBdays.length > 0 ? `
+                  <div class="admin-bday-cards-grid">
+                    ${upcomingBdays.map(c => renderBdayCard(c, 'upcoming')).join('')}
+                  </div>
+                ` : `
+                  <div style="font-size: 0.85rem; color: var(--color-roast-muted); padding: 0.5rem 0;">No upcoming member birthdays in next 30 days.</div>
+                `}
+              </div>
+            ` : ''}
+          ` : `
+            <!-- Birthday Alert Banner in All Members View -->
+            <div class="admin-bday-banner">
+              <div class="admin-bday-banner-title">
+                <span>🎂 Member Birthdays:</span>
+              </div>
+              <div class="admin-bday-chips-row">
+                ${todayBdays.map(c => `
+                  <span class="admin-bday-chip today" data-bday-target="today" title="Click to view Today's Birthday">
+                    🎂 Today: <strong>${c.name}</strong> (${c.bday.formattedDate})
+                  </span>
+                `).join('')}
+                ${tomorrowBdays.map(c => `
+                  <span class="admin-bday-chip tomorrow" data-bday-target="tomorrow" title="Click to view Tomorrow's Birthday">
+                    ⏰ Tomorrow: <strong>${c.name}</strong> (${c.bday.formattedDate})
+                  </span>
+                `).join('')}
+                ${upcomingBdays.length > 0 ? `
+                  <span class="admin-bday-chip upcoming" data-bday-target="upcoming" title="Click to view Upcoming Birthdays">
+                    📅 Upcoming: <strong>${upcomingBdays.length} Members</strong> (Next 30d)
+                  </span>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Customer Table (Tier Column Removed) -->
+            <div class="admin-table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Visits</th>
+                    <th>Spends</th>
+                    <th>DOB</th>
+                    <th>Number / Mail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${customerRowsHtml}
+                </tbody>
+              </table>
+            </div>
+          `}
 
         </div>
 
@@ -1178,6 +1370,48 @@ function initAdminEvents() {
       if (window.router) window.router.render();
     });
   }
+
+  // View Switcher (All Members vs Bdays)
+  const viewAllBtn = document.getElementById('admin-view-all-btn');
+  if (viewAllBtn) {
+    viewAllBtn.addEventListener('click', () => {
+      adminCustomerView = 'all';
+      if (window.AtelierAudio && window.AtelierAudio.playTap) window.AtelierAudio.playTap();
+      if (window.router) window.router.render();
+    });
+  }
+
+  const viewBdaysBtn = document.getElementById('admin-view-bdays-btn');
+  if (viewBdaysBtn) {
+    viewBdaysBtn.addEventListener('click', () => {
+      adminCustomerView = 'bdays';
+      if (window.AtelierAudio && window.AtelierAudio.playTap) window.AtelierAudio.playTap();
+      if (window.router) window.router.render();
+    });
+  }
+
+  // Birthday Subtab Filters (All, Today, Tomorrow, Upcoming)
+  document.querySelectorAll('.admin-bday-subtab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.getAttribute('data-bday-filter');
+      if (filter) {
+        adminBdayFilter = filter;
+        if (window.AtelierAudio && window.AtelierAudio.playTap) window.AtelierAudio.playTap();
+        if (window.router) window.router.render();
+      }
+    });
+  });
+
+  // Birthday Quick Jump Chips in Banner
+  document.querySelectorAll('.admin-bday-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const target = chip.getAttribute('data-bday-target');
+      adminCustomerView = 'bdays';
+      if (target) adminBdayFilter = target;
+      if (window.AtelierAudio && window.AtelierAudio.playTap) window.AtelierAudio.playTap();
+      if (window.router) window.router.render();
+    });
+  });
 }
 
 window.renderAdminPage = renderAdminPage;
@@ -1201,7 +1435,12 @@ window.AtelierAdminState = {
   set selectedHalfYear(v) { adminSelectedHalfYear = v; },
   get selectedYear() { return adminSelectedYear; },
   set selectedYear(v) { adminSelectedYear = v; },
+  get customerView() { return adminCustomerView; },
+  set customerView(v) { adminCustomerView = v; },
+  get bdayFilter() { return adminBdayFilter; },
+  set bdayFilter(v) { adminBdayFilter = v; },
   getPeriodReportData,
   getTodayIso,
-  formatDateIso
+  formatDateIso,
+  getBirthdayDetails
 };

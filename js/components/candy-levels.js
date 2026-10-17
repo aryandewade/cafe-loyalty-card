@@ -26,7 +26,7 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 2,
     title: "Crema Apprentice",
-    subtitle: "Earn 1,000 points (500 pts in this tier) to advance to Level 3",
+    subtitle: "Earn 1,000 points (500 pts in this stage) to advance to Level 3",
     pointsRequired: 500,
     pointsToPass: 1000,
     reward: "Free Vanilla, Hazelnut or Cardamom Shot",
@@ -43,7 +43,7 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 3,
     title: "Roastery Regular",
-    subtitle: "Earn 1,500 points (500 pts in this tier) to advance to Level 4",
+    subtitle: "Earn 1,500 points (500 pts in this stage) to advance to Level 4",
     pointsRequired: 1000,
     pointsToPass: 1500,
     reward: "15% Off Any Hand-Laminated Brioche",
@@ -60,7 +60,7 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 4,
     title: "Pour-Over Explorer",
-    subtitle: "Earn 2,000 points (500 pts in this tier) to advance to Level 5",
+    subtitle: "Earn 2,000 points (500 pts in this stage) to advance to Level 5",
     pointsRequired: 1500,
     pointsToPass: 2000,
     reward: "Complimentary V60 Brew Bar Upgrade",
@@ -94,7 +94,7 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 6,
     title: "Cold Drip Alchemist",
-    subtitle: "Earn 3,000 points (500 pts in this tier) to advance to Level 7",
+    subtitle: "Earn 3,000 points (500 pts in this stage) to advance to Level 7",
     pointsRequired: 2500,
     pointsToPass: 3000,
     reward: "Complimentary Chilled Nitro Cold Brew",
@@ -111,7 +111,7 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 7,
     title: "Artisan Kaapi Master",
-    subtitle: "Earn 3,500 points (500 pts in this tier) to advance to Level 8",
+    subtitle: "Earn 3,500 points (500 pts in this stage) to advance to Level 8",
     pointsRequired: 3000,
     pointsToPass: 3500,
     reward: "Free Artisanal Davara Kaapi & Sweet Bun",
@@ -128,7 +128,7 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 8,
     title: "Micro-Lot Connoisseur",
-    subtitle: "Earn 4,000 points (500 pts in this tier) to advance to Level 9",
+    subtitle: "Earn 4,000 points (500 pts in this stage) to advance to Level 9",
     pointsRequired: 3500,
     pointsToPass: 4000,
     reward: "Free 250g Araku Valley Whole-Bean Bag",
@@ -145,7 +145,7 @@ const ATELIER_CANDY_LEVELS = [
   {
     level: 9,
     title: "Western Ghats Pioneer",
-    subtitle: "Earn 4,500 points (500 pts in this tier) to advance to Level 10",
+    subtitle: "Earn 4,500 points (500 pts in this stage) to advance to Level 10",
     pointsRequired: 4000,
     pointsToPass: 4500,
     reward: "VIP Cupping Masterclass for Two",
@@ -804,7 +804,7 @@ class CandyLevelsEngine {
             </div>
             <div class="candy-stage-lvl-tag">LEVEL ${lvl.level} • ${lvl.pointsRequired} - ${lvl.pointsToPass} POINTS</div>
             <h3 class="candy-stage-title font-serif">${lvl.title}</h3>
-            <p class="candy-stage-subtitle">500 Points Tier • ${lvl.pointsToPass} Total Points Required</p>
+            <p class="candy-stage-subtitle">500 Points Stage • ${lvl.pointsToPass} Total Points Required</p>
           </div>
 
           <!-- Points Progress Meter on Active Stage -->
@@ -818,7 +818,7 @@ class CandyLevelsEngine {
                 <div style="width: ${levelProgress.progressPercent}%; height: 100%; background: linear-gradient(90deg, #FFB03A, #10B981); border-radius: 999px; transition: width 0.3s;"></div>
               </div>
               <div style="font-size: 0.72rem; color: #C2B3A8; margin-top: 0.35rem; text-align: center;">
-                ${levelProgress.pointsLeftForNextLevel === 0 ? 'Tier complete! Level up unlocked.' : `Earn ${levelProgress.pointsLeftForNextLevel} more points from café bills to advance to Level ${lvl.level + 1} (500 pts difference)!`}
+                ${levelProgress.pointsLeftForNextLevel === 0 ? 'Stage complete! Level up unlocked.' : `Earn ${levelProgress.pointsLeftForNextLevel} more points from café bills to advance to Level ${lvl.level + 1} (500 pts difference)!`}
               </div>
             </div>
           ` : ''}
@@ -827,7 +827,7 @@ class CandyLevelsEngine {
           <div class="candy-stage-stars-row">
             <div class="stage-star-slot ${starsEarned >= 1 ? 'earned' : ''}">
               <div class="star-glyph">★</div>
-              <span class="star-label">Star 1 (250 Pts in Tier)</span>
+              <span class="star-label">Star 1 (250 Pts in Stage)</span>
             </div>
             <div class="stage-star-slot center ${starsEarned >= 2 ? 'earned' : ''}">
               <div class="star-glyph">★</div>
@@ -841,7 +841,7 @@ class CandyLevelsEngine {
 
           <!-- Objectives Box -->
           <div class="candy-objectives-box">
-            <div class="obj-header">LEVEL ADVANCEMENT OBJECTIVES (500 PTS TIER)</div>
+            <div class="obj-header">LEVEL ADVANCEMENT OBJECTIVES (500 PTS STAGE)</div>
             <ul class="obj-list">
               ${lvl.stars.map((s, idx) => `
                 <li class="obj-item ${idx < starsEarned ? 'done' : ''}">
@@ -945,7 +945,7 @@ class CandyLevelsEngine {
           <div class="candy-celebrate-heading">
             <span class="eyebrow candy-celebrate-eyebrow">${lvl.pointsRequired > 0 ? `${lvl.pointsRequired} POINTS REACHED` : 'ROASTERY ROOKIE'} • LEVEL ${lvl.level} UNLOCKED!</span>
             <h2 class="font-serif candy-celebrate-title">${lvl.title}</h2>
-            <p class="candy-celebrate-desc">You've accumulated ${lvl.pointsRequired}+ points and unlocked the next Roaster tier!</p>
+            <p class="candy-celebrate-desc">You've accumulated ${lvl.pointsRequired}+ points and unlocked the next Roaster level!</p>
           </div>
 
           <!-- Staggered 3-Star Slam In -->

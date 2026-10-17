@@ -59,7 +59,7 @@ function renderDashboardPage() {
           <div>
             <div class="eyebrow eyebrow-accent" style="margin-bottom: 0.3rem;">
               <span>✦</span>
-              <span>${user.tier} • #${user.membershipId}</span>
+              <span>Atelier Club • #${user.membershipId}</span>
             </div>
             <h1 style="font-size: clamp(1.75rem, 4vw, 2.3rem); margin-bottom: 0.2rem;">
               Welcome, ${user.firstName}.

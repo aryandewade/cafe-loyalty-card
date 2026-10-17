@@ -47,9 +47,6 @@ function renderProfilePage() {
               <div>
                 <div style="display: flex; align-items: center; gap: 0.6rem;">
                   <h2 style="font-size: 1.6rem; margin-bottom: 0;">${user.firstName} ${user.lastName}</h2>
-                  <span class="card-tier-pill" style="background: var(--color-gold-foil-light); color: var(--color-espresso); border-color: var(--color-gold-foil); font-size: 0.65rem;">
-                    ${user.tier}
-                  </span>
                 </div>
                 <div style="font-size: 0.85rem; color: var(--color-roast-medium); margin-top: 3px;">
                   ${user.email} • Member since ${user.memberSince}

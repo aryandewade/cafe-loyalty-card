@@ -124,9 +124,7 @@ function renderNavbar(currentPage = 'home') {
               <div style="min-width: 0;">
                 <div class="mobile-member-name">${user.firstName} ${user.lastName || ''}</div>
                 <div class="mobile-member-meta">${user.membershipId || 'AT-MEMBER'}</div>
-              </div>
             </div>
-            <div class="mobile-member-tier-pill">${user.tier || 'Gold Member'}</div>
           </div>
         ` : ''}
 

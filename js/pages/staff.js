@@ -92,7 +92,7 @@ function renderStaffPage() {
                 <div>
                   <h3 style="font-size: 1.4rem; margin-bottom: 2px;">${user.firstName} ${user.lastName}</h3>
                   <div style="font-size: 0.85rem; color: var(--color-roast-medium);">
-                    ID: <strong>${user.membershipId}</strong> • ${user.tier}
+                    ID: <strong>${user.membershipId}</strong> • Atelier Club Member
                   </div>
                   <div style="font-size: 0.78rem; color: var(--color-forest-roast); font-weight: 500; margin-top: 2px;">
                     Favorite: ${user.favoriteDrink}

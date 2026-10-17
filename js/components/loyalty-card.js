@@ -12,7 +12,6 @@ function renderLoyaltyCard(options = {}) {
     firstName: 'Connoisseur',
     lastName: 'Circle',
     membershipId: 'AT-PREVIEW',
-    tier: 'Gold Member',
     memberSince: '2026'
   };
   const membership = state.membership || {
