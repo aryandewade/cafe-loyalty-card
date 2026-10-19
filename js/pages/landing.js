@@ -263,7 +263,6 @@ function renderLandingPage() {
                   <li><a href="#locations">Locations</a></li>
                   <li><a href="#login">Sign In</a></li>
                   <li><a href="#register">Sign Up</a></li>
-                  <li><a href="#admin">Admin Portal</a></li>
                 </ul>
               </div>
             </div>
