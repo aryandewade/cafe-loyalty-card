@@ -7,36 +7,17 @@ let dashboardViewMode = 'card'; // 'card' | 'candy'
 
 function renderDashboardPage() {
   const store = window.AtelierStore;
-  const state = (store && typeof store.getState === 'function') ? store.getState() : {};
-  const user = state.user || {
-    id: 'usr_guest',
-    firstName: 'Connoisseur',
-    lastName: '',
-    email: '',
-    membershipId: 'AT-CLUB'
-  };
-  const membership = state.membership || {
-    currentStamps: 0,
-    maxStamps: 10,
-    lifetimeVisits: 0,
-    points: 0,
-    currentStreak: 0,
-    rewardsRedeemedCount: 0
-  };
-  const activities = Array.isArray(state.activities) ? state.activities : [];
-
-  const stamps = Number(membership.currentStamps || 0);
-  const maxStamps = Number(membership.maxStamps || 10);
+  const state = store.getState();
+  const { user, membership, activities } = state;
+  const stamps = membership.currentStamps;
+  const maxStamps = membership.maxStamps;
   const visitsLeft = Math.max(0, maxStamps - stamps);
-  const progressPercent = Math.min(100, Math.round((stamps / Math.max(1, maxStamps)) * 100));
+  const progressPercent = Math.min(100, Math.round((stamps / maxStamps) * 100));
 
   const currentLevelNum = window.candyEngine ? window.candyEngine.calculateCurrentLevel(membership) : 1;
-  const currentLevelObj = window.candyEngine && window.candyEngine.levels ? window.candyEngine.levels.find(l => l.level === currentLevelNum) : null;
+  const currentLevelObj = window.candyEngine ? window.candyEngine.levels.find(l => l.level === currentLevelNum) : null;
   const levelProgress = window.candyEngine ? window.candyEngine.getLevelProgress(membership) : { pointsInCurrentLevel: membership.points || 0, pointsLeftForNextLevel: 80 };
   const starsTotal = window.candyEngine ? window.candyEngine.calculateTotalStars(membership) : 4;
-
-  const memberIdDisplay = user.membershipId || (user.id ? `AT-${String(user.id).slice(-5)}` : 'AT-CLUB');
-  const userDisplayName = user.firstName || 'Connoisseur';
 
   // Recent 4 activities
   const recentActivities = activities.slice(0, 4);
@@ -57,14 +38,14 @@ function renderDashboardPage() {
           `}
         </div>
         <div>
-          <div class="timeline-title">${act.title || 'Café Visit'}</div>
-          <div class="timeline-subtitle">${act.subtitle || 'Specialty Roast'}</div>
+          <div class="timeline-title">${act.title}</div>
+          <div class="timeline-subtitle">${act.subtitle}</div>
         </div>
       </div>
 
       <div class="timeline-right">
         <span class="timeline-stamp-badge font-mono">${act.pointsEarned > 0 ? `+${act.pointsEarned} Pts` : 'Redeemed'}</span>
-        <span class="timeline-time">${act.date || 'Today'}</span>
+        <span class="timeline-time">${act.date}</span>
       </div>
     </div>
   `).join('');
@@ -78,10 +59,10 @@ function renderDashboardPage() {
           <div>
             <div class="eyebrow eyebrow-accent" style="margin-bottom: 0.3rem;">
               <span>✦</span>
-              <span>Atelier Club • #${memberIdDisplay}</span>
+              <span>${user.tier} • #${user.membershipId}</span>
             </div>
             <h1 style="font-size: clamp(1.75rem, 4vw, 2.3rem); margin-bottom: 0.2rem;">
-              Welcome, ${userDisplayName}.
+              Welcome, ${user.firstName}.
             </h1>
             <p style="color: var(--color-roast-medium); font-size: 0.88rem; margin: 0;">
               ${visitsLeft === 0 ? 'Card complete • Ready to claim reward' : `${visitsLeft} ${visitsLeft === 1 ? 'visit' : 'visits'} to next reward`}
@@ -109,7 +90,7 @@ function renderDashboardPage() {
           <!-- DIGITAL LOYALTY CARD -->
           <div class="double-bezel dash-card-bezel" style="margin-bottom: 1.2rem; background: var(--bg-canvas-subtle);">
             <div class="double-bezel-inner dash-card-bezel-inner" style="display: flex; flex-direction: column; align-items: center;">
-              <!-- Card Action Bar: Visits Counter & Primary Collect / Renew Button -->
+              <!-- Card Action Bar: Visits Counter & Primary Collect Stamp Button -->
               <div class="card-action-bar">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                   <span class="font-mono" style="font-size: 0.88rem; font-weight: 700; color: var(--color-espresso);">
@@ -118,21 +99,15 @@ function renderDashboardPage() {
                   <span style="font-size: 0.74rem; color: var(--color-roast-muted);">(${visitsLeft === 0 ? 'Full' : `${visitsLeft} left`})</span>
                 </div>
 
-                ${visitsLeft === 0 ? `
-                  <button id="dash-quick-renew-btn" class="btn-primary" style="padding: 0.42rem 0.95rem; font-size: 0.82rem; background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%); color: #1c1511; font-weight: 700; border: none; box-shadow: 0 4px 14px rgba(212,175,55,0.35);">
-                    <span>Renew Card 🔄</span>
-                  </button>
-                ` : `
-                  <button id="dash-quick-stamp-btn" class="btn-primary" style="padding: 0.42rem 0.65rem 0.42rem 1rem; font-size: 0.82rem;">
-                    <span>Collect Stamp</span>
-                    <div class="btn-icon-wrapper" style="width: 1.5rem; height: 1.5rem;">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                      </svg>
-                    </div>
-                  </button>
-                `}
+                <button id="dash-quick-stamp-btn" class="btn-primary" style="padding: 0.42rem 0.65rem 0.42rem 1rem; font-size: 0.82rem;">
+                  <span>Collect Stamp</span>
+                  <div class="btn-icon-wrapper" style="width: 1.5rem; height: 1.5rem;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </div>
+                </button>
               </div>
 
               <!-- The Digital Loyalty Card -->
@@ -141,22 +116,6 @@ function renderDashboardPage() {
               </div>
             </div>
           </div>
-
-          <!-- FULL CARD RENEWAL CELEBRATION CALLOUT -->
-          ${visitsLeft === 0 ? `
-            <div class="dash-card-full-callout" style="margin-bottom: 1.2rem; padding: 1rem 1.2rem; background: linear-gradient(135deg, rgba(212,175,55,0.14) 0%, rgba(200,157,75,0.06) 100%); border: 1px solid rgba(212,175,55,0.35); border-radius: 16px; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
-              <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <div style="font-size: 1.6rem;">🏆</div>
-                <div>
-                  <div style="font-weight: 700; font-size: 0.95rem; color: var(--color-espresso); font-family: var(--font-serif);">Card Completed (10/10 Stamps)!</div>
-                  <div style="font-size: 0.78rem; color: var(--color-roast-medium); margin-top: 2px;">Renew your card to start fresh on a new card and earn +50 Bonus Points!</div>
-                </div>
-              </div>
-              <button id="dash-banner-renew-btn" class="btn-primary" style="padding: 0.5rem 1.2rem; font-size: 0.84rem; background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%); color: #1c1511; font-weight: 700; border: none; box-shadow: 0 4px 14px rgba(212,175,55,0.35); white-space: nowrap;">
-                <span>Renew Card Now 🔄</span>
-              </button>
-            </div>
-          ` : ''}
 
           <!-- SAGA PROGRESSION TEASER BANNER (MINIMAL) -->
           <div class="candy-dash-teaser-card" id="dash-open-candy-map-btn" style="margin-bottom: 1.4rem; cursor: pointer;">
@@ -195,15 +154,15 @@ function renderDashboardPage() {
           <!-- Stats Grid -->
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; text-align: center; border-top: 1px solid var(--color-cream-border-subtle); padding-top: 0.9rem;">
             <div>
-              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-espresso);">${Number(membership.points ?? 0)}</div>
+              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-espresso);">${membership.points}</div>
               <div style="font-size: 0.68rem; color: var(--color-roast-muted); text-transform: uppercase;">Points</div>
             </div>
             <div>
-              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-forest-roast);">${Number(membership.lifetimeVisits ?? 0)}</div>
+              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-forest-roast);">${membership.lifetimeVisits}</div>
               <div style="font-size: 0.68rem; color: var(--color-roast-muted); text-transform: uppercase;">Visits</div>
             </div>
             <div>
-              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-gold-foil);">${Number(membership.rewardsRedeemedCount ?? 0)}</div>
+              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-gold-foil);">${membership.rewardsRedeemedCount}</div>
               <div style="font-size: 0.68rem; color: var(--color-roast-muted); text-transform: uppercase;">Perks</div>
             </div>
           </div>
@@ -238,7 +197,7 @@ function renderDashboardPage() {
           </div>
 
           <div class="timeline-list">
-            ${timelineHtml || '<div style="text-align: center; padding: 1.5rem 1rem; color: var(--color-roast-medium); font-size: 0.84rem; background: var(--bg-canvas-subtle); border-radius: 12px; border: 1px dashed var(--color-cream-border);">No visits yet. Collect your first stamp at any Atelier bar! ☕</div>'}
+            ${timelineHtml}
           </div>
         </div>
 
@@ -278,21 +237,6 @@ function initDashboardEvents() {
     }
   });
 
-  // Quick / Banner Renew Card Handlers
-  const handleRenewCard = () => {
-    if (window.openRenewCardModal) {
-      window.openRenewCardModal();
-    } else if (window.AtelierStore) {
-      const res = window.AtelierStore.renewLoyaltyCard();
-      if (res) {
-        window.showToast?.(`Card Renewed! Fresh card ready +${res.bonusPoints} bonus points awarded! 🎉`);
-        if (window.router) window.router.render();
-      }
-    }
-  };
-  document.getElementById('dash-quick-renew-btn')?.addEventListener('click', handleRenewCard);
-  document.getElementById('dash-banner-renew-btn')?.addEventListener('click', handleRenewCard);
-
   // Tapping next target slot on loyalty card also prompts for Collect Stamp flow
   document.querySelectorAll('.stamp-slot.next-target').forEach(slot => {
     slot.style.cursor = 'pointer';
@@ -318,8 +262,7 @@ function initDashboardEvents() {
   document.querySelectorAll('.timeline-item').forEach(item => {
     item.addEventListener('click', () => {
       const actId = item.getAttribute('data-act-id');
-      const activities = window.AtelierStore?.getState()?.activities || [];
-      const act = activities.find(a => a.id === actId);
+      const act = window.AtelierStore.getState().activities.find(a => a.id === actId);
       if (act) {
         window.openReceiptModal(act);
       }

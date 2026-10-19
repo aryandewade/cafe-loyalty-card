@@ -34,8 +34,8 @@ class Router {
     this.handleRoute();
   }
 
-  handleRoute(targetHash) {
-    let rawHash = (typeof targetHash === 'string' && targetHash ? targetHash : window.location.hash).replace('#', '') || 'home';
+  handleRoute() {
+    let rawHash = window.location.hash.replace('#', '') || 'home';
     let [hash, queryString] = rawHash.split('?');
     const isAuth = window.AtelierStore.getState().isAuthenticated;
 
@@ -51,18 +51,6 @@ class Router {
           window.openResetPasswordModal({ email, token });
         }
       }, 120);
-      return;
-    }
-
-    // Direct shortcut route to review modal: #review or #google-review
-    if (hash === 'review' || hash === 'google-review') {
-      this.currentRoute = isAuth ? 'dashboard' : 'home';
-      this.render();
-      setTimeout(() => {
-        if (window.openGoogleReviewModal) {
-          window.openGoogleReviewModal();
-        }
-      }, 100);
       return;
     }
 
@@ -177,6 +165,21 @@ class Router {
       <main id="main-content" class="page-content" tabindex="-1">
         ${pageHtml}
       </main>
+      ${route !== 'home' && route !== 'admin' ? `
+        <footer class="site-footer app-global-footer" style="padding: 1.8rem 1rem 4.5rem; text-align: center; border-top: 1px solid var(--color-cream-border-subtle); margin-top: 2.5rem;">
+          <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; font-size: 0.78rem; color: var(--color-roast-muted);">
+            <div>© 2026 Atelier Café. All rights reserved. • Powered by <a href="https://engiplex.in" target="_blank" rel="noopener noreferrer" style="color: inherit;">Engiplex Solutions</a></div>
+            <div class="footer-admin-link-wrap">
+              <a href="#admin" class="footer-admin-btn" title="Café Owner Admin Portal" aria-label="Café Owner Admin Portal" style="display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--bg-canvas-subtle); border: 1px solid var(--color-cream-border); color: var(--color-roast-muted); transition: all 0.2s ease;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"></path>
+                  <circle cx="12" cy="15" r="1.5"></circle>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </footer>
+      ` : ''}
     `;
 
     // Rebind component listeners safely

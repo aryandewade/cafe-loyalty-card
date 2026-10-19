@@ -276,7 +276,7 @@ function renderLandingPage() {
                   <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"></path>
                   <circle cx="12" cy="15" r="1.5"></circle>
                 </svg>
-                <span></span>
+                <span>Admin Portal</span>
               </a>
             </div>
           </div>
