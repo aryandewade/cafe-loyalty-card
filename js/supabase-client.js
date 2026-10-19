@@ -448,6 +448,102 @@
         // Silently tolerate audit logging errors
       }
     }
+
+    // --------------------------------------------------------------------------
+    // Real-Time Admin Synchronization
+    // --------------------------------------------------------------------------
+    async fetchAllAdminData() {
+      // 1. Try local server endpoint first
+      try {
+        const res = await fetch('/api/admin/data');
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.success && Array.isArray(json.customers)) {
+            return json;
+          }
+        }
+      } catch (e) {
+        // Fallback to direct client query
+      }
+
+      // 2. Direct Supabase query fallback
+      if (this.isConfigured) {
+        try {
+          const [users, memberships, transactions] = await Promise.all([
+            this.select('users', { order: 'created_at.desc' }),
+            this.select('memberships', {}),
+            this.select('transactions', { order: 'created_at.desc', limit: '500' })
+          ]);
+
+          const membershipMap = new Map();
+          (memberships || []).forEach(m => membershipMap.set(m.user_id, m));
+
+          const userSpendsMap = new Map();
+          const userVisitsMap = new Map();
+          const userLastTxnMap = new Map();
+          let totalRevenue = 0;
+
+          (transactions || []).forEach(tx => {
+            const spent = Number(tx.amount_spent || 0);
+            totalRevenue += spent;
+            const uid = tx.user_id;
+            if (uid) {
+              userSpendsMap.set(uid, (userSpendsMap.get(uid) || 0) + spent);
+              if (Number(tx.stamps_added || 0) > 0 || String(tx.product_name || '').toLowerCase().includes('stamp')) {
+                userVisitsMap.set(uid, (userVisitsMap.get(uid) || 0) + 1);
+              }
+              if (!userLastTxnMap.has(uid)) {
+                userLastTxnMap.set(uid, tx.created_at);
+              }
+            }
+          });
+
+          const customers = (users || [])
+            .filter(u => u.role !== 'staff')
+            .map(u => {
+              const mem = membershipMap.get(u.id);
+              const userTxnSpends = userSpendsMap.get(u.id) || 0;
+              const userTxnVisits = userVisitsMap.get(u.id) || 0;
+              const lifetimeVisits = mem ? Number(mem.lifetime_visits || mem.current_stamps || 0) : userTxnVisits;
+              const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Café Member';
+              const membershipId = u.membership_id || `AT-${String(u.id).slice(-5)}`;
+
+              return {
+                id: u.id,
+                name: fullName,
+                membershipId,
+                visits: Math.max(lifetimeVisits, userTxnVisits, 1),
+                spends: userTxnSpends,
+                dob: u.dob || '',
+                phone: u.phone || '',
+                email: u.email || '',
+                favorite: u.favorite_drink || 'Chikmagalur Single-Estate Pour Over',
+                lastVisit: userLastTxnMap.get(u.id) ? new Date(userLastTxnMap.get(u.id)).toLocaleDateString('en-IN') : 'Recent',
+                createdAt: u.created_at,
+                points: mem ? mem.points : 0,
+                currentStamps: mem ? mem.current_stamps : 0
+              };
+            });
+
+          return {
+            success: true,
+            customers,
+            transactions: transactions || [],
+            stats: {
+              totalCustomers: customers.length,
+              totalRevenue,
+              totalOrders: (transactions || []).length
+            },
+            source: 'supabase',
+            timestamp: new Date().toISOString()
+          };
+        } catch (err) {
+          console.warn('Direct Supabase fetchAllAdminData error:', err);
+        }
+      }
+
+      return null;
+    }
   }
 
   // Export to global scope

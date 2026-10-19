@@ -42,6 +42,13 @@ let adminCustomerSort = 'spends_desc'; // 'spends_desc' | 'visits_desc' | 'name_
 let adminCustomerView = 'all'; // 'all' | 'bdays'
 let adminBdayFilter = 'all'; // 'all' | 'today' | 'tomorrow' | 'upcoming'
 
+// Real-Time Database Live State
+let adminLiveCustomers = null;
+let adminLiveTransactions = [];
+let adminLastSyncTime = null;
+let adminSyncPollTimer = null;
+let adminIsSyncing = false;
+
 // Period Selector Definitions (index 0 is current period)
 const WEEK_OPTIONS = [
   { id: '2026-W42', label: 'Oct 12 – Oct 18, 2026 (This Week)' },
@@ -334,6 +341,19 @@ function getPeriodReportData() {
       });
     }
 
+    // Live database transactions sync
+    if (Array.isArray(adminLiveTransactions) && adminLiveTransactions.length > 0) {
+      const dayTxns = adminLiveTransactions.filter(tx => {
+        if (!tx.created_at) return false;
+        const txDate = tx.created_at.split('T')[0];
+        return txDate === dateStr;
+      });
+      dayTxns.forEach(tx => {
+        baseRev += Number(tx.amount_spent || 0);
+        baseOrders += 1;
+      });
+    }
+
     const intervals = [
       { label: '8 AM', value: Math.round(baseRev * 0.12) },
       { label: '10 AM', value: Math.round(baseRev * 0.26) },
@@ -515,6 +535,75 @@ function getPeriodReportData() {
   };
 }
 
+async function syncAdminDataFromDatabase(options = {}) {
+  const silent = options.silent === true;
+  if (adminIsSyncing) return;
+  adminIsSyncing = true;
+
+  const spinIcon = document.getElementById('admin-sync-spin-icon');
+  if (spinIcon && !silent) {
+    spinIcon.classList.add('spinning');
+  }
+
+  try {
+    let data = null;
+    if (window.AtelierSupabase && typeof window.AtelierSupabase.fetchAllAdminData === 'function') {
+      data = await window.AtelierSupabase.fetchAllAdminData();
+    } else {
+      const res = await fetch('/api/admin/data');
+      if (res.ok) data = await res.json();
+    }
+
+    if (data && data.success && Array.isArray(data.customers)) {
+      const prevSerialized = JSON.stringify(adminLiveCustomers);
+      const newSerialized = JSON.stringify(data.customers);
+      const hasChanged = prevSerialized !== newSerialized;
+
+      adminLiveCustomers = data.customers;
+      adminLiveTransactions = Array.isArray(data.transactions) ? data.transactions : [];
+      adminLastSyncTime = new Date();
+
+      // If we are currently on the admin portal page
+      if (window.location.hash.includes('admin') && isAdminAuthenticated()) {
+        const timeEl = document.getElementById('admin-sync-time');
+        if (timeEl) {
+          timeEl.textContent = adminLastSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        const labelEl = document.getElementById('admin-sync-label');
+        if (labelEl) {
+          labelEl.textContent = `Live DB Sync (${adminLiveCustomers.length} Members)`;
+        }
+
+        // Re-render if data changed or manual sync
+        if (hasChanged || !silent) {
+          if (window.router) {
+            window.router.render();
+          }
+        }
+      }
+
+      if (!silent) {
+        if (window.showToast) {
+          window.showToast(`✓ Database synced in real time: ${data.customers.length} real members loaded`);
+        }
+        if (window.AtelierAudio && typeof window.AtelierAudio.playTap === 'function') {
+          window.AtelierAudio.playTap();
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Real-time database sync warning:', err);
+    if (!silent && window.showToast) {
+      window.showToast('⚠️ Could not sync with database. Using cached data.');
+    }
+  } finally {
+    adminIsSyncing = false;
+    if (spinIcon) {
+      setTimeout(() => spinIcon.classList.remove('spinning'), 450);
+    }
+  }
+}
+
 function getAggregatedCustomers() {
   const store = window.AtelierStore;
   const state = store ? store.getState() : {};
@@ -522,15 +611,57 @@ function getAggregatedCustomers() {
   const liveMembership = state.membership;
   const activities = state.activities || [];
 
-  let liveUserSpends = 6840;
+  let liveUserSpends = 0;
   activities.forEach(act => {
     if (act.type === 'transaction' && act.amountSpent) {
       liveUserSpends += Number(act.amountSpent);
     }
   });
 
-  const customers = JSON.parse(JSON.stringify(BASE_CUSTOMERS));
+  // If real database customers are loaded, use real members!
+  if (Array.isArray(adminLiveCustomers) && adminLiveCustomers.length > 0) {
+    const list = JSON.parse(JSON.stringify(adminLiveCustomers));
 
+    // If local session has an active logged in customer, merge any unsaved session activity
+    if (liveUser && liveUser.email) {
+      const match = list.find(c => c.email && c.email.toLowerCase() === liveUser.email.toLowerCase());
+      if (match) {
+        match.name = `${liveUser.firstName || ''} ${liveUser.lastName || ''}`.trim() || match.name;
+        match.phone = liveUser.phone || match.phone;
+        match.dob = liveUser.dob || match.dob;
+        if (liveMembership) {
+          match.visits = Math.max(match.visits, liveMembership.lifetimeVisits || match.visits);
+        }
+        if (liveUserSpends > 0) {
+          match.spends = Math.max(match.spends, liveUserSpends);
+        }
+      } else {
+        // Local user not yet in database list (e.g. freshly registered)
+        list.unshift({
+          id: liveUser.id || 'usr_local_' + Date.now(),
+          name: `${liveUser.firstName || ''} ${liveUser.lastName || ''}`.trim() || 'New Member',
+          membershipId: liveUser.membershipId || 'AT-MEMBER',
+          visits: liveMembership ? (liveMembership.lifetimeVisits || 1) : 1,
+          spends: liveUserSpends,
+          dob: liveUser.dob || '',
+          phone: liveUser.phone || '',
+          email: liveUser.email || '',
+          favorite: liveUser.favoriteDrink || 'Signature Pour Over',
+          lastVisit: 'Today',
+          points: liveMembership ? liveMembership.points : 0
+        });
+      }
+    }
+    return list;
+  }
+
+  // If real database customers haven't finished loading yet, trigger async sync
+  if (!adminIsSyncing) {
+    syncAdminDataFromDatabase({ silent: true });
+  }
+
+  // Graceful initial fallback
+  const customers = JSON.parse(JSON.stringify(BASE_CUSTOMERS));
   if (liveUser) {
     const primary = customers[0];
     primary.name = `${liveUser.firstName || 'Arjun'} ${liveUser.lastName || 'Mehta'}`.trim();
@@ -541,7 +672,7 @@ function getAggregatedCustomers() {
     if (liveMembership) {
       primary.visits = Math.max(primary.visits, liveMembership.lifetimeVisits || primary.visits);
     }
-    primary.spends = liveUserSpends;
+    primary.spends = 6840 + liveUserSpends;
   }
 
   return customers;
@@ -1077,7 +1208,20 @@ function renderAdminPage() {
               Date-wise fiscal ledger, multi-period revenue reports, and member directory intelligence.
             </p>
           </div>
-          <div class="admin-header-actions">
+          <div class="admin-header-actions" style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+            <div class="admin-realtime-badge" id="admin-realtime-indicator" title="Connected to database with live automatic synchronization">
+              <span class="admin-live-pulse-dot"></span>
+              <span id="admin-sync-label">${adminLiveCustomers ? `Live DB Sync (${adminLiveCustomers.length} Members)` : 'Live DB Sync Active'}</span>
+              <span class="admin-sync-time" id="admin-sync-time">${adminLastSyncTime ? adminLastSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Live'}</span>
+            </div>
+            <button type="button" id="admin-refresh-btn" class="btn-ghost" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; font-weight: 500; border-radius: 999px; padding: 0.45rem 1rem; border: 1px solid var(--border-subtle, rgba(45, 30, 22, 0.18)); background: #FFFFFF; color: var(--color-espresso, #1C1512); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.04);" title="Force refresh data from database now">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-sync-spin-icon" id="admin-sync-spin-icon">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Sync Now</span>
+            </button>
             <button type="button" id="admin-logout-btn" class="btn-ghost" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 500; border-radius: 999px; padding: 0.45rem 1.15rem; border: 1px solid var(--border-subtle, rgba(45, 30, 22, 0.18)); background: #FFFFFF; color: var(--color-espresso, #1C1512); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -1391,10 +1535,22 @@ function initAdminEvents() {
     return;
   }
 
+  // Bind Manual Sync Button
+  const refreshBtn = document.getElementById('admin-refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      syncAdminDataFromDatabase({ silent: false });
+    });
+  }
+
   // Bind Lock / Sign Out button for authenticated session
   const logoutBtn = document.getElementById('admin-logout-btn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
+      if (adminSyncPollTimer) {
+        clearInterval(adminSyncPollTimer);
+        adminSyncPollTimer = null;
+      }
       setAdminAuthenticated(false);
       if (window.AtelierAudio && window.AtelierAudio.playTap) {
         window.AtelierAudio.playTap();
@@ -1406,6 +1562,35 @@ function initAdminEvents() {
         window.router.render();
       }
     });
+  }
+
+  // Active Real-Time Polling: Poll database every 4 seconds while Admin Portal is active
+  if (adminSyncPollTimer) {
+    clearInterval(adminSyncPollTimer);
+    adminSyncPollTimer = null;
+  }
+  adminSyncPollTimer = setInterval(() => {
+    if (window.location.hash.includes('admin') && isAdminAuthenticated()) {
+      syncAdminDataFromDatabase({ silent: true });
+    } else {
+      clearInterval(adminSyncPollTimer);
+      adminSyncPollTimer = null;
+    }
+  }, 4000);
+
+  // Real-Time Local Store Listener: Re-sync instantaneously on stamp or transaction changes
+  if (window.AtelierStore && !window.__adminStoreSubscribed) {
+    window.__adminStoreSubscribed = true;
+    window.AtelierStore.subscribe(() => {
+      if (window.location.hash.includes('admin') && isAdminAuthenticated()) {
+        syncAdminDataFromDatabase({ silent: true });
+      }
+    });
+  }
+
+  // Trigger initial database fetch if not loaded
+  if (!adminLiveCustomers) {
+    syncAdminDataFromDatabase({ silent: true });
   }
 
   const todayIso = getTodayIso();
@@ -1759,5 +1944,9 @@ window.AtelierAdminState = {
   verifyAdminCredentials,
   cleanPhoneNumberForWa,
   getBirthdayWishMessage,
-  getWhatsAppWishUrl
+  getWhatsAppWishUrl,
+  syncAdminDataFromDatabase,
+  get liveCustomers() { return adminLiveCustomers; },
+  get liveTransactions() { return adminLiveTransactions; },
+  get lastSyncTime() { return adminLastSyncTime; }
 };

@@ -266,6 +266,42 @@ async function dbUpdateUserPassword(email, newPasswordHash) {
   db.run('UPDATE users SET password_hash = ? WHERE LOWER(email) = LOWER(?)', [newPasswordHash, cleanEmail]);
 }
 
+async function dbGetAllUsers() {
+  if (isSupabaseConfigured) {
+    try {
+      const rows = await supabase.select('users', { order: 'created_at.desc' });
+      if (Array.isArray(rows) && rows.length > 0) return rows;
+    } catch (e) {
+      console.warn('Supabase getAllUsers error, using SQLite:', e.message);
+    }
+  }
+  return db.all('SELECT * FROM users ORDER BY created_at DESC');
+}
+
+async function dbGetAllMemberships() {
+  if (isSupabaseConfigured) {
+    try {
+      const rows = await supabase.select('memberships', {});
+      if (Array.isArray(rows) && rows.length > 0) return rows;
+    } catch (e) {
+      console.warn('Supabase getAllMemberships error, using SQLite:', e.message);
+    }
+  }
+  return db.all('SELECT * FROM memberships');
+}
+
+async function dbGetAllTransactions(limit = 500) {
+  if (isSupabaseConfigured) {
+    try {
+      const rows = await supabase.select('transactions', { order: 'created_at.desc', limit: String(limit) });
+      if (Array.isArray(rows) && rows.length > 0) return rows;
+    } catch (e) {
+      console.warn('Supabase getAllTransactions error, using SQLite:', e.message);
+    }
+  }
+  return db.all('SELECT * FROM transactions ORDER BY created_at DESC LIMIT 500');
+}
+
 /**
  * Main Web Request Handler (W3C standard Request -> Response)
  */
@@ -889,6 +925,82 @@ export async function handleRequest(req) {
       if (pathname === '/api/audit/logs' && req.method === 'GET') {
         const logs = await dbGetAuditLogs(40);
         return sendJson(null, { success: true, logs });
+      }
+
+      // GET /api/admin/data (Real-time live members, transactions & analytics from database)
+      if (pathname === '/api/admin/data' && req.method === 'GET') {
+        const users = await dbGetAllUsers();
+        const memberships = await dbGetAllMemberships();
+        const transactions = await dbGetAllTransactions(500);
+
+        const membershipMap = new Map();
+        (memberships || []).forEach(m => {
+          membershipMap.set(m.user_id, m);
+        });
+
+        // Group transactions by user_id
+        const userSpendsMap = new Map();
+        const userVisitsMap = new Map();
+        const userLastTxnMap = new Map();
+
+        let totalRevenue = 0;
+        let totalOrders = (transactions || []).length;
+
+        (transactions || []).forEach(tx => {
+          const spent = Number(tx.amount_spent || 0);
+          totalRevenue += spent;
+          const uid = tx.user_id;
+          if (uid) {
+            userSpendsMap.set(uid, (userSpendsMap.get(uid) || 0) + spent);
+            if (Number(tx.stamps_added || 0) > 0 || String(tx.product_name || '').toLowerCase().includes('stamp')) {
+              userVisitsMap.set(uid, (userVisitsMap.get(uid) || 0) + 1);
+            }
+            if (!userLastTxnMap.has(uid)) {
+              userLastTxnMap.set(uid, tx.created_at);
+            }
+          }
+        });
+
+        // Map real database users into standard customer records
+        const customers = (users || [])
+          .filter(u => u.role !== 'staff')
+          .map(u => {
+            const mem = membershipMap.get(u.id);
+            const userTxnSpends = userSpendsMap.get(u.id) || 0;
+            const userTxnVisits = userVisitsMap.get(u.id) || 0;
+            const lifetimeVisits = mem ? Number(mem.lifetime_visits || mem.current_stamps || 0) : userTxnVisits;
+            const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Café Member';
+            const membershipId = u.membership_id || `AT-${String(u.id).slice(-5)}`;
+
+            return {
+              id: u.id,
+              name: fullName,
+              membershipId,
+              visits: Math.max(lifetimeVisits, userTxnVisits, 1),
+              spends: userTxnSpends,
+              dob: u.dob || '',
+              phone: u.phone || '',
+              email: u.email || '',
+              favorite: u.favorite_drink || 'Chikmagalur Single-Estate Pour Over',
+              lastVisit: userLastTxnMap.get(u.id) ? new Date(userLastTxnMap.get(u.id)).toLocaleDateString('en-IN') : 'Recent',
+              createdAt: u.created_at,
+              points: mem ? mem.points : 0,
+              currentStamps: mem ? mem.current_stamps : 0
+            };
+          });
+
+        return sendJson(null, {
+          success: true,
+          customers,
+          transactions: transactions || [],
+          stats: {
+            totalCustomers: customers.length,
+            totalRevenue,
+            totalOrders
+          },
+          source: isSupabaseConfigured ? 'supabase' : 'sqlite',
+          timestamp: new Date().toISOString()
+        });
       }
 
       return sendError(null, `Endpoint ${pathname} not found`, 404);
