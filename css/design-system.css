@@ -5492,7 +5492,8 @@ div {
   -webkit-overflow-scrolling: touch;
 }
 
-.saga-advance-map-viewport .candy-saga-header {
+.saga-advance-map-viewport .candy-saga-header,
+.saga-advance-map-viewport .candy-saga-footer {
   display: none !important;
 }
 

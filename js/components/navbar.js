@@ -37,13 +37,6 @@ function renderNavbar(currentPage = 'home') {
         </svg>
       </button>
 
-      <!-- Admin Portal Quick Access Button -->
-      <a href="#admin" class="btn-text nav-admin-quick-btn" title="Café Owner Admin Portal" aria-label="Café Owner Admin Portal" style="padding: 0.4rem; display: inline-flex; align-items: center; justify-content: center; color: var(--color-roast-muted); border-radius: 50%; transition: all 0.2s ease;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"></path>
-          <circle cx="12" cy="15" r="1.5"></circle>
-        </svg>
-      </a>
 
       <!-- Member Pill -->
       <a href="#profile" class="btn-secondary nav-member-pill" style="padding: 0.4rem 0.9rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -64,12 +57,6 @@ function renderNavbar(currentPage = 'home') {
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08"></path>
         </svg>
       </button>
-      <a href="#admin" class="btn-text nav-admin-quick-btn" title="Café Owner Admin Portal" aria-label="Café Owner Admin Portal" style="padding: 0.4rem; display: inline-flex; align-items: center; justify-content: center; color: var(--color-roast-muted); border-radius: 50%; transition: all 0.2s ease;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"></path>
-          <circle cx="12" cy="15" r="1.5"></circle>
-        </svg>
-      </a>
       <a href="#login" class="btn-text nav-signin-btn">Sign In</a>
       <a href="#register" class="btn-primary nav-join-btn">
         <span>Join Club</span>
@@ -233,27 +220,6 @@ function renderNavbar(currentPage = 'home') {
                 </div>
               </a>
             </li>
-            <li>
-              <a href="#admin" class="mobile-nav-link ${currentPage === 'admin' ? 'active' : ''}">
-                <div class="mobile-nav-link-content">
-                  <div class="mobile-nav-icon-box">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"></path>
-                      <circle cx="12" cy="15" r="1.5"></circle>
-                    </svg>
-                  </div>
-                  <div class="mobile-nav-texts">
-                    <span class="mobile-nav-title">Admin Portal</span>
-                    <span class="mobile-nav-desc">Owner revenue & metrics</span>
-                  </div>
-                </div>
-                <div class="mobile-nav-arrow">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </div>
-              </a>
-            </li>
           ` : `
             <li>
               <a href="#home" class="mobile-nav-link ${currentPage === 'home' ? 'active' : ''}">
@@ -352,27 +318,6 @@ function renderNavbar(currentPage = 'home') {
                   <div class="mobile-nav-texts">
                     <span class="mobile-nav-title">Sign In</span>
                     <span class="mobile-nav-desc">Access your existing pass</span>
-                  </div>
-                </div>
-                <div class="mobile-nav-arrow">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </div>
-              </a>
-            </li>
-            <li>
-              <a href="#admin" class="mobile-nav-link ${currentPage === 'admin' ? 'active' : ''}">
-                <div class="mobile-nav-link-content">
-                  <div class="mobile-nav-icon-box">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"></path>
-                      <circle cx="12" cy="15" r="1.5"></circle>
-                    </svg>
-                  </div>
-                  <div class="mobile-nav-texts">
-                    <span class="mobile-nav-title">Admin Portal</span>
-                    <span class="mobile-nav-desc">Owner revenue & metrics</span>
                   </div>
                 </div>
                 <div class="mobile-nav-arrow">

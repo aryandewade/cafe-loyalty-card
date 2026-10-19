@@ -1622,14 +1622,14 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
             </div>
           ` : `
             <div class="saga-advancing-pill" style="background: rgba(255, 212, 63, 0.12); border: 1px solid rgba(255, 212, 63, 0.3); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 0.78rem; color: #FFE8A3; display: inline-flex; align-items: center; gap: 5px;">
-              ⭐ ${user.firstName} is advancing on the road to Level ${Math.min(10, newLvl + 1)}!
+              ⭐ ${user.firstName} is advancing on the road to Level ${Math.min(candy ? candy.levels.length : 100, newLvl + 1)}!
             </div>
           `}
         </div>
 
         <!-- Saga Road Winding Section -->
         <div class="saga-advance-map-viewport" id="saga-modal-map-viewport" style="border-radius: 18px; border: 1px solid rgba(200, 157, 75, 0.3); overflow: hidden; background: #120D0A; margin: 0.8rem 0; position: relative; max-height: 380px; overflow-y: auto;">
-          ${candy ? candy.renderSagaMap({ compact: true, currentPoints: oldPoints, hideHeader: true }) : ''}
+          ${candy ? candy.renderSagaMap({ compact: true, currentPoints: oldPoints, hideHeader: true, hideFooter: true }) : ''}
         </div>
 
         <button id="saga-modal-continue-btn" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem; margin-top: 0.6rem;">
@@ -1648,43 +1648,22 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
     const charEl = mapViewport.querySelector('.candy-character-container');
     if (!charEl) return;
 
-    // Calculate waypoints for compact map
-    const totalLevels = candy.levels.length;
-    const nodeSpacingY = 180; // compact
-    const svgWidth = 400;
-    const paddingTop = 90;
-    const paddingBottom = 260;
-    const svgHeight = paddingTop + (totalLevels - 1) * nodeSpacingY + paddingBottom;
-
-    const nodeCoords = [];
-    for (let i = 0; i < totalLevels; i++) {
-      const lvl = candy.levels[i];
-      const x = (lvl.xPercent / 100) * svgWidth;
-      const y = svgHeight - paddingBottom - i * nodeSpacingY;
-      nodeCoords.push({ x, y, level: lvl.level, xPercent: lvl.xPercent });
-    }
-    const startCoord = { x: (38 / 100) * svgWidth, y: svgHeight - 65, level: 0, xPercent: 38 };
-    const waypoints = [startCoord, ...nodeCoords];
+    // Use authoritative layout from candyEngine as single source of truth
+    const layout = candy.getWaypoints ? candy.getWaypoints(true) : null;
+    const waypoints = layout ? layout.waypoints : [];
+    const svgWidth = layout ? layout.svgWidth : 400;
 
     const oldPos = candy.getCharacterRoadPosition(oldPoints, waypoints, svgWidth);
     const newPos = candy.getCharacterRoadPosition(newPoints, waypoints, svgWidth);
 
     // Precise camera tracking that always locks the character dead-center in the viewport
-    function focusCameraOnCharacter() {
-      if (!mapViewport || !charEl) return;
-      const vRect = mapViewport.getBoundingClientRect();
-      const cRect = charEl.getBoundingClientRect();
-      if (vRect.height > 0 && cRect.height > 0) {
-        const charCenterY = cRect.top + (cRect.height / 2);
-        const viewportCenterY = vRect.top + (vRect.height / 2);
-        const delta = charCenterY - viewportCenterY;
-        if (Math.abs(delta) > 1) {
-          mapViewport.scrollTop += delta;
-        }
-      } else {
-        // Fallback using direct coordinate relative to road stage
-        const targetY = parseFloat(charEl.style.top || oldPos.y);
-        mapViewport.scrollTop = Math.max(0, targetY - 170);
+    function focusCameraOnPos(pos) {
+      if (!mapViewport) return;
+      const targetY = typeof pos === 'number' ? pos : (pos && typeof pos.y === 'number' ? pos.y : parseFloat(charEl.style.top));
+      if (!isNaN(targetY)) {
+        const vHeight = mapViewport.clientHeight || 380;
+        const targetScroll = Math.max(0, targetY - (vHeight / 2) + 20);
+        mapViewport.scrollTop = targetScroll;
       }
     }
 
@@ -1699,15 +1678,15 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
     }
 
     // Lock camera on starting position immediately across multiple frames as modal renders
-    focusCameraOnCharacter();
-    requestAnimationFrame(focusCameraOnCharacter);
-    setTimeout(focusCameraOnCharacter, 40);
-    setTimeout(focusCameraOnCharacter, 120);
-    setTimeout(focusCameraOnCharacter, 220);
+    focusCameraOnPos(oldPos);
+    requestAnimationFrame(() => focusCameraOnPos(oldPos));
+    setTimeout(() => focusCameraOnPos(oldPos), 40);
+    setTimeout(() => focusCameraOnPos(oldPos), 120);
+    setTimeout(() => focusCameraOnPos(oldPos), 220);
 
     // 2. Animate character journey smoothly along the road curve through each level
     setTimeout(() => {
-      focusCameraOnCharacter();
+      focusCameraOnPos(oldPos);
       const completedPath = mapViewport.querySelector('.candy-svg-completed-fill');
       const glowPath = mapViewport.querySelector('.candy-svg-completed-glow');
       const charPtsEl = charEl.querySelector('.char-pts-bold');
@@ -1718,7 +1697,7 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
 
       if (oldPoints === newPoints) {
         charEl.classList.add('is-tapped');
-        focusCameraOnCharacter();
+        focusCameraOnPos(oldPos);
         return;
       }
 
@@ -1749,7 +1728,7 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
         }
 
         // Camera smoothly tracks character frame-by-frame, keeping them dead-center
-        focusCameraOnCharacter();
+        focusCameraOnPos(currentPos);
 
         // Light up completed golden road path in real time
         const currentPathD = candy.generateProgressPathSvg(waypoints, currentPos);
@@ -1773,12 +1752,14 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
           }
           if (charPtsEl) charPtsEl.textContent = `${newPoints} Pts`;
 
-          focusCameraOnCharacter();
+          focusCameraOnPos(newPos);
 
           // Triumphant bounce & sound at destination
           charEl.classList.add('is-tapped');
           if (window.AtelierAudio) {
-            if (isLevelUp && window.AtelierAudio.playRewardUnlock) {
+            if (isLevelUp && window.AtelierAudio.playCandyFanfare) {
+              window.AtelierAudio.playCandyFanfare();
+            } else if (isLevelUp && window.AtelierAudio.playRewardUnlock) {
               window.AtelierAudio.playRewardUnlock();
             } else if (window.AtelierAudio.playTap) {
               window.AtelierAudio.playTap();

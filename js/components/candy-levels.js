@@ -372,8 +372,46 @@ class CandyLevelsEngine {
     return d;
   }
 
+  // Get authoritative road layout and waypoints for continuous Bézier curve
+  getWaypoints(compact = false) {
+    const totalLevels = this.levels.length; // 100 levels
+    const nodeSpacingY = compact ? 130 : 160;
+    const svgWidth = 400;
+    const paddingTop = 90;
+    const paddingBottom = compact ? 260 : 295;
+    const svgHeight = paddingTop + (totalLevels - 1) * nodeSpacingY + paddingBottom;
+
+    const nodeCoords = [];
+    for (let i = 0; i < totalLevels; i++) {
+      const lvl = this.levels[i];
+      const x = (lvl.xPercent / 100) * svgWidth;
+      const y = svgHeight - paddingBottom - i * nodeSpacingY;
+      nodeCoords.push({ x, y, level: lvl.level, xPercent: lvl.xPercent });
+    }
+
+    const startCoord = {
+      x: (38 / 100) * svgWidth,
+      y: svgHeight - 65,
+      level: 0,
+      xPercent: 38
+    };
+
+    const waypoints = [startCoord, ...nodeCoords];
+    return {
+      waypoints,
+      nodeCoords,
+      startCoord,
+      svgWidth,
+      svgHeight,
+      nodeSpacingY,
+      paddingTop,
+      paddingBottom,
+      totalLevels
+    };
+  }
+
   // Render the Candy Crush Winding Road with Interactive Character Avatar
-  renderSagaMap({ compact = false, currentPoints = null, hideHeader = false } = {}) {
+  renderSagaMap({ compact = false, currentPoints = null, hideHeader = false, hideFooter = false } = {}) {
     const store = window.AtelierStore;
     const state = store ? store.getState() : {};
     const membership = state.membership || { lifetimeVisits: 0, currentStamps: 0, points: 0 };
@@ -383,33 +421,8 @@ class CandyLevelsEngine {
     const levelProgress = this.getLevelProgress(activeMembership);
     const user = state.user || { firstName: 'Coffee Explorer' };
 
-    // Layout configuration - Balanced vertical spacing for 100-level road
-    const totalLevels = this.levels.length; // 100 levels
-    const nodeSpacingY = compact ? 130 : 160;
-    const svgWidth = 400;
-    const paddingTop = 90;
-    const paddingBottom = compact ? 260 : 295;
-    const svgHeight = paddingTop + (totalLevels - 1) * nodeSpacingY + paddingBottom;
-
-    // 1. Calculate (x, y) coordinates for Level Nodes (Level 1 to Level 100)
-    const nodeCoords = [];
-    for (let i = 0; i < totalLevels; i++) {
-      const lvl = this.levels[i];
-      const x = (lvl.xPercent / 100) * svgWidth;
-      const y = svgHeight - paddingBottom - i * nodeSpacingY;
-      nodeCoords.push({ x, y, level: lvl.level, xPercent: lvl.xPercent });
-    }
-
-    // 2. Roastery Gates (WayPoint 0: 0 Points threshold)
-    const startCoord = {
-      x: (38 / 100) * svgWidth,
-      y: svgHeight - 65,
-      level: 0,
-      xPercent: 38
-    };
-
-    // 3. Combined Waypoints for Continuous Road (Indices 0 through 100)
-    const waypoints = [startCoord, ...nodeCoords];
+    // Layout configuration - Authoritative single-source layout calculation
+    const { waypoints, nodeCoords, startCoord, svgWidth, svgHeight, totalLevels } = this.getWaypoints(compact);
 
     // 4. Calculate Character Continuous Position along Winding Curve
     const charPos = this.getCharacterRoadPosition(points, waypoints, svgWidth);
@@ -690,10 +703,8 @@ class CandyLevelsEngine {
             <path d="${fullPathD}" class="candy-svg-dashed-track" />
 
             <!-- 3. Unlocked Golden Glowing River -->
-            ${completedPathD ? `
-              <path d="${completedPathD}" class="candy-svg-completed-glow" />
-              <path d="${completedPathD}" class="candy-svg-completed-fill" />
-            ` : ''}
+            <path d="${completedPathD || ''}" class="candy-svg-completed-glow" />
+            <path d="${completedPathD || ''}" class="candy-svg-completed-fill" />
           </svg>
 
           <!-- 4. Level Nodes Layer -->
@@ -707,6 +718,7 @@ class CandyLevelsEngine {
         </div>
 
         <!-- Saga Footer Action Banner -->
+        ${hideFooter ? '' : `
         <div class="candy-saga-footer">
           <div class="candy-footer-left">
             <span class="footer-icon">💎</span>
@@ -723,6 +735,7 @@ class CandyLevelsEngine {
             <span>Add Bill / Stamp Card →</span>
           </button>
         </div>
+        `}
       </div>
     `;
   }
