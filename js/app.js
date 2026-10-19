@@ -83,6 +83,9 @@ class Router {
       }
     }
 
+    if (this.currentRoute !== hash && hash === 'dashboard') {
+      if (typeof dashboardViewMode !== 'undefined') dashboardViewMode = 'card';
+    }
     this.currentRoute = hash;
     this.render();
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -95,9 +98,6 @@ class Router {
     }
 
     const route = this.currentRoute;
-    if (route === 'dashboard' && typeof dashboardViewMode !== 'undefined') {
-      dashboardViewMode = 'card';
-    }
     let pageHtml = '';
 
     try {
