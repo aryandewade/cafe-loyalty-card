@@ -294,6 +294,28 @@ class Store {
           parsed.activities = [];
         } else {
           parsed.isAuthenticated = true;
+          if (!parsed.user) {
+            parsed.user = {
+              id: session.userId || 'usr_member',
+              firstName: 'Connoisseur',
+              lastName: '',
+              email: session.email || '',
+              phone: '+91 98201 44829',
+              dob: '',
+              memberSince: 'October 2026',
+              membershipId: session.membershipId || (session.userId ? `AT-${String(session.userId).slice(-5)}` : 'AT-CLUB'),
+              favoriteDrink: 'Chikmagalur Pour Over (Attikan Estate)',
+              milkPreference: 'Oatly Barista / A2 Desi Cow Milk',
+              roastPreference: 'Medium-Light (Western Ghats Shade-Grown)',
+              notificationsEnabled: true
+            };
+          }
+          if (!parsed.membership) {
+            parsed.membership = JSON.parse(JSON.stringify(DEFAULT_STATE.membership));
+          }
+          if (!Array.isArray(parsed.activities)) {
+            parsed.activities = [];
+          }
           if (parsed.membership && parsed.membership.streakMultiplier === undefined) {
             parsed.membership.streakMultiplier = 1.5;
             parsed.membership.streakFreezeAvailable = 1;
@@ -366,8 +388,18 @@ class Store {
     };
   }
 
-  notify() {
-    this.listeners.forEach(l => l(this.state));
+  notify(event) {
+    this.listeners.forEach(l => {
+      try {
+        l(this.state, event);
+      } catch (e) {
+        console.warn('Store subscriber error:', e);
+      }
+    });
+  }
+
+  notifyListeners(event) {
+    this.notify(event);
   }
 
   getState() {
@@ -757,15 +789,16 @@ class Store {
   applyUserData(user, membership, transactions = []) {
     if (!user) return;
     this.state.isAuthenticated = true;
+    const userId = user.id || 'usr_connoisseur';
     this.state.user = {
-      id: user.id,
+      id: userId,
       firstName: user.first_name || user.firstName || 'Connoisseur',
       lastName: user.last_name || user.lastName || '',
-      email: user.email,
+      email: user.email || '',
       phone: user.phone || '+91 98201 44829',
       dob: user.dob || '',
       memberSince: user.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'October 2026',
-      membershipId: user.membership_id || `AT-${user.id.slice(-5)}`,
+      membershipId: user.membership_id || (user.id ? `AT-${String(user.id).slice(-5)}` : 'AT-CLUB'),
       favoriteDrink: user.favorite_drink || 'Chikmagalur Pour Over (Attikan Estate)',
       milkPreference: 'Oatly Barista / A2 Desi Cow Milk',
       roastPreference: 'Medium-Light (Western Ghats Shade-Grown)',
@@ -786,15 +819,17 @@ class Store {
       if (membership.card_skin) {
         this.state.cardSkin = membership.card_skin;
       }
+    } else if (!this.state.membership) {
+      this.state.membership = JSON.parse(JSON.stringify(DEFAULT_STATE.membership));
     }
 
     if (Array.isArray(transactions) && transactions.length > 0) {
       this.state.activities = transactions.map(tx => ({
         id: tx.id,
         type: (tx.stamps_added > 0 || String(tx.product_name).toLowerCase().includes('stamp')) ? 'stamp' : 'transaction',
-        title: tx.points_earned > 0 ? `+${tx.points_earned} Loyalty Points` : tx.product_name,
-        subtitle: `${tx.product_name} (${tx.amount_spent > 0 ? '₹' + tx.amount_spent + ' spent' : 'Complimentary'})`,
-        productName: tx.product_name,
+        title: tx.points_earned > 0 ? `+${tx.points_earned} Loyalty Points` : (tx.product_name || 'Café Visit'),
+        subtitle: `${tx.product_name || 'Specialty Roast'} (${tx.amount_spent > 0 ? '₹' + tx.amount_spent + ' spent' : 'Complimentary'})`,
+        productName: tx.product_name || 'Coffee Item',
         amountSpent: Number(tx.amount_spent || 0),
         pointsEarned: Number(tx.points_earned || 0),
         stampsAdded: Number(tx.stamps_added || 0),
@@ -803,10 +838,13 @@ class Store {
         time: tx.created_at ? new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
         location: tx.location || 'Bandra West Flagship, Mumbai'
       }));
+    } else if (!Array.isArray(this.state.activities)) {
+      this.state.activities = [];
     }
 
     this.recomputeRewardsStatus();
     this.saveState();
+    this.notifyListeners({ type: 'AUTH_SUCCESS', user: this.state.user });
   }
 
   async refreshFromSupabase(userId) {

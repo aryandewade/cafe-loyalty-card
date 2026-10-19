@@ -7,17 +7,36 @@ let dashboardViewMode = 'card'; // 'card' | 'candy'
 
 function renderDashboardPage() {
   const store = window.AtelierStore;
-  const state = store.getState();
-  const { user, membership, activities } = state;
-  const stamps = membership.currentStamps;
-  const maxStamps = membership.maxStamps;
+  const state = (store && typeof store.getState === 'function') ? store.getState() : {};
+  const user = state.user || {
+    id: 'usr_guest',
+    firstName: 'Connoisseur',
+    lastName: '',
+    email: '',
+    membershipId: 'AT-CLUB'
+  };
+  const membership = state.membership || {
+    currentStamps: 1,
+    maxStamps: 10,
+    lifetimeVisits: 1,
+    points: 100,
+    currentStreak: 1,
+    rewardsRedeemedCount: 0
+  };
+  const activities = Array.isArray(state.activities) ? state.activities : [];
+
+  const stamps = Number(membership.currentStamps || 0);
+  const maxStamps = Number(membership.maxStamps || 10);
   const visitsLeft = Math.max(0, maxStamps - stamps);
-  const progressPercent = Math.min(100, Math.round((stamps / maxStamps) * 100));
+  const progressPercent = Math.min(100, Math.round((stamps / Math.max(1, maxStamps)) * 100));
 
   const currentLevelNum = window.candyEngine ? window.candyEngine.calculateCurrentLevel(membership) : 1;
-  const currentLevelObj = window.candyEngine ? window.candyEngine.levels.find(l => l.level === currentLevelNum) : null;
+  const currentLevelObj = window.candyEngine && window.candyEngine.levels ? window.candyEngine.levels.find(l => l.level === currentLevelNum) : null;
   const levelProgress = window.candyEngine ? window.candyEngine.getLevelProgress(membership) : { pointsInCurrentLevel: membership.points || 0, pointsLeftForNextLevel: 80 };
   const starsTotal = window.candyEngine ? window.candyEngine.calculateTotalStars(membership) : 4;
+
+  const memberIdDisplay = user.membershipId || (user.id ? `AT-${String(user.id).slice(-5)}` : 'AT-CLUB');
+  const userDisplayName = user.firstName || 'Connoisseur';
 
   // Recent 4 activities
   const recentActivities = activities.slice(0, 4);
@@ -38,14 +57,14 @@ function renderDashboardPage() {
           `}
         </div>
         <div>
-          <div class="timeline-title">${act.title}</div>
-          <div class="timeline-subtitle">${act.subtitle}</div>
+          <div class="timeline-title">${act.title || 'Café Visit'}</div>
+          <div class="timeline-subtitle">${act.subtitle || 'Specialty Roast'}</div>
         </div>
       </div>
 
       <div class="timeline-right">
         <span class="timeline-stamp-badge font-mono">${act.pointsEarned > 0 ? `+${act.pointsEarned} Pts` : 'Redeemed'}</span>
-        <span class="timeline-time">${act.date}</span>
+        <span class="timeline-time">${act.date || 'Today'}</span>
       </div>
     </div>
   `).join('');
@@ -59,10 +78,10 @@ function renderDashboardPage() {
           <div>
             <div class="eyebrow eyebrow-accent" style="margin-bottom: 0.3rem;">
               <span>✦</span>
-              <span>Atelier Club • #${user.membershipId}</span>
+              <span>Atelier Club • #${memberIdDisplay}</span>
             </div>
             <h1 style="font-size: clamp(1.75rem, 4vw, 2.3rem); margin-bottom: 0.2rem;">
-              Welcome, ${user.firstName}.
+              Welcome, ${userDisplayName}.
             </h1>
             <p style="color: var(--color-roast-medium); font-size: 0.88rem; margin: 0;">
               ${visitsLeft === 0 ? 'Card complete • Ready to claim reward' : `${visitsLeft} ${visitsLeft === 1 ? 'visit' : 'visits'} to next reward`}
@@ -154,15 +173,15 @@ function renderDashboardPage() {
           <!-- Stats Grid -->
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; text-align: center; border-top: 1px solid var(--color-cream-border-subtle); padding-top: 0.9rem;">
             <div>
-              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-espresso);">${membership.points}</div>
+              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-espresso);">${Number(membership.points ?? 0)}</div>
               <div style="font-size: 0.68rem; color: var(--color-roast-muted); text-transform: uppercase;">Points</div>
             </div>
             <div>
-              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-forest-roast);">${membership.lifetimeVisits}</div>
+              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-forest-roast);">${Number(membership.lifetimeVisits ?? 0)}</div>
               <div style="font-size: 0.68rem; color: var(--color-roast-muted); text-transform: uppercase;">Visits</div>
             </div>
             <div>
-              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-gold-foil);">${membership.rewardsRedeemedCount}</div>
+              <div class="font-serif" style="font-size: 1.45rem; font-weight: 600; color: var(--color-gold-foil);">${Number(membership.rewardsRedeemedCount ?? 0)}</div>
               <div style="font-size: 0.68rem; color: var(--color-roast-muted); text-transform: uppercase;">Perks</div>
             </div>
           </div>
@@ -197,7 +216,7 @@ function renderDashboardPage() {
           </div>
 
           <div class="timeline-list">
-            ${timelineHtml}
+            ${timelineHtml || '<div style="text-align: center; padding: 1.5rem 1rem; color: var(--color-roast-medium); font-size: 0.84rem; background: var(--bg-canvas-subtle); border-radius: 12px; border: 1px dashed var(--color-cream-border);">No visits yet. Collect your first stamp at any Atelier bar! ☕</div>'}
           </div>
         </div>
 
@@ -262,7 +281,8 @@ function initDashboardEvents() {
   document.querySelectorAll('.timeline-item').forEach(item => {
     item.addEventListener('click', () => {
       const actId = item.getAttribute('data-act-id');
-      const act = window.AtelierStore.getState().activities.find(a => a.id === actId);
+      const activities = window.AtelierStore?.getState()?.activities || [];
+      const act = activities.find(a => a.id === actId);
       if (act) {
         window.openReceiptModal(act);
       }

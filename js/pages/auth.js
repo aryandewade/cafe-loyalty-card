@@ -245,6 +245,9 @@ function initAuthEvents() {
         const name = result?.user?.first_name || result?.user?.firstName || 'Connoisseur';
         window.showToast(`Welcome back, ${name}! Signed in successfully. ☕`);
         window.location.hash = '#dashboard';
+        if (window.router) {
+          window.router.handleRoute('dashboard');
+        }
       } catch (err) {
         let msg = err.message || 'Unable to sign in. Please verify your credentials.';
         if (msg === 'Failed to fetch') {
@@ -333,6 +336,9 @@ function initAuthEvents() {
           window.openWelcomeCeremonyModal(user);
         }
         window.location.hash = '#dashboard';
+        if (window.router) {
+          window.router.handleRoute('dashboard');
+        }
       } catch (err) {
         let msg = err.message || 'Registration failed. Please try again.';
         if (msg === 'Failed to fetch') {

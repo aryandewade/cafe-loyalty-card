@@ -5,9 +5,13 @@
 
 function renderNavbar(currentPage = 'home') {
   const store = window.AtelierStore;
-  const state = store.getState();
-  const isAuth = state.isAuthenticated;
-  const user = state.user;
+  const state = (store && typeof store.getState === 'function') ? store.getState() : {};
+  const isAuth = Boolean(state.isAuthenticated);
+  const user = state.user || {
+    firstName: 'Connoisseur',
+    lastName: '',
+    membershipId: 'AT-CLUB'
+  };
 
   let linksHtml = '';
   if (isAuth) {
@@ -122,8 +126,9 @@ function renderNavbar(currentPage = 'home') {
             <div class="mobile-member-info">
               <div class="mobile-member-avatar">${(user.firstName || 'A')[0]}</div>
               <div style="min-width: 0;">
-                <div class="mobile-member-name">${user.firstName} ${user.lastName || ''}</div>
-                <div class="mobile-member-meta">${user.membershipId || 'AT-MEMBER'}</div>
+                <div class="mobile-member-name">${user.firstName || 'Connoisseur'} ${user.lastName || ''}</div>
+                <div class="mobile-member-meta">${user.membershipId || 'AT-CLUB'}</div>
+              </div>
             </div>
           </div>
         ` : ''}

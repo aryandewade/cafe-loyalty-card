@@ -107,85 +107,117 @@ class Router {
     }
 
     const route = this.currentRoute;
+    if (route === 'dashboard' && typeof dashboardViewMode !== 'undefined') {
+      dashboardViewMode = 'card';
+    }
     let pageHtml = '';
 
-    switch (route) {
-      case 'home':
-        pageHtml = window.renderLandingPage();
-        break;
-      case 'login':
-      case 'auth':
-        pageHtml = window.renderAuthPage('login');
-        break;
-      case 'register':
-        pageHtml = window.renderAuthPage('register');
-        break;
-      case 'dashboard':
-        pageHtml = window.renderDashboardPage();
-        break;
-      case 'levels':
-        if (typeof dashboardViewMode !== 'undefined') dashboardViewMode = 'candy';
-        pageHtml = window.renderDashboardPage();
-        break;
-      case 'rewards':
-        pageHtml = window.renderRewardsPage();
-        break;
-      case 'activity':
-        pageHtml = window.renderActivityPage();
-        break;
-      case 'profile':
-        pageHtml = window.renderProfilePage();
-        break;
-      case 'staff':
-        pageHtml = window.renderStaffPage();
-        break;
-      case 'admin':
-        pageHtml = window.renderAdminPage ? window.renderAdminPage() : '<p>Admin Portal Loading...</p>';
-        break;
-      default:
-        pageHtml = window.renderLandingPage();
-        break;
+    try {
+      switch (route) {
+        case 'home':
+          pageHtml = window.renderLandingPage ? window.renderLandingPage() : '';
+          break;
+        case 'login':
+        case 'auth':
+          pageHtml = window.renderAuthPage ? window.renderAuthPage('login') : '';
+          break;
+        case 'register':
+          pageHtml = window.renderAuthPage ? window.renderAuthPage('register') : '';
+          break;
+        case 'dashboard':
+          pageHtml = window.renderDashboardPage ? window.renderDashboardPage() : '';
+          break;
+        case 'levels':
+          if (typeof dashboardViewMode !== 'undefined') dashboardViewMode = 'candy';
+          pageHtml = window.renderDashboardPage ? window.renderDashboardPage() : '';
+          break;
+        case 'rewards':
+          pageHtml = window.renderRewardsPage ? window.renderRewardsPage() : '';
+          break;
+        case 'activity':
+          pageHtml = window.renderActivityPage ? window.renderActivityPage() : '';
+          break;
+        case 'profile':
+          pageHtml = window.renderProfilePage ? window.renderProfilePage() : '';
+          break;
+        case 'staff':
+          pageHtml = window.renderStaffPage ? window.renderStaffPage() : '';
+          break;
+        case 'admin':
+          pageHtml = window.renderAdminPage ? window.renderAdminPage() : '<p>Admin Portal Loading...</p>';
+          break;
+        default:
+          pageHtml = window.renderLandingPage ? window.renderLandingPage() : '';
+          break;
+      }
+    } catch (err) {
+      console.error(`Error rendering route [${route}]:`, err);
+      pageHtml = `
+        <div style="padding: 4rem 1.5rem; text-align: center; max-width: 520px; margin: 0 auto;">
+          <div style="font-size: 2.8rem; margin-bottom: 1rem;">☕</div>
+          <h2 style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--color-espresso); margin-bottom: 0.5rem;">Refreshing Your Atelier Card</h2>
+          <p style="color: var(--color-roast-medium); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">Connecting your digital loyalty pass with the roastery cloud...</p>
+          <button onclick="window.location.hash='#dashboard'; window.location.reload();" class="btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <span>Reload Card</span>
+          </button>
+        </div>
+      `;
     }
 
-    // Assemble Shell
+    // Assemble Shell safely
+    let navbarHtml = '';
+    try {
+      navbarHtml = window.renderNavbar ? window.renderNavbar(route) : '';
+    } catch (e) {
+      console.warn('Navbar render error:', e);
+    }
+
     this.appEl.innerHTML = `
-      ${window.renderNavbar(route)}
+      ${navbarHtml}
       <main id="main-content" class="page-content" tabindex="-1">
         ${pageHtml}
       </main>
     `;
 
-    // Rebind component listeners
-    window.initNavbarEvents();
+    // Rebind component listeners safely
+    try {
+      if (window.initNavbarEvents) window.initNavbarEvents();
+    } catch (e) {
+      console.warn('Navbar events error:', e);
+    }
 
-    switch (route) {
-      case 'home':
-        window.initLandingEvents();
-        break;
-      case 'login':
-      case 'register':
-        window.initAuthEvents();
-        break;
-      case 'dashboard':
-      case 'levels':
-        window.initDashboardEvents();
-        if (window.initCandyLevelsEvents) window.initCandyLevelsEvents();
-        break;
-      case 'rewards':
-        window.initRewardsEvents();
-        break;
-      case 'activity':
-        window.initActivityEvents();
-        break;
-      case 'profile':
-        window.initProfileEvents();
-        break;
-      case 'staff':
-        window.initStaffEvents();
-        break;
-      case 'admin':
-        if (window.initAdminEvents) window.initAdminEvents();
-        break;
+    try {
+      switch (route) {
+        case 'home':
+          if (window.initLandingEvents) window.initLandingEvents();
+          break;
+        case 'login':
+        case 'register':
+          if (window.initAuthEvents) window.initAuthEvents();
+          break;
+        case 'dashboard':
+        case 'levels':
+          if (window.initDashboardEvents) window.initDashboardEvents();
+          if (window.initCandyLevelsEvents) window.initCandyLevelsEvents();
+          break;
+        case 'rewards':
+          if (window.initRewardsEvents) window.initRewardsEvents();
+          break;
+        case 'activity':
+          if (window.initActivityEvents) window.initActivityEvents();
+          break;
+        case 'profile':
+          if (window.initProfileEvents) window.initProfileEvents();
+          break;
+        case 'staff':
+          if (window.initStaffEvents) window.initStaffEvents();
+          break;
+        case 'admin':
+          if (window.initAdminEvents) window.initAdminEvents();
+          break;
+      }
+    } catch (e) {
+      console.warn(`Page events error [${route}]:`, e);
     }
   }
 }

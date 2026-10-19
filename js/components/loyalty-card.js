@@ -105,7 +105,7 @@ function renderLoyaltyCard(options = {}) {
             </div>
             <div style="text-align: right;">
               <span class="card-holder-tag">MEMBER ID</span>
-              <div class="card-member-id">${user.membershipId}</div>
+              <div class="card-member-id">${user.membershipId || (user.id ? 'AT-' + String(user.id).slice(-5) : 'AT-CLUB')}</div>
             </div>
           </div>
         </div>
