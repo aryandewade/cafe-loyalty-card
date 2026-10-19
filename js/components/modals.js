@@ -1043,6 +1043,7 @@ function openCaffeineWrappedModal() {
   if (!container) return;
 
   const store = window.AtelierStore;
+  const state = (store && typeof store.getState === 'function') ? store.getState() : {};
   const user = state.user || { firstName: 'Valued', lastName: 'Member', tier: 'Gold Member', membershipId: 'AT-CLUB' };
   const membership = state.membership || { lifetimeVisits: 27, points: 420, currentStreak: 4, rewardsRedeemedCount: 3 };
 

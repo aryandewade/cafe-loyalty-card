@@ -8285,6 +8285,42 @@ div {
   border-color: var(--color-espresso, #140D09);
 }
 
+/* WhatsApp Birthday Wish Feature Styles (Only before name of same-day birthday members) */
+.admin-name-wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: #25D366;
+  color: #FFFFFF !important;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-decoration: none !important;
+  box-shadow: 0 2px 6px rgba(37, 211, 102, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.admin-name-wa-btn:hover {
+  background: #1EBE5D;
+  transform: translateY(-1px) scale(1.06);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.5);
+  color: #FFFFFF !important;
+}
+
+.admin-name-wa-btn svg {
+  flex-shrink: 0;
+}
+
+.admin-bday-card .admin-name-wa-btn {
+  padding: 0.22rem 0.65rem;
+  font-size: 0.74rem;
+}
+
 /* ==========================================================================
    LEGAL & COMPLIANCE STYLES (Terms & Privacy Pages)
    ========================================================================== */

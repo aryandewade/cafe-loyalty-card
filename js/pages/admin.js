@@ -199,7 +199,7 @@ const BASE_CUSTOMERS = [
 // Helper to calculate exact birthday timing relative to today
 function getBirthdayDetails(dobStr) {
   if (!dobStr) return { category: 'other', daysUntil: 999, label: '', formattedDate: '' };
-  
+
   let day = 1, month = 1, year = 1990;
   if (dobStr.includes('-')) {
     const parts = dobStr.split('-');
@@ -238,6 +238,39 @@ function getBirthdayDetails(dobStr) {
   } else {
     return { category: 'later', daysUntil, label: `In ${daysUntil} days`, formattedDate };
   }
+}
+
+/* ==========================================================================
+   WHATSAPP BIRTHDAY WISH GENERATOR
+   Personalized luxury greeting for café owner to wish members via 1-click WhatsApp
+   ========================================================================== */
+function cleanPhoneNumberForWa(phone) {
+  if (!phone) return '';
+  let digits = String(phone).replace(/\D/g, '');
+  if (digits.length === 10) {
+    // Standard 10-digit Indian mobile number -> prepend country code 91
+    digits = '91' + digits;
+  }
+  return digits;
+}
+
+function getBirthdayWishMessage(customer, bdayType = 'today') {
+  const firstName = (customer.name || 'Valued Member').split(' ')[0];
+  const membershipId = customer.membershipId || '';
+
+  if (bdayType === 'today') {
+    return `Hello ${firstName}! 🎉🎂\n\nWishing you a very Happy Birthday from all of us at Atelier Café! ☕✨\n\nTo celebrate your special day, we've prepared a complimentary artisanal coffee of your choice & a celebratory dessert pastry at our coffee bar!\n\nJust show your Member Pass (${membershipId}) at the register whenever you visit today.\n\nHave a truly joyful and wonderful celebration! ☕🍰🎈`;
+  } else if (bdayType === 'tomorrow') {
+    return `Hello ${firstName}! 🎂✨\n\nAtelier Café wishes you a wonderful birthday in advance for tomorrow! ☕🎉\n\nYour complimentary birthday brew & celebratory pastry perk will be unlocked and waiting for you at the roastery starting tomorrow.\n\nLooking forward to celebrating with you! ☕🍰`;
+  } else {
+    return `Hello ${firstName}! ☕✨\n\nWarm advance birthday wishes from the team at Atelier Café! 🎉\n\nWe look forward to welcoming you to the coffee bar this month for your complimentary birthday brew.\n\nSee you soon at Atelier! ☕🎂`;
+  }
+}
+
+function getWhatsAppWishUrl(customer, bdayType = 'today') {
+  const cleanPhone = cleanPhoneNumberForWa(customer.phone);
+  const msg = getBirthdayWishMessage(customer, bdayType);
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
 }
 
 // Simple pseudo-random hash generator for deterministic past date data
@@ -680,7 +713,171 @@ function renderPeriodControlBar() {
   `;
 }
 
+/* ==========================================================================
+   ADMIN PORTAL AUTHENTICATION GATE
+   ========================================================================== */
+const ADMIN_AUTH_STORAGE_KEY = 'atelier_admin_auth_v1';
+
+function isAdminAuthenticated() {
+  try {
+    return (
+      sessionStorage.getItem(ADMIN_AUTH_STORAGE_KEY) === 'true' ||
+      localStorage.getItem(ADMIN_AUTH_STORAGE_KEY) === 'true'
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
+function setAdminAuthenticated(authenticated, remember = false) {
+  try {
+    if (authenticated) {
+      sessionStorage.setItem(ADMIN_AUTH_STORAGE_KEY, 'true');
+      if (remember) {
+        localStorage.setItem(ADMIN_AUTH_STORAGE_KEY, 'true');
+      }
+    } else {
+      sessionStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
+      localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
+    }
+  } catch (e) {
+    console.warn('Admin auth storage error:', e);
+  }
+}
+
+function verifyAdminCredentials(adminId, password) {
+  const cleanId = (adminId || '').trim().toLowerCase();
+  const cleanPass = (password || '').trim();
+  if (!cleanId || !cleanPass) return false;
+
+  const validIds = ['admin', 'owner', 'atelier_admin', 'admin@atelier-coffee.com'];
+  const ownerPin = (window.AtelierStore && typeof window.AtelierStore.getOwnerStampPin === 'function')
+    ? window.AtelierStore.getOwnerStampPin()
+    : '1234';
+  const validPasswords = ['admin123', 'admin', ownerPin];
+
+  return validIds.includes(cleanId) && validPasswords.includes(cleanPass);
+}
+
+function renderAdminAuthScreen() {
+  return `
+    <div class="admin-portal-root" style="min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; padding: 2.5rem 1rem;">
+      <div class="auth-boutique-card" style="max-width: 440px; width: 100%; text-align: center;">
+        
+        <!-- Executive Shield / Lock Emblem -->
+        <div style="display: flex; justify-content: center; margin-bottom: 0.85rem;">
+          <div style="width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, rgba(200, 157, 75, 0.16), rgba(192, 90, 44, 0.12)); border: 1px solid rgba(200, 157, 75, 0.4); display: flex; align-items: center; justify-content: center; color: var(--color-espresso, #1C1512); box-shadow: 0 6px 18px rgba(200, 157, 75, 0.18);">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Title & Subtitle -->
+        <div class="eyebrow eyebrow-accent" style="margin-bottom: 0.35rem; font-size: 0.72rem; letter-spacing: 0.12em;">
+          <span>✦</span>
+          <span>RESTRICTED EXECUTIVE ACCESS</span>
+        </div>
+        <h1 class="auth-boutique-title font-serif" style="font-size: 1.8rem; margin: 0.1rem 0 0.35rem;">
+          Admin Portal
+        </h1>
+        <p style="font-size: 0.88rem; color: var(--color-roast-muted, #7E6E65); margin: 0 0 1.35rem; line-height: 1.45;">
+          Sign in with your café owner credentials.
+        </p>
+
+        <!-- Error Message Banner -->
+        <div id="admin-auth-error" class="auth-error-banner" style="display: none; margin-bottom: 1rem;" role="alert"></div>
+
+        <!-- Login Form -->
+        <form id="admin-login-form" class="auth-clean-form">
+          <!-- Admin ID Field -->
+          <div class="auth-input-group">
+            <span class="auth-input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9E948A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
+            <input 
+              type="text" 
+              id="admin-id-input" 
+              class="auth-clean-input has-icon" 
+              placeholder="Admin ID" 
+              required 
+              autocomplete="username"
+              autofocus
+            />
+          </div>
+
+          <!-- Password Field -->
+          <div class="auth-input-group">
+            <span class="auth-input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9E948A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </span>
+            <input 
+              type="password" 
+              id="admin-pass-input" 
+              class="auth-clean-input has-icon" 
+              placeholder="Password" 
+              required 
+              autocomplete="current-password"
+              style="padding-right: 42px;"
+            />
+            <button 
+              type="button" 
+              id="admin-toggle-pwd-btn" 
+              title="Show or hide password" 
+              aria-label="Show or hide password"
+              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: #9E948A; display: flex; align-items: center; padding: 0;"
+            >
+              <svg id="admin-eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Remember Me on this Terminal -->
+          <div class="auth-options-row" style="margin-top: 0.15rem; margin-bottom: 0.35rem;">
+            <label class="auth-remember-check">
+              <input type="checkbox" id="admin-remember-me" checked>
+              <span>Remember on this browser</span>
+            </label>
+          </div>
+
+          <!-- Sign In Button -->
+          <button type="submit" class="auth-boutique-btn" id="admin-submit-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Sign In to Admin Portal</span>
+          </button>
+
+      
+
+          <!-- Return to Member Pass -->
+          <div style="margin-top: 1.15rem;">
+            <a href="#dashboard" style="font-size: 0.82rem; color: var(--color-terracotta, #C05A2C); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 500;">
+              <span>← Return to Member Pass</span>
+            </a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  `;
+}
+
 function renderAdminPage() {
+  if (!isAdminAuthenticated()) {
+    return renderAdminAuthScreen();
+  }
+
   const report = getPeriodReportData();
   const customers = getAggregatedCustomers();
   const totalCustomersCount = customers.length;
@@ -739,14 +936,25 @@ function renderAdminPage() {
     const initials = c.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
     const isToday = type === 'today';
     const isTomorrow = type === 'tomorrow';
-    
+    const waUrl = isToday ? getWhatsAppWishUrl(c, 'today') : '';
+
     return `
       <div class="admin-bday-card ${isToday ? 'highlight-today' : isTomorrow ? 'highlight-tomorrow' : ''}">
         <div class="admin-bday-card-head">
           <div style="display: flex; align-items: center; gap: 0.75rem;">
             <div class="admin-customer-avatar">${initials}</div>
             <div>
-              <div class="admin-customer-name" style="font-size: 1.05rem;">${c.name}</div>
+              <div class="admin-customer-name" style="font-size: 1.05rem; display: flex; align-items: center; gap: 0.45rem;">
+                ${isToday ? `
+                  <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="admin-name-wa-btn" title="Wish ${c.name} Happy Birthday on WhatsApp">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    </svg>
+                    <span>Wish</span>
+                  </a>
+                ` : ''}
+                <span>${c.name}</span>
+              </div>
               <div class="admin-customer-id font-mono">${c.membershipId}</div>
             </div>
           </div>
@@ -787,24 +995,36 @@ function renderAdminPage() {
   const customerRowsHtml = filteredCustomers.map(c => {
     const initials = c.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
     const bday = getBirthdayDetails(c.dob);
+    const isTodayBday = bday.category === 'today';
+    const waWishUrl = isTodayBday ? getWhatsAppWishUrl(c, 'today') : '';
 
     let bdayBadgeHtml = '';
     if (bday.category === 'today') {
-      bdayBadgeHtml = `<span class="admin-birthday-tag today font-mono" title="Birthday Today! 18 Oct">🎂 Today!</span>`;
+      bdayBadgeHtml = `<span class="admin-birthday-tag today font-mono" title="Birthday Today! (${bday.formattedDate})">🎂 Today!</span>`;
     } else if (bday.category === 'tomorrow') {
-      bdayBadgeHtml = `<span class="admin-birthday-tag tomorrow font-mono" title="Birthday Tomorrow! 19 Oct">⏰ Tomorrow</span>`;
+      bdayBadgeHtml = `<span class="admin-birthday-tag tomorrow font-mono" title="Birthday Tomorrow! (${bday.formattedDate})">⏰ Tomorrow</span>`;
     } else if (bday.category === 'upcoming') {
       bdayBadgeHtml = `<span class="admin-birthday-tag upcoming font-mono" title="Birthday in ${bday.daysUntil} days (${bday.formattedDate})">📅 In ${bday.daysUntil}d</span>`;
     }
 
     return `
       <tr class="admin-table-row">
-        <!-- Customer Monogram & Name -->
+        <!-- Customer Monogram & Name (WhatsApp button appears only before name of customer having birthday today) -->
         <td class="admin-td-customer">
           <div style="display: flex; align-items: center; gap: 0.75rem;">
             <div class="admin-customer-avatar">${initials}</div>
             <div>
-              <div class="admin-customer-name">${c.name}</div>
+              <div class="admin-customer-name" style="display: flex; align-items: center; gap: 0.45rem;">
+                ${isTodayBday ? `
+                  <a href="${waWishUrl}" target="_blank" rel="noopener noreferrer" class="admin-name-wa-btn" title="Wish ${c.name} Happy Birthday on WhatsApp">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    </svg>
+                    <span>Wish</span>
+                  </a>
+                ` : ''}
+                <span>${c.name}</span>
+              </div>
               <div class="admin-customer-id font-mono">${c.membershipId}</div>
             </div>
           </div>
@@ -856,6 +1076,15 @@ function renderAdminPage() {
             <p class="admin-page-subtitle">
               Date-wise fiscal ledger, multi-period revenue reports, and member directory intelligence.
             </p>
+          </div>
+          <div class="admin-header-actions">
+            <button type="button" id="admin-logout-btn" class="btn-ghost" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 500; border-radius: 999px; padding: 0.45rem 1.15rem; border: 1px solid var(--border-subtle, rgba(45, 30, 22, 0.18)); background: #FFFFFF; color: var(--color-espresso, #1C1512); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <span>Lock / Sign Out</span>
+            </button>
           </div>
         </div>
 
@@ -1054,7 +1283,7 @@ function renderAdminPage() {
               <div class="admin-bday-chips-row">
                 ${todayBdays.map(c => `
                   <span class="admin-bday-chip today" data-bday-target="today" title="Click to view Today's Birthday">
-                    🎂 Today: <strong>${c.name}</strong> (${c.bday.formattedDate})
+                    🎂 Today: <a href="${getWhatsAppWishUrl(c, 'today')}" target="_blank" rel="noopener noreferrer" class="admin-name-wa-btn" style="margin: 0 4px;" title="Wish ${c.name} Happy Birthday on WhatsApp" onclick="event.stopPropagation();"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>Wish</a><strong>${c.name}</strong> (${c.bday.formattedDate})
                   </span>
                 `).join('')}
                 ${tomorrowBdays.map(c => `
@@ -1097,6 +1326,88 @@ function renderAdminPage() {
 }
 
 function initAdminEvents() {
+  if (!isAdminAuthenticated()) {
+    const form = document.getElementById('admin-login-form');
+    const idInput = document.getElementById('admin-id-input');
+    const passInput = document.getElementById('admin-pass-input');
+    const errorBanner = document.getElementById('admin-auth-error');
+    const togglePwdBtn = document.getElementById('admin-toggle-pwd-btn');
+    const rememberMe = document.getElementById('admin-remember-me');
+
+    if (togglePwdBtn && passInput) {
+      togglePwdBtn.addEventListener('click', () => {
+        const isPass = passInput.type === 'password';
+        passInput.type = isPass ? 'text' : 'password';
+        togglePwdBtn.innerHTML = isPass ? `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+          </svg>
+        ` : `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        `;
+      });
+    }
+
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const idVal = idInput ? idInput.value.trim() : '';
+        const passVal = passInput ? passInput.value.trim() : '';
+
+        if (!verifyAdminCredentials(idVal, passVal)) {
+          if (errorBanner) {
+            errorBanner.textContent = 'Invalid Admin ID or Password. Please check your credentials and try again.';
+            errorBanner.style.display = 'block';
+            errorBanner.classList.add('shake');
+            setTimeout(() => errorBanner.classList.remove('shake'), 600);
+          }
+          if (passInput) {
+            passInput.value = '';
+            passInput.focus();
+          }
+          if (window.AtelierAudio && window.AtelierAudio.playError) {
+            window.AtelierAudio.playError();
+          }
+          return;
+        }
+
+        if (errorBanner) errorBanner.style.display = 'none';
+        setAdminAuthenticated(true, rememberMe ? rememberMe.checked : false);
+        if (window.AtelierAudio && window.AtelierAudio.playSuccess) {
+          window.AtelierAudio.playSuccess();
+        }
+        if (window.showToast) {
+          window.showToast('✓ Admin Portal Unlocked. Welcome, Café Owner!');
+        }
+        if (window.router) {
+          window.router.render();
+        }
+      });
+    }
+    return;
+  }
+
+  // Bind Lock / Sign Out button for authenticated session
+  const logoutBtn = document.getElementById('admin-logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      setAdminAuthenticated(false);
+      if (window.AtelierAudio && window.AtelierAudio.playTap) {
+        window.AtelierAudio.playTap();
+      }
+      if (window.showToast) {
+        window.showToast('🔒 Admin Portal locked. Signed out successfully.');
+      }
+      if (window.router) {
+        window.router.render();
+      }
+    });
+  }
+
   const todayIso = getTodayIso();
 
   // Timeframe Filter Tabs
@@ -1442,5 +1753,11 @@ window.AtelierAdminState = {
   getPeriodReportData,
   getTodayIso,
   formatDateIso,
-  getBirthdayDetails
+  getBirthdayDetails,
+  isAdminAuthenticated,
+  setAdminAuthenticated,
+  verifyAdminCredentials,
+  cleanPhoneNumberForWa,
+  getBirthdayWishMessage,
+  getWhatsAppWishUrl
 };

@@ -145,8 +145,8 @@ function renderLoyaltyCard(options = {}) {
         </div>
 
         <div style="text-align: center; margin-top: 0.6rem;">
-          <button id="card-open-wrapped-btn" class="btn-text" style="font-size: 0.82rem; color: var(--color-terracotta); font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>📸 Monthly Caffeine Wrapped</span>
+          <button id="card-open-wrapped-btn" type="button" class="btn-text" style="font-size: 0.82rem; color: var(--color-terracotta); font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+            <span>📸 Instagram Story & Monthly Wrapped</span>
             <span>↗</span>
           </button>
         </div>
@@ -199,9 +199,13 @@ function initLoyaltyCardInteractions() {
     });
   });
 
-  // Open 9:16 Caffeine Wrapped Modal
-  document.getElementById('card-open-wrapped-btn')?.addEventListener('click', () => {
-    if (window.openCaffeineWrappedModal) {
+  // Open 9:16 Caffeine Wrapped / Instagram Story Modal
+  document.getElementById('card-open-wrapped-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (window.AtelierAudio && typeof window.AtelierAudio.playTap === 'function') {
+      window.AtelierAudio.playTap();
+    }
+    if (typeof window.openCaffeineWrappedModal === 'function') {
       window.openCaffeineWrappedModal();
     }
   });

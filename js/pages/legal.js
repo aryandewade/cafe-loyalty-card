@@ -116,7 +116,6 @@ const ATELIER_TERMS_HTML = `
         </p>
         <div class="legal-contact-card">
           <div class="contact-header">☕ Atelier Grievance Officer</div>
-          <div class="contact-row"><strong>Name:</strong> Aryan Dewade, Head of Data Trust</div>
           <div class="contact-row"><strong>Email:</strong> <a href="mailto:grievance@atelier-coffee.com">grievance@atelier-coffee.com</a></div>
           <div class="contact-row"><strong>Registered Address:</strong> Atelier Specialty Coffee Roastery, Bandra West, Mumbai 400050, India</div>
           <div class="contact-row"><strong>Response Time:</strong> Acknowledged within 48 hours; resolved within 15 days.</div>
@@ -264,7 +263,6 @@ const ATELIER_PRIVACY_HTML = `
         </p>
         <div class="legal-contact-card">
           <div class="contact-header">🛡️ Data Protection &amp; Grievance Redressal</div>
-          <div class="contact-row"><strong>Officer:</strong> Aryan Dewade, Head of Data Trust</div>
           <div class="contact-row"><strong>Direct Email:</strong> <a href="mailto:privacy@atelier-coffee.com">privacy@atelier-coffee.com</a></div>
           <div class="contact-row"><strong>Statutory Authority:</strong> Data Protection Board of India (<a href="https://meity.gov.in" target="_blank" rel="noopener noreferrer">meity.gov.in</a>)</div>
           <div class="contact-row"><strong>Response Commitment:</strong> Formal acknowledgement within 48 hours; complete resolution within 15–30 days.</div>
