@@ -15,10 +15,10 @@ function renderLoyaltyCard(options = {}) {
     memberSince: '2026'
   };
   const membership = state.membership || {
-    currentStamps: 7,
+    currentStamps: 0,
     maxStamps: 10,
-    currentStreak: 4,
-    points: 420
+    currentStreak: 0,
+    points: 0
   };
   const stamps = membership.currentStamps;
   const maxStamps = membership.maxStamps;
@@ -113,6 +113,18 @@ function renderLoyaltyCard(options = {}) {
 
       <!-- Gen Z Controls: Card Skin Switcher & Caffeine Wrapped Export -->
       ${isInteractive ? `
+        ${stamps >= maxStamps ? `
+          <div class="card-renew-banner" style="margin-top: 0.9rem; margin-bottom: 0.4rem; padding: 0.75rem 1rem; background: linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(194,142,42,0.1) 100%); border: 1px solid rgba(212,175,55,0.35); border-radius: 14px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--color-espresso); display: flex; align-items: center; gap: 0.4rem;">
+              <span>🎉</span>
+              <span>Card Full! 10/10 Stamps Completed</span>
+            </div>
+            <button id="card-renew-btn" class="btn-primary" style="background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%); color: #1C1511; font-weight: 700; border: none; padding: 0.5rem 1.3rem; font-size: 0.82rem; border-radius: 999px; box-shadow: 0 4px 14px rgba(212,175,55,0.35); cursor: pointer;">
+              <span>Renew Card (Start Fresh) 🔄</span>
+            </button>
+          </div>
+        ` : ''}
+
         <div class="skin-selector-bar">
           <button class="skin-chip-btn ${currentSkin === 'espresso' ? 'active' : ''}" data-skin="espresso" title="Classic Noir Cardstock">
             <span>☕</span>
@@ -191,6 +203,16 @@ function initLoyaltyCardInteractions() {
   document.getElementById('card-open-wrapped-btn')?.addEventListener('click', () => {
     if (window.openCaffeineWrappedModal) {
       window.openCaffeineWrappedModal();
+    }
+  });
+
+  // Renew Card Button Handler
+  document.getElementById('card-renew-btn')?.addEventListener('click', () => {
+    if (window.openRenewCardModal) {
+      window.openRenewCardModal();
+    } else if (window.AtelierStore) {
+      window.AtelierStore.renewLoyaltyCard();
+      if (window.router) window.router.render();
     }
   });
 }

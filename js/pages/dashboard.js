@@ -16,11 +16,11 @@ function renderDashboardPage() {
     membershipId: 'AT-CLUB'
   };
   const membership = state.membership || {
-    currentStamps: 1,
+    currentStamps: 0,
     maxStamps: 10,
-    lifetimeVisits: 1,
-    points: 100,
-    currentStreak: 1,
+    lifetimeVisits: 0,
+    points: 0,
+    currentStreak: 0,
     rewardsRedeemedCount: 0
   };
   const activities = Array.isArray(state.activities) ? state.activities : [];
@@ -109,7 +109,7 @@ function renderDashboardPage() {
           <!-- DIGITAL LOYALTY CARD -->
           <div class="double-bezel dash-card-bezel" style="margin-bottom: 1.2rem; background: var(--bg-canvas-subtle);">
             <div class="double-bezel-inner dash-card-bezel-inner" style="display: flex; flex-direction: column; align-items: center;">
-              <!-- Card Action Bar: Visits Counter & Primary Collect Stamp Button -->
+              <!-- Card Action Bar: Visits Counter & Primary Collect / Renew Button -->
               <div class="card-action-bar">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                   <span class="font-mono" style="font-size: 0.88rem; font-weight: 700; color: var(--color-espresso);">
@@ -118,15 +118,21 @@ function renderDashboardPage() {
                   <span style="font-size: 0.74rem; color: var(--color-roast-muted);">(${visitsLeft === 0 ? 'Full' : `${visitsLeft} left`})</span>
                 </div>
 
-                <button id="dash-quick-stamp-btn" class="btn-primary" style="padding: 0.42rem 0.65rem 0.42rem 1rem; font-size: 0.82rem;">
-                  <span>Collect Stamp</span>
-                  <div class="btn-icon-wrapper" style="width: 1.5rem; height: 1.5rem;">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                  </div>
-                </button>
+                ${visitsLeft === 0 ? `
+                  <button id="dash-quick-renew-btn" class="btn-primary" style="padding: 0.42rem 0.95rem; font-size: 0.82rem; background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%); color: #1c1511; font-weight: 700; border: none; box-shadow: 0 4px 14px rgba(212,175,55,0.35);">
+                    <span>Renew Card 🔄</span>
+                  </button>
+                ` : `
+                  <button id="dash-quick-stamp-btn" class="btn-primary" style="padding: 0.42rem 0.65rem 0.42rem 1rem; font-size: 0.82rem;">
+                    <span>Collect Stamp</span>
+                    <div class="btn-icon-wrapper" style="width: 1.5rem; height: 1.5rem;">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      </svg>
+                    </div>
+                  </button>
+                `}
               </div>
 
               <!-- The Digital Loyalty Card -->
@@ -135,6 +141,22 @@ function renderDashboardPage() {
               </div>
             </div>
           </div>
+
+          <!-- FULL CARD RENEWAL CELEBRATION CALLOUT -->
+          ${visitsLeft === 0 ? `
+            <div class="dash-card-full-callout" style="margin-bottom: 1.2rem; padding: 1rem 1.2rem; background: linear-gradient(135deg, rgba(212,175,55,0.14) 0%, rgba(200,157,75,0.06) 100%); border: 1px solid rgba(212,175,55,0.35); border-radius: 16px; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="font-size: 1.6rem;">🏆</div>
+                <div>
+                  <div style="font-weight: 700; font-size: 0.95rem; color: var(--color-espresso); font-family: var(--font-serif);">Card Completed (10/10 Stamps)!</div>
+                  <div style="font-size: 0.78rem; color: var(--color-roast-medium); margin-top: 2px;">Renew your card to start fresh on a new card and earn +50 Bonus Points!</div>
+                </div>
+              </div>
+              <button id="dash-banner-renew-btn" class="btn-primary" style="padding: 0.5rem 1.2rem; font-size: 0.84rem; background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%); color: #1c1511; font-weight: 700; border: none; box-shadow: 0 4px 14px rgba(212,175,55,0.35); white-space: nowrap;">
+                <span>Renew Card Now 🔄</span>
+              </button>
+            </div>
+          ` : ''}
 
           <!-- SAGA PROGRESSION TEASER BANNER (MINIMAL) -->
           <div class="candy-dash-teaser-card" id="dash-open-candy-map-btn" style="margin-bottom: 1.4rem; cursor: pointer;">
@@ -255,6 +277,21 @@ function initDashboardEvents() {
       window.openOwnerStampModal({ drinkName: 'Chikmagalur Single-Estate Pour Over', amountSpent: 200 });
     }
   });
+
+  // Quick / Banner Renew Card Handlers
+  const handleRenewCard = () => {
+    if (window.openRenewCardModal) {
+      window.openRenewCardModal();
+    } else if (window.AtelierStore) {
+      const res = window.AtelierStore.renewLoyaltyCard();
+      if (res) {
+        window.showToast?.(`Card Renewed! Fresh card ready +${res.bonusPoints} bonus points awarded! 🎉`);
+        if (window.router) window.router.render();
+      }
+    }
+  };
+  document.getElementById('dash-quick-renew-btn')?.addEventListener('click', handleRenewCard);
+  document.getElementById('dash-banner-renew-btn')?.addEventListener('click', handleRenewCard);
 
   // Tapping next target slot on loyalty card also prompts for Collect Stamp flow
   document.querySelectorAll('.stamp-slot.next-target').forEach(slot => {

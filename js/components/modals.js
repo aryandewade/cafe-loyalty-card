@@ -1962,6 +1962,89 @@ function openEditPhoneModal() {
   });
 }
 
+// Card Renewal Confirmation Modal
+function openRenewCardModal() {
+  closeAllModals();
+
+  const container = document.getElementById('modal-root');
+  if (!container) return;
+
+  const store = window.AtelierStore;
+  const state = store ? store.getState() : {};
+  const membership = state.membership || {};
+  const currentStamps = Number(membership.currentStamps || 0);
+  const maxStamps = Number(membership.maxStamps || 10);
+  const cycles = Number(membership.cardCyclesCompleted || 0) + 1;
+
+  container.innerHTML = `
+    <div class="modal-backdrop is-active" id="renew-card-backdrop">
+      <div class="modal-card" style="max-width: 440px; text-align: center; padding: 2rem 1.6rem;">
+        
+        <div style="width: 4rem; height: 4rem; margin: 0 auto 1.1rem; border-radius: 50%; background: linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(194,142,42,0.1) 100%); border: 1.5px solid rgba(212,175,55,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.9rem;">
+          🔄
+        </div>
+
+        <div style="font-size: 0.72rem; color: var(--color-gold-foil); font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.3rem;">
+          CARD CYCLE #${cycles} COMPLETE
+        </div>
+        
+        <h2 class="font-serif" style="font-size: 1.65rem; margin-bottom: 0.5rem; color: var(--color-espresso);">
+          Renew Your Loyalty Card
+        </h2>
+        
+        <p style="font-size: 0.88rem; color: var(--color-roast-medium); line-height: 1.5; margin-bottom: 1.3rem;">
+          You've filled all <strong>${currentStamps}/${maxStamps} stamps</strong>! Renewing your card resets your active stamp slots back to 0 so you can collect fresh stamps on your upcoming visits.
+        </p>
+
+        <!-- Perks Preserved Box -->
+        <div style="background: var(--bg-canvas-subtle); border: 1px solid var(--color-cream-border); border-radius: 14px; padding: 0.9rem 1.1rem; text-align: left; margin-bottom: 1.5rem; font-size: 0.82rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; color: var(--color-forest-roast); font-weight: 600;">
+            <span>✓</span>
+            <span>All lifetime visits & Saga Road level progress kept</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; color: var(--color-forest-roast); font-weight: 600;">
+            <span>✓</span>
+            <span>Current points balance preserved</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.6rem; color: var(--color-gold-foil); font-weight: 700;">
+            <span>🎁</span>
+            <span>+50 Bonus Points awarded instantly on renewal</span>
+          </div>
+        </div>
+
+        <!-- Action CTAs -->
+        <div style="display: flex; gap: 0.75rem; justify-content: center;">
+          <button id="cancel-renew-card-btn" class="btn-secondary" style="flex: 1; padding: 0.7rem 1rem;">
+            <span>Not Now</span>
+          </button>
+          <button id="confirm-renew-card-btn" class="btn-primary" style="flex: 1.4; padding: 0.7rem 1.2rem; background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%); color: #1c1511; font-weight: 700; border: none; box-shadow: 0 4px 14px rgba(212,175,55,0.35);">
+            <span>Renew Card Now 🔄</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  document.getElementById('cancel-renew-card-btn')?.addEventListener('click', closeAllModals);
+  document.getElementById('renew-card-backdrop')?.addEventListener('click', (e) => {
+    if (e.target.id === 'renew-card-backdrop') closeAllModals();
+  });
+
+  document.getElementById('confirm-renew-card-btn')?.addEventListener('click', () => {
+    closeAllModals();
+    if (window.AtelierStore) {
+      const res = window.AtelierStore.renewLoyaltyCard();
+      if (res) {
+        window.showToast?.(`Card Renewed! Fresh card ready +${res.bonusPoints} bonus points awarded! 🎉`);
+      }
+    }
+    if (window.router) {
+      window.router.render();
+    }
+  });
+}
+
 function closeAllModals() {
   if (activeTimerInterval) {
     clearInterval(activeTimerInterval);
@@ -1992,4 +2075,5 @@ window.openForgotPasswordModal = openForgotPasswordModal;
 window.openResetPasswordModal = openResetPasswordModal;
 window.openEditDobModal = openEditDobModal;
 window.openEditPhoneModal = openEditPhoneModal;
+window.openRenewCardModal = openRenewCardModal;
 window.closeAllModals = closeAllModals;

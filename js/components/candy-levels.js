@@ -5,178 +5,155 @@
    and Web Audio Celebration Fanfare
    ========================================================================== */
 
-const ATELIER_CANDY_LEVELS = [
-  {
-    level: 1,
-    title: "First Sip Initiate",
-    subtitle: "Earn 500 points from café bills to advance to Level 2",
-    pointsRequired: 0,
-    pointsToPass: 500,
-    reward: "Welcome 50 Bonus Points & Level 2 Status",
-    rewardIcon: "✨",
-    icon: "☕",
-    stars: [
-      { id: 1, label: "Earn 250 points in Level 1 (0-500 pts)", earned: true },
-      { id: 2, label: "Reach 500 points to unlock Level 2", earned: false },
-      { id: 3, label: "Maintain a 3-day coffee visit streak", earned: true }
-    ],
-    xPercent: 50,
-    milestone: false
-  },
-  {
-    level: 2,
-    title: "Crema Apprentice",
-    subtitle: "Earn 1,000 points (500 pts in this stage) to advance to Level 3",
-    pointsRequired: 500,
-    pointsToPass: 1000,
-    reward: "Free Vanilla, Hazelnut or Cardamom Shot",
-    rewardIcon: "🥛",
-    icon: "☕",
-    stars: [
-      { id: 1, label: "Earn 750 points (250 pts into Level 2)", earned: false },
-      { id: 2, label: "Reach 1,000 points to unlock Level 3", earned: false },
-      { id: 3, label: "Try Oatly Barista or A2 desi milk", earned: false }
-    ],
-    xPercent: 78,
-    milestone: false
-  },
-  {
-    level: 3,
-    title: "Roastery Regular",
-    subtitle: "Earn 1,500 points (500 pts in this stage) to advance to Level 4",
-    pointsRequired: 1000,
-    pointsToPass: 1500,
-    reward: "15% Off Any Hand-Laminated Brioche",
-    rewardIcon: "🥐",
-    icon: "☕",
-    stars: [
-      { id: 1, label: "Earn 1,250 points (250 pts into Level 3)", earned: false },
-      { id: 2, label: "Reach 1,500 points to unlock Level 4", earned: false },
-      { id: 3, label: "Maintain a 3-day coffee visit streak", earned: false }
-    ],
-    xPercent: 50,
-    milestone: false
-  },
-  {
-    level: 4,
-    title: "Pour-Over Explorer",
-    subtitle: "Earn 2,000 points (500 pts in this stage) to advance to Level 5",
-    pointsRequired: 1500,
-    pointsToPass: 2000,
-    reward: "Complimentary V60 Brew Bar Upgrade",
-    rewardIcon: "🧪",
-    icon: "🧪",
-    stars: [
-      { id: 1, label: "Earn 1,750 points (250 pts into Level 4)", earned: false },
-      { id: 2, label: "Reach 2,000 points to unlock Level 5", earned: false },
-      { id: 3, label: "Sample Baba Budangiri harvest", earned: false }
-    ],
-    xPercent: 22,
-    milestone: false
-  },
-  {
-    level: 5,
-    title: "Bronze Cupper Vault",
-    subtitle: "Milestone: 2,000 Points! Roastery Vault Unlocked (500 pts to Lvl 6)",
-    pointsRequired: 2000,
-    pointsToPass: 2500,
-    reward: "🎁 Custom Ceramic & Brass Mug + 100 Bonus Pts",
-    rewardIcon: "🎁",
-    icon: "🎁",
-    stars: [
-      { id: 1, label: "Earn 2,250 points (250 pts into Level 5)", earned: false },
-      { id: 2, label: "Reach 2,500 points to unlock Level 6", earned: false },
-      { id: 3, label: "Redeem any seasonal reward pass", earned: false }
-    ],
-    xPercent: 50,
-    milestone: true
-  },
-  {
-    level: 6,
-    title: "Cold Drip Alchemist",
-    subtitle: "Earn 3,000 points (500 pts in this stage) to advance to Level 7",
-    pointsRequired: 2500,
-    pointsToPass: 3000,
-    reward: "Complimentary Chilled Nitro Cold Brew",
-    rewardIcon: "🧊",
-    icon: "🧊",
-    stars: [
-      { id: 1, label: "Earn 2,750 points (250 pts into Level 6)", earned: false },
-      { id: 2, label: "Reach 3,000 points to unlock Level 7", earned: false },
-      { id: 3, label: "Order an Araku Valley cold drip", earned: false }
-    ],
-    xPercent: 78,
-    milestone: false
-  },
-  {
-    level: 7,
-    title: "Artisan Kaapi Master",
-    subtitle: "Earn 3,500 points (500 pts in this stage) to advance to Level 8",
-    pointsRequired: 3000,
-    pointsToPass: 3500,
-    reward: "Free Artisanal Davara Kaapi & Sweet Bun",
-    rewardIcon: "🏺",
-    icon: "🏺",
-    stars: [
-      { id: 1, label: "Earn 3,250 points (250 pts into Level 7)", earned: false },
-      { id: 2, label: "Reach 3,500 points to unlock Level 8", earned: false },
-      { id: 3, label: "Order traditional brass dabara Kaapi", earned: false }
-    ],
-    xPercent: 50,
-    milestone: false
-  },
-  {
-    level: 8,
-    title: "Micro-Lot Connoisseur",
-    subtitle: "Earn 4,000 points (500 pts in this stage) to advance to Level 9",
-    pointsRequired: 3500,
-    pointsToPass: 4000,
-    reward: "Free 250g Araku Valley Whole-Bean Bag",
-    rewardIcon: "🫘",
-    icon: "🫘",
-    stars: [
-      { id: 1, label: "Earn 3,750 points (250 pts into Level 8)", earned: false },
-      { id: 2, label: "Reach 4,000 points to unlock Level 9", earned: false },
-      { id: 3, label: "Sample 4 different roast origins", earned: false }
-    ],
-    xPercent: 22,
-    milestone: false
-  },
-  {
-    level: 9,
-    title: "Western Ghats Pioneer",
-    subtitle: "Earn 4,500 points (500 pts in this stage) to advance to Level 10",
-    pointsRequired: 4000,
-    pointsToPass: 4500,
-    reward: "VIP Cupping Masterclass for Two",
-    rewardIcon: "✨",
-    icon: "✨",
-    stars: [
-      { id: 1, label: "Earn 4,250 points (250 pts into Level 9)", earned: false },
-      { id: 2, label: "Reach 4,500 points to unlock Level 10", earned: false },
-      { id: 3, label: "5-week uninterrupted visit streak", earned: false }
-    ],
-    xPercent: 50,
-    milestone: false
-  },
-  {
-    level: 10,
-    title: "Legend of Atelier",
-    subtitle: "Grand Summit: 5,000 Lifetime Points Master Roaster",
-    pointsRequired: 4500,
-    pointsToPass: 5000,
-    reward: "🏆 Permanent Gold Founder Badge & Engraved Brass Flask",
-    rewardIcon: "🏆",
-    icon: "🏆",
-    stars: [
-      { id: 1, label: "Earn 4,750 points (250 pts into Level 10)", earned: false },
-      { id: 2, label: "Reach 5,000 Lifetime Points summit", earned: false },
-      { id: 3, label: "Accumulate 5,000 lifetime points", earned: false }
-    ],
-    xPercent: 50,
-    milestone: true
-  }
+const CANDY_LEVEL_SPECS = [
+  // Chapter 1: The Brew Foundations (Levels 1-10)
+  [1, "First Sip Initiate", "Welcome 50 Bonus Points & Level 2 Status", "☕", "✨", false],
+  [2, "Crema Apprentice", "Free Vanilla, Hazelnut or Cardamom Shot", "☕", "🥛", false],
+  [3, "Roastery Regular", "15% Off Any Hand-Laminated Brioche", "☕", "🥐", false],
+  [4, "Pour-Over Explorer", "Complimentary V60 Brew Bar Upgrade", "🧪", "🧪", false],
+  [5, "Bronze Cupper Vault", "🎁 Custom Ceramic & Brass Mug + 100 Bonus Pts", "🎁", "🎁", true],
+  [6, "Cold Drip Alchemist", "Complimentary Chilled Nitro Cold Brew", "🧊", "🧊", false],
+  [7, "Artisan Kaapi Master", "Free Artisanal Davara Kaapi & Sweet Bun", "🏺", "🏺", false],
+  [8, "Micro-Lot Connoisseur", "Free 250g Araku Valley Whole-Bean Bag", "🫘", "🫘", false],
+  [9, "Western Ghats Pioneer", "VIP Cupping Masterclass for Two", "✨", "✨", false],
+  [10, "Silver Guild Summit", "🏆 Permanent Silver Founder Pass & Engraved Tumbler", "🏆", "🏆", true],
+
+  // Chapter 2: Origin Expeditions (Levels 11-20)
+  [11, "Chikmagalur Scout", "Single-Estate Attikan Pour-Over Pass", "🌿", "☕", false],
+  [12, "Baba Budan Pilgrim", "Cardamom Spiced Cold Foam Upgrade", "⛰️", "🥛", false],
+  [13, "Shade-Tree Cultivator", "Organic Honey-Processed Espresso Shot", "🌳", "☕", false],
+  [14, "Monsoon Wind Tracker", "Complimentary Monsooned Malabar Aeropress", "💨", "🧪", false],
+  [15, "Estate Terroir Vault", "🎁 Origin Exploration Trio Coffee Sampler Box", "🎁", "🎁", true],
+  [16, "Malabar Coast Navigator", "Sea Salt Dark Mocha & Saffron Tart", "🌊", "🥐", false],
+  [17, "High-Altitude Forager", "18-Hour Kyoto Slow Drip Reserve", "🧗", "🧊", false],
+  [18, "Cherry Ripeness Selector", "Cascara Sparkling Infusion Tea", "🍒", "🍵", false],
+  [19, "Wet-Mill Artisan", "Double Washed Reserve Tasting Flight", "💧", "✨", false],
+  [20, "Terroir Master Vault", "🏆 Brass Davara Set & 250g Estate Micro-Lot", "🏆", "🏆", true],
+
+  // Chapter 3: Extraction Alchemy (Levels 21-30)
+  [21, "Aeropress Tactician", "Inverted Aeropress Signature Brew", "💉", "🧪", false],
+  [22, "Siphon Glass Conjuror", "Vacuum Siphon Table Service Experience", "🔮", "✨", false],
+  [23, "Chemex Couturier", "Chemex Pour-Over For Two + Brioche", "⏳", "🥐", false],
+  [24, "Precision Grind Architect", "Burr Calibration Tasting Challenge", "⚙️", "☕", false],
+  [25, "Refractometer Vault", "🎁 Atelier Hand-Crafted Coffee Measuring Spoon", "🎁", "🎁", true],
+  [26, "TDS Balance Sculptor", "High-Extraction Espresso Double Shot", "📐", "☕", false],
+  [27, "Mineral Water Chemist", "Custom Mineralized Water Pour-Over Flight", "🧪", "🧪", false],
+  [28, "Flow-Rate Maestro", "Flat-Bottom Wave Dripper Exclusive Cup", "🌊", "☕", false],
+  [29, "Bloom Phase Specialist", "Extended 60s Bloom Single-Origin V60", "🌸", "🧪", false],
+  [30, "Extraction Guild Vault", "🏆 Engraved Matte Black Barista Tamper", "🏆", "🏆", true],
+
+  // Chapter 4: Sensory & Cupping Guild (Levels 31-40)
+  [31, "Aroma Wheel Navigator", "Aroma Kit Interactive Tasting Session", "🧭", "✨", false],
+  [32, "Jasmine Floral Seeker", "Ethiopian Yirgacheffe Jasmine Pour-Over", "🌼", "☕", false],
+  [33, "Citrus Brightness Taster", "Meyer Lemon Cold Brew Tonic", "🍋", "🧊", false],
+  [34, "Caramelization Sommelier", "Dulce de Leche Cortado & Pastry", "🍯", "🥐", false],
+  [35, "Palate Mastery Vault", "🎁 Official Atelier Cupping Spoon in Velvet Pouch", "🎁", "🎁", true],
+  [36, "Dark Cocoa Evaluator", "Single-Origin 72% Dark Chocolate Kaapi", "🍫", "🏺", false],
+  [37, "Stone Fruit Discerner", "Peach & Apricot Infused Cold Drip", "🍑", "🧊", false],
+  [38, "Umami Reserve Palate", "Rare Barrel-Matured Espresso Flight", "🍄", "☕", false],
+  [39, "Q-Grader Apprentice", "Official Sensory Protocol Tasting Pass", "📋", "✨", false],
+  [40, "Sensory Sovereign Vault", "🏆 Personalized VIP Cupping Table Booking", "🏆", "🏆", true],
+
+  // Chapter 5: Roaster's Forge & Craft (Levels 41-50)
+  [41, "Drum Roaster Novice", "Fresh Roaster's Warm Sample Cup", "🔥", "☕", false],
+  [42, "First Crack Listener", "Light Cinnamon Roast Pour-Over", "👂", "🧪", false],
+  [43, "Rate of Rise Sculptor", "Precision Curve Espresso Flight", "📈", "☕", false],
+  [44, "Maillard Phase Artisan", "Golden Toasted Brioche & Latte Pair", "🍞", "🥐", false],
+  [45, "Roaster's Forge Vault", "🎁 Heavyweight Roaster's Apron with Brass Pins", "🎁", "🎁", true],
+  [46, "Airflow Dynamics Tech", "Fluid Bed Clean Air Roast Reserve", "💨", "☕", false],
+  [47, "Bean Density Analyst", "Strictly Hard Bean (SHB) Pour-Over", "⚖️", "🧪", false],
+  [48, "Chaff Cyclone Craftsman", "Cascara Sparkling Cider & Sweet Bun", "🌪️", "🥐", false],
+  [49, "Omni-Roast Virtuoso", "Omni-Roast Dual Extraction (Filter + Espresso)", "🎯", "☕", false],
+  [50, "Master Roaster Vault", "🏆 Custom Roasted 1kg Micro-Lot with Your Name", "🏆", "🏆", true],
+
+  // Chapter 6: World Cultivars & Rare Varietals (Levels 51-60)
+  [51, "Heirloom Typica Purist", "Centuries-Old Typica Heritage Pour-Over", "🌱", "☕", false],
+  [52, "Red Bourbon Custodian", "Sweet Bourbon Honey Espresso", "🍒", "☕", false],
+  [53, "Gesha Elegance Seeker", "Panama Gesha Floral Reserve Cup", "👑", "✨", false],
+  [54, "Pacamara Giant Forager", "Big Bean Pacamara Heavy-Body Drip", "🐘", "🧪", false],
+  [55, "Cultivar Discovery Vault", "🎁 Rare Varietals Coffee Tasting Box (3 Origins)", "🎁", "🎁", true],
+  [56, "SL-28 Blackcurrant Hunter", "Kenya SL-28 Blackcurrant Flash Brew", "🫐", "🧊", false],
+  [57, "Yellow Catuai Sun-Drier", "Yellow Catuai Sweet Natural Espresso", "☀️", "☕", false],
+  [58, "Wush Wush Wild Explorer", "Intense Berry Wush Wush Pour-Over", "🌿", "🧪", false],
+  [59, "Eugenioides Low-Caf Collector", "Ultra-Sweet Eugenioides Ancestral Brew", "🧬", "✨", false],
+  [60, "Rare Cultivar Vault", "🏆 Exclusive Membership in the Secret Harvest Club", "🏆", "🏆", true],
+
+  // Chapter 7: Barista Championship Arena (Levels 61-70)
+  [61, "Microfoam Sculptor", "Complimentary Free-Pour Latte Art Cup", "🎨", "☕", false],
+  [62, "Rosetta Pattern Master", "Cardamom & Vanilla Rosetta Flat White", "🌿", "☕", false],
+  [63, "Winged Tulip Stylist", "Velvety Oat Tulip Latte & Almond Croissant", "🌷", "🥐", false],
+  [64, "Swan Pour Virtuoso", "Triple-Swan Signature Cappuccino", "🦢", "☕", false],
+  [65, "Championship Bar Vault", "🎁 Championship Edition Pitcher with Teflon Finish", "🎁", "🎁", true],
+  [66, "Dial-In Speedster", "Rapid Double Espresso Tasting Flight", "⏱️", "☕", false],
+  [67, "Signature Drink Creator", "Espresso Citrus Cloud Signature Cocktail", "🍹", "🧊", false],
+  [68, "Sensory Pitch Presenter", "Personal Barista Table-Side Story Service", "🎤", "✨", false],
+  [69, "Comp Stage Finalist", "National Championship Winning Recipe Brew", "🏅", "☕", false],
+  [70, "Barista Crown Vault", "🏆 Golden Portafilter Trophy Keepsake & Free Coffee Month", "🏆", "🏆", true],
+
+  // Chapter 8: Fermentation & Next-Gen Processing (Levels 71-80)
+  [71, "Anaerobic Tank Guardian", "72-Hour Anaerobic Tropical Fruit V60", "🛢️", "🧪", false],
+  [72, "Carbonic Maceration Crafter", "Winey Carbonic Macerated Cold Drip", "🍇", "🧊", false],
+  [73, "Koji Culture Alchemist", "Koji-Fermented Umami Espresso", "🍄", "☕", false],
+  [74, "Yeast Inoculation Artist", "Champagne Yeast Fermented Pour-Over", "🧪", "✨", false],
+  [75, "Fermentation Lab Vault", "🎁 Thermal Extraction Glass Dripper Set", "🎁", "🎁", true],
+  [76, "Thermal Shock Pioneer", "Thermal Shock Peach Blossom Filter", "⚡", "🧪", false],
+  [77, "Cryo-Maceration Specialist", "Sub-Zero Macerated Iced Espresso", "❄️", "🧊", false],
+  [78, "Fruit Co-Ferment Connoisseur", "Passionfruit Co-Ferment Signature Brew", "🥭", "🍹", false],
+  [79, "Biodynamic Terroir Keeper", "Lunar Cycle Harvest Espresso", "🌙", "☕", false],
+  [80, "Bio-Innovation Vault", "🏆 Private Atelier Roastery Lab Tour for Two", "🏆", "🏆", true],
+
+  // Chapter 9: Global Terroir Legends (Levels 81-90)
+  [81, "Yirgacheffe Bergamot Sovereign", "Washed Yirgacheffe Bergamot Pour-Over", "🌸", "☕", false],
+  [82, "Panama Boquete Dignitary", "High-Altitude Volcanic Soil Pour-Over", "🌋", "🧪", false],
+  [83, "Huila Colombian Pathfinder", "Caramelized Panela Espresso & Pastry", "🇨🇴", "🥐", false],
+  [84, "Jamaica Blue Mountain Regent", "Authentic Wallensford Estate Blue Mountain Cup", "👑", "✨", false],
+  [85, "Global Sovereign Vault", "🎁 Global Terroir Map Canvas Print & Rare Beans", "🎁", "🎁", true],
+  [86, "Hawaiian Kona Volcanic Keeper", "100% Peaberry Kona Reserve Brew", "🌺", "☕", false],
+  [87, "Guatemala Antigua Savant", "Smoky Cocoa Antigua V60 Filter", "🌋", "🧪", false],
+  [88, "Mount Kenya Nyeri Peak", "Phosphoric Sparkle Kenya Cold Drip", "🇰🇪", "🧊", false],
+  [89, "Sidama Sunshine Voyager", "Natural Dried Sidama Berry Bomb", "☀️", "☕", false],
+  [90, "Continental Legend Vault", "🏆 Custom Engraved Walnut & Brass Davara Box", "🏆", "🏆", true],
+
+  // Chapter 10: Celestial Pinnacle of Atelier (Levels 91-100)
+  [91, "Golden Tamper Custodian", "Golden Tamper Precision Extraction", "✨", "☕", false],
+  [92, "Sacred Bean Guardian", "Secret Cellar 100-Year Ancestral Brew", "🫘", "✨", false],
+  [93, "Infinity Extraction Virtuoso", "Multi-Temperature Layered Pour-Over Flight", "♾️", "🧪", false],
+  [94, "Zenith Flavor Architect", "Custom Tailored Signature Blend Formulated for You", "🏛️", "☕", false],
+  [95, "Celestial Altar Vault", "🎁 Handmade Atelier Brass & Teak Pour-Over Station", "🎁", "🎁", true],
+  [96, "Roastery Grand Chancellor", "Exclusive Table Reserved at All Atelier Cafes", "🎖️", "☕", false],
+  [97, "Eternal Hearth Keeper", "Lifetime Invitation to Annual Harvest Tasting", "🔥", "✨", false],
+  [98, "Mythic Terroir Weaver", "Ultra-Rare Geisha Tasting Flight For 4 Guests", "🌌", "✨", false],
+  [99, "Apex Palate Overlord", "Permanent VIP Gold Status Across the Atelier Network", "👑", "🏆", false],
+  [100, "Immortal Master of Atelier", "🏆 Immortal Grand Master Plaque, Lifetime 20% Off & Solid Brass Set", "🏆", "🏆", true]
 ];
+
+const ATELIER_CANDY_LEVELS = CANDY_LEVEL_SPECS.map(([lvl, title, reward, icon, rewardIcon, milestone], idx) => {
+  const pointsRequired = (lvl - 1) * 500;
+  const pointsToPass = lvl * 500;
+  const halfway = pointsRequired + 250;
+  const sPattern = [50, 76, 50, 24];
+  const xPercent = milestone ? 50 : sPattern[idx % 4];
+
+  return {
+    level: lvl,
+    title,
+    subtitle: milestone
+      ? `Milestone Vault: ${pointsRequired} - ${pointsToPass} Points (${pointsToPass} Total Pts Required)`
+      : `Earn ${pointsToPass} points (500 pts in this stage) to advance to Level ${lvl + 1}`,
+    pointsRequired,
+    pointsToPass,
+    reward,
+    rewardIcon,
+    icon,
+    stars: [
+      { id: 1, label: `Earn ${halfway} points (250 pts into Level ${lvl})`, earned: false },
+      { id: 2, label: `Reach ${pointsToPass} points to unlock Level ${lvl + 1}`, earned: false },
+      { id: 3, label: milestone ? `Unlock Level ${lvl} Milestone Vault` : `Stage ${lvl} Mastery Milestone`, earned: false }
+    ],
+    xPercent,
+    milestone: Boolean(milestone)
+  };
+});
 
 class CandyLevelsEngine {
   constructor() {
@@ -399,22 +376,22 @@ class CandyLevelsEngine {
   renderSagaMap({ compact = false, currentPoints = null, hideHeader = false } = {}) {
     const store = window.AtelierStore;
     const state = store ? store.getState() : {};
-    const membership = state.membership || { lifetimeVisits: 27, currentStamps: 7, points: 420 };
+    const membership = state.membership || { lifetimeVisits: 0, currentStamps: 0, points: 0 };
     const points = currentPoints !== null && currentPoints !== undefined ? Number(currentPoints) : (membership ? (membership.points || 0) : 0);
     const activeMembership = { ...membership, points };
     const currentLevelNum = this.calculateCurrentLevel(activeMembership);
     const levelProgress = this.getLevelProgress(activeMembership);
     const user = state.user || { firstName: 'Coffee Explorer' };
 
-    // Layout configuration - Generous vertical spacing for spatial breathing room
-    const totalLevels = this.levels.length; // 10 levels
-    const nodeSpacingY = compact ? 180 : 210;
+    // Layout configuration - Balanced vertical spacing for 100-level road
+    const totalLevels = this.levels.length; // 100 levels
+    const nodeSpacingY = compact ? 130 : 160;
     const svgWidth = 400;
     const paddingTop = 90;
     const paddingBottom = compact ? 260 : 295;
     const svgHeight = paddingTop + (totalLevels - 1) * nodeSpacingY + paddingBottom;
 
-    // 1. Calculate (x, y) coordinates for Level Nodes (Level 1 to Level 10)
+    // 1. Calculate (x, y) coordinates for Level Nodes (Level 1 to Level 100)
     const nodeCoords = [];
     for (let i = 0; i < totalLevels; i++) {
       const lvl = this.levels[i];
@@ -431,7 +408,7 @@ class CandyLevelsEngine {
       xPercent: 38
     };
 
-    // 3. Combined Waypoints for Continuous Road (Indices 0 through 10)
+    // 3. Combined Waypoints for Continuous Road (Indices 0 through 100)
     const waypoints = [startCoord, ...nodeCoords];
 
     // 4. Calculate Character Continuous Position along Winding Curve
@@ -443,7 +420,8 @@ class CandyLevelsEngine {
 
     // Contextual status text for character speech pill
     let charStatusText = '';
-    if (points >= 5000) {
+    const maxTrackPoints = totalLevels * 500;
+    if (points >= maxTrackPoints) {
       charStatusText = 'Grand Master Roaster Summit 🏆';
     } else if (charPos.segmentPts === 0 && charPos.segmentIndex > 0) {
       charStatusText = `Level ${charPos.segmentIndex} Achieved! 🎉`;
@@ -494,7 +472,7 @@ class CandyLevelsEngine {
       // Milestone or regular button content
       let nodeContent = '';
       if (lvl.milestone) {
-        nodeContent = `<span class="milestone-icon">${lvl.level === 10 ? '🏆' : '🎁'}</span>`;
+        nodeContent = `<span class="milestone-icon">${lvl.level === totalLevels ? '🏆' : '🎁'}</span>`;
       } else if (isLocked) {
         nodeContent = `<span class="lock-icon">🔒</span><span class="lvl-num-sub">${lvl.level}</span>`;
       } else {

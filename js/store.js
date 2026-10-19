@@ -511,15 +511,15 @@ class Store {
 
     let stampResult = null;
     if (addStamp) {
-      const prevVisits = this.state.membership.currentStamps;
+      const prevVisits = Number(this.state.membership.currentStamps || 0);
       let newVisits = prevVisits + 1;
       let cardCompleted = false;
-      if (newVisits > this.state.membership.maxStamps) {
-        newVisits = 1; // Start fresh card cycle!
+      if (newVisits >= this.state.membership.maxStamps) {
+        newVisits = this.state.membership.maxStamps; // Full card at maxStamps (10/10)
         cardCompleted = true;
       }
       this.state.membership.currentStamps = newVisits;
-      this.state.membership.lifetimeVisits += 1;
+      this.state.membership.lifetimeVisits = (Number(this.state.membership.lifetimeVisits || 0)) + 1;
       stampResult = { newVisits, cardCompleted };
     }
 
@@ -783,6 +783,74 @@ class Store {
     }
   }
 
+  // Customer / Barista Action: Renew Full Loyalty Card (Resets stamps to 0, grants celebration + bonus)
+  renewLoyaltyCard() {
+    if (!this.state.membership) return false;
+
+    // Reset stamps to 0
+    this.state.membership.currentStamps = 0;
+    this.state.membership.cardCyclesCompleted = (Number(this.state.membership.cardCyclesCompleted || 0)) + 1;
+    const cycleNum = this.state.membership.cardCyclesCompleted;
+
+    // Bonus 50 points for completing and renewing card
+    const bonusPoints = 50;
+    const prevPoints = Number(this.state.membership.points || 0);
+    const newPoints = prevPoints + bonusPoints;
+    this.state.membership.points = newPoints;
+
+    const receiptNumber = 'RNW-' + Math.floor(10000 + Math.random() * 90000);
+    const renewalAct = {
+      id: 'renew_' + Date.now(),
+      type: 'reward',
+      title: 'Card Renewed 🔄',
+      subtitle: `Completed 10-Stamp Card #${cycleNum}! +${bonusPoints} Bonus Pts`,
+      productName: `Card #${cycleNum} Renewal`,
+      amountSpent: 0,
+      pointsEarned: bonusPoints,
+      previousBalance: prevPoints,
+      newBalance: newPoints,
+      conversionRate: this.getRupeesPerPoint(),
+      receiptNumber: receiptNumber,
+      date: 'Today',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      location: 'Bandra West Flagship, Mumbai'
+    };
+
+    this.state.activities.unshift(renewalAct);
+    this.recomputeRewardsStatus();
+    this.saveState();
+
+    // Persist to Supabase if authenticated
+    if (this.state.isAuthenticated && this.state.user?.id && window.AtelierSupabase) {
+      window.AtelierSupabase.syncMembership(this.state.user.id, {
+        current_stamps: 0,
+        lifetime_visits: this.state.membership.lifetimeVisits,
+        points: this.state.membership.points
+      });
+      window.AtelierSupabase.recordTransaction({
+        id: renewalAct.id,
+        user_id: this.state.user.id,
+        product_name: renewalAct.productName,
+        amount_spent: 0,
+        points_earned: bonusPoints,
+        stamps_added: 0,
+        receipt_number: renewalAct.receiptNumber,
+        location: renewalAct.location
+      });
+    }
+
+    if (window.AtelierAudio) {
+      if (window.AtelierAudio.playRewardUnlock) window.AtelierAudio.playRewardUnlock();
+      else if (window.AtelierAudio.playSuccessChime) window.AtelierAudio.playSuccessChime();
+    }
+    if (window.launchAtelierCelebration) {
+      window.launchAtelierCelebration();
+    }
+
+    this.notify({ type: 'CARD_RENEWED', cycleNum, bonusPoints });
+    return { cycleNum, bonusPoints };
+  }
+
   // --------------------------------------------------------------------------
   // Supabase Live Data Synchronization Engine
   // --------------------------------------------------------------------------
@@ -807,11 +875,11 @@ class Store {
 
     if (membership) {
       this.state.membership = {
-        currentStamps: Number(membership.current_stamps ?? 1),
+        currentStamps: Number(membership.current_stamps ?? 0),
         maxStamps: Number(membership.max_stamps ?? 10),
-        lifetimeVisits: Number(membership.lifetime_visits ?? 1),
-        points: Number(membership.points ?? 100),
-        currentStreak: Number(membership.current_streak ?? 1),
+        lifetimeVisits: Number(membership.lifetime_visits ?? 0),
+        points: Number(membership.points ?? 0),
+        currentStreak: Number(membership.current_streak ?? 0),
         rewardsRedeemedCount: Number(membership.rewards_redeemed_count ?? 0),
         streakFreezeAvailable: 1,
         streakMultiplier: 1.5

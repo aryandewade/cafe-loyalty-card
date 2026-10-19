@@ -245,14 +245,14 @@
       }
       const user = createdUsers[0] || userRecord;
 
-      // 4. Insert Membership into Supabase
+      // 4. Insert Membership into Supabase (0 stamps on first-time login/signup)
       const membershipRecord = {
         user_id: userId,
-        current_stamps: 1, // 1st Complimentary welcome stamp!
+        current_stamps: 0, // Starts with 0 stamps
         max_stamps: 10,
-        lifetime_visits: 1,
+        lifetime_visits: 0,
         points: 100, // 100 Welcome points!
-        current_streak: 1,
+        current_streak: 0,
         rewards_redeemed_count: 0,
         card_skin: 'espresso'
       };
@@ -264,10 +264,10 @@
       const welcomeTx = {
         id: 'tx_welcome_' + Date.now(),
         user_id: userId,
-        product_name: 'Welcome Gift: 100 Bonus Points & 1st Visit Stamp',
+        product_name: 'Welcome Gift: 100 Bonus Points (Start collecting stamps!)',
         amount_spent: 0,
         points_earned: 100,
-        stamps_added: 1,
+        stamps_added: 0,
         receipt_number: `RCP-${memberNum}`,
         location: 'Bandra West Flagship, Mumbai'
       };
@@ -323,14 +323,14 @@
 
       let membership = null;
       if (!memberships || memberships.length === 0) {
-        // Auto-initialize membership if missing
+        // Auto-initialize membership if missing (0 stamps)
         const newMembership = {
           user_id: user.id,
-          current_stamps: 1,
+          current_stamps: 0,
           max_stamps: 10,
-          lifetime_visits: 1,
+          lifetime_visits: 0,
           points: 100,
-          current_streak: 1,
+          current_streak: 0,
           rewards_redeemed_count: 0,
           card_skin: 'espresso'
         };

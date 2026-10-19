@@ -3169,6 +3169,34 @@ div {
   gap: 0.6rem;
 }
 
+.dash-card-full-callout {
+  animation: callout-glow 3s infinite alternate ease-in-out;
+}
+
+@keyframes callout-glow {
+  0% {
+    box-shadow: 0 4px 18px rgba(212, 175, 55, 0.15);
+  }
+  100% {
+    box-shadow: 0 6px 24px rgba(212, 175, 55, 0.35);
+  }
+}
+
+.card-renew-banner {
+  animation: banner-pulse 2.5s infinite ease-in-out;
+}
+
+@keyframes banner-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.2);
+  }
+  50% {
+    transform: scale(1.015);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.38);
+  }
+}
+
 .dash-points-strip {
   background: var(--bg-surface);
   border: 1px solid var(--color-cream-border);
