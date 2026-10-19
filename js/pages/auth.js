@@ -158,6 +158,19 @@ function renderRegisterForm() {
       <!-- Hidden confirm password field to keep seamless consistency -->
       <input type="hidden" id="reg-confirm" value="">
 
+      <!-- Terms & Privacy Agreement Checkbox (DPDP Act, 2023 Compliant) -->
+      <div class="auth-terms-group" style="margin: 0.85rem 0 1.15rem; text-align: left;">
+        <label class="auth-agree-check" for="reg-agree">
+          <input type="checkbox" id="reg-agree" required>
+          <span>
+            I agree to the 
+            <a href="#terms" class="auth-legal-link" id="reg-terms-link">Terms &amp; Conditions</a> 
+            and 
+            <a href="#privacy" class="auth-legal-link" id="reg-privacy-link">Privacy Policy</a>.
+          </span>
+        </label>
+      </div>
+
       <!-- Submit CTA Button: "Create Account →" -->
       <button type="submit" id="register-submit-btn" class="auth-boutique-btn">
         <span class="btn-label">Create Account &rarr;</span>
@@ -207,6 +220,25 @@ function initAuthEvents() {
       defaultYear: 1998
     });
   }
+
+  // Legal Document Link Modal Triggers (seamless in-app reading without losing inputs)
+  document.getElementById('reg-terms-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (window.openLegalModal) {
+      window.openLegalModal('terms');
+    } else {
+      window.open('#terms', '_blank');
+    }
+  });
+
+  document.getElementById('reg-privacy-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (window.openLegalModal) {
+      window.openLegalModal('privacy');
+    } else {
+      window.open('#privacy', '_blank');
+    }
+  });
 
   // Login Form Submission -> Authenticates with Supabase
   const loginForm = document.getElementById('login-form');
@@ -305,6 +337,16 @@ function initAuthEvents() {
           errorBanner.style.display = 'block';
         }
         window.showToast('Password too short (min 6 characters)');
+        return;
+      }
+
+      const agreeCheck = document.getElementById('reg-agree');
+      if (agreeCheck && !agreeCheck.checked) {
+        if (errorBanner) {
+          errorBanner.textContent = 'Please accept the Terms & Conditions and Privacy Policy to create your account.';
+          errorBanner.style.display = 'block';
+        }
+        window.showToast('Please agree to the Terms & Conditions and Privacy Policy');
         return;
       }
 

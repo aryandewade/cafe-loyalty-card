@@ -134,6 +134,14 @@ class Router {
         case 'admin':
           pageHtml = window.renderAdminPage ? window.renderAdminPage() : '<p>Admin Portal Loading...</p>';
           break;
+        case 'terms':
+        case 'terms-and-conditions':
+          pageHtml = window.renderLegalPage ? window.renderLegalPage('terms') : '';
+          break;
+        case 'privacy':
+        case 'privacy-policy':
+          pageHtml = window.renderLegalPage ? window.renderLegalPage('privacy') : '';
+          break;
         default:
           pageHtml = window.renderLandingPage ? window.renderLandingPage() : '';
           break;
@@ -168,7 +176,7 @@ class Router {
       ${route !== 'home' && route !== 'admin' ? `
         <footer class="site-footer app-global-footer" style="padding: 1.8rem 1rem 4.5rem; text-align: center; border-top: 1px solid var(--color-cream-border-subtle); margin-top: 2.5rem;">
           <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; font-size: 0.78rem; color: var(--color-roast-muted);">
-            <div>© 2026 Atelier Café. All rights reserved. • Powered by <a href="https://engiplex.in" target="_blank" rel="noopener noreferrer" style="color: inherit;">Engiplex Solutions</a></div>
+            <div>© 2026 Atelier Café. All rights reserved. • <a href="#privacy" style="color: inherit; text-decoration: underline;">Privacy Policy</a> • <a href="#terms" style="color: inherit; text-decoration: underline;">Terms &amp; Conditions</a> • Powered by <a href="https://engiplex.in" target="_blank" rel="noopener noreferrer" style="color: inherit;">Engiplex Solutions</a></div>
             <div class="footer-admin-link-wrap">
               <a href="#admin" class="footer-admin-btn" title="Café Owner Admin Portal" aria-label="Café Owner Admin Portal" style="display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--bg-canvas-subtle); border: 1px solid var(--color-cream-border); color: var(--color-roast-muted); transition: all 0.2s ease;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -217,6 +225,12 @@ class Router {
           break;
         case 'admin':
           if (window.initAdminEvents) window.initAdminEvents();
+          break;
+        case 'terms':
+        case 'terms-and-conditions':
+        case 'privacy':
+        case 'privacy-policy':
+          if (window.initLegalEvents) window.initLegalEvents();
           break;
       }
     } catch (e) {

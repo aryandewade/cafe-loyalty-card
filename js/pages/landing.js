@@ -265,11 +265,18 @@ function renderLandingPage() {
                   <li><a href="#register">Sign Up</a></li>
                 </ul>
               </div>
+              <div class="footer-col">
+                <div class="footer-col-title">Legal &amp; Trust</div>
+                <ul class="footer-links-list">
+                  <li><a href="#privacy">Privacy Policy</a></li>
+                  <li><a href="#terms">Terms &amp; Conditions</a></li>
+                </ul>
+              </div>
             </div>
           </div>
 
           <div class="footer-bottom-row">
-            <div class="footer-copyright">© 2026 Atelier Café. All rights reserved. • Powered by <a href="https://engiplex.in" target="_blank" rel="noopener noreferrer">Engiplex Solutions</a></div>
+            <div class="footer-copyright">© 2026 Atelier Café. All rights reserved. • <a href="#privacy" style="color: inherit; text-decoration: underline;">Privacy</a> • <a href="#terms" style="color: inherit; text-decoration: underline;">Terms</a> • Powered by <a href="https://engiplex.in" target="_blank" rel="noopener noreferrer">Engiplex Solutions</a></div>
             <div class="footer-admin-link-wrap">
               <a href="#admin" class="footer-admin-btn" title="Café Owner Admin Portal" aria-label="Café Owner Admin Portal">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
