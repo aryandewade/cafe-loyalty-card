@@ -408,8 +408,19 @@ class Store {
 
   recomputeRewardsStatus() {
     const visits = this.state.membership ? this.state.membership.currentStamps : 0;
+    const redeemedKeywords = (this.state.activities || [])
+      .filter(a => a.type === 'redemption' || (a.title && a.title.toLowerCase().includes('redeem')) || (a.productName && a.productName.toLowerCase().includes('reward redeemed')))
+      .map(a => `${a.title || ''} ${a.subtitle || ''} ${a.productName || ''}`.toLowerCase());
+
     this.state.rewards.forEach(rew => {
-      if (rew.status === 'redeemed') return;
+      const wasRedeemed = rew.status === 'redeemed' ||
+        (this.state.activeRedemptionPass && this.state.activeRedemptionPass.rewardId === rew.id) ||
+        redeemedKeywords.some(kw => kw.includes(rew.title.toLowerCase()) || kw.includes(rew.id.toLowerCase()));
+
+      if (wasRedeemed) {
+        rew.status = 'redeemed';
+        return;
+      }
       if (visits >= rew.requiredVisits) {
         rew.status = 'ready';
       } else if (visits >= Math.max(1, rew.requiredVisits - 3)) {
@@ -663,7 +674,7 @@ class Store {
     if (this.state.membership.currentStamps > 0) {
       this.state.membership.currentStamps -= 1;
       this.state.membership.lifetimeVisits = Math.max(0, this.state.membership.lifetimeVisits - 1);
-      
+
       // If the latest activity was a stamp or transaction, revert its points
       let pointsToDeduct = 25;
       if (this.state.activities.length > 0 && this.state.activities[0].type === 'transaction') {
@@ -720,6 +731,12 @@ class Store {
   redeemReward(rewardId) {
     const reward = this.state.rewards.find(r => r.id === rewardId);
     if (!reward) return null;
+    if (reward.status === 'redeemed') {
+      if (this.state.activeRedemptionPass && this.state.activeRedemptionPass.rewardId === rewardId) {
+        return this.state.activeRedemptionPass;
+      }
+      return null;
+    }
 
     const passCode = 'RD-' + Math.floor(10000 + Math.random() * 90000);
     const pass = {
@@ -976,7 +993,7 @@ class Store {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: this.state.user.id, ...updates })
       });
-    } catch (e) {}
+    } catch (e) { }
 
     this.notifyListeners({ type: 'PROFILE_UPDATED', user: this.state.user });
   }

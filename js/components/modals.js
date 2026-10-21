@@ -12,8 +12,6 @@ function openRedemptionPassModal(pass) {
   const container = document.getElementById('modal-root');
   if (!container) return;
 
-  const qrSvg = window.generateAtelierQR ? window.generateAtelierQR(pass.code + '-ATELIER-VERIFIED', 150) : '';
-
   let secondsLeft = pass.expiresInMinutes * 60;
   function formatTime(secs) {
     const m = Math.floor(secs / 60).toString().padStart(2, '0');
@@ -37,22 +35,31 @@ function openRedemptionPassModal(pass) {
             <button class="btn-text" id="close-pass-btn" style="padding: 0.2rem; font-size: 1.2rem; color: var(--color-roast-muted);">✕</button>
           </div>
 
-          <div style="font-family: var(--font-serif); font-size: 1.6rem; font-weight: 600; color: var(--color-espresso); margin: 0.6rem 0 0.2rem;">
+          <div style="font-family: var(--font-serif); font-size: 1.55rem; font-weight: 600; color: var(--color-espresso); margin: 0.6rem 0 0.2rem;">
             ${pass.rewardTitle}
           </div>
           <div style="font-size: 0.8rem; color: var(--color-roast-medium);">
             Member: <strong>${pass.customerName}</strong> (${pass.membershipId})
           </div>
 
-          <!-- Center QR Matrix -->
-          <div class="ticket-qr-container">
-            ${qrSvg}
-          </div>
-
-          <!-- Redemption Code & Timer -->
-          <div class="ticket-code">${pass.code}</div>
-          <div style="font-size: 0.72rem; color: var(--color-roast-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">
-            Show this pass to staff at the counter
+          <!-- Redemption Code Display Card with Copy Button (No QR Code) -->
+          <div class="ticket-code-card" style="margin: 1.2rem 0; padding: 1.3rem 1rem; background: var(--bg-canvas-subtle); border: 1.5px dashed var(--color-gold-foil); border-radius: 16px; text-align: center;">
+            <div style="font-size: 0.72rem; color: var(--color-roast-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.35rem; font-weight: 700;">
+              REDEMPTION PASS CODE
+            </div>
+            <div id="pass-code-display" class="ticket-code font-mono" style="font-size: 2.15rem; font-weight: 800; letter-spacing: 0.12em; color: var(--color-espresso); margin-bottom: 0.85rem; line-height: 1.1;">
+              ${pass.code}
+            </div>
+            <button id="copy-pass-code-btn" class="btn-primary" style="margin: 0 auto; padding: 0.55rem 1.4rem; font-size: 0.85rem; font-weight: 600; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.45rem; box-shadow: 0 4px 14px rgba(188, 90, 43, 0.3);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span id="copy-btn-label">Copy Code</span>
+            </button>
+            <div style="font-size: 0.74rem; color: var(--color-roast-muted); margin-top: 0.65rem;">
+              Present this code at the café counter to claim your reward
+            </div>
           </div>
 
           <div class="ticket-dashed-divider"></div>
@@ -90,6 +97,23 @@ function openRedemptionPassModal(pass) {
       }
     }
   }, 1000);
+
+  // Copy Code Listener
+  document.getElementById('copy-pass-code-btn')?.addEventListener('click', () => {
+    navigator.clipboard.writeText(pass.code).then(() => {
+      const label = document.getElementById('copy-btn-label');
+      if (label) label.textContent = 'Copied! ✓';
+      if (window.showToast) window.showToast(`Code ${pass.code} copied to clipboard! 📋`);
+      if (window.AtelierAudio?.playTap) window.AtelierAudio.playTap();
+      setTimeout(() => {
+        if (label) label.textContent = 'Copy Code';
+      }, 2500);
+    }).catch(() => {
+      const label = document.getElementById('copy-btn-label');
+      if (label) label.textContent = 'Copied! ✓';
+      if (window.showToast) window.showToast(`Pass Code: ${pass.code}`);
+    });
+  });
 
   // Close Listener
   document.getElementById('close-pass-btn')?.addEventListener('click', closeAllModals);

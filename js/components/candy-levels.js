@@ -158,6 +158,40 @@ const ATELIER_CANDY_LEVELS = CANDY_LEVEL_SPECS.map(([lvl, title, reward, icon, r
 class CandyLevelsEngine {
   constructor() {
     this.levels = ATELIER_CANDY_LEVELS;
+    this.activeBatchIndex = null;
+  }
+
+  // 20-Level Stage Navigator (0: 1-20, 1: 21-40, 2: 41-60, 3: 61-80, 4: 81-100)
+  setBatchIndex(batchIndex) {
+    this.activeBatchIndex = Math.min(4, Math.max(0, Number(batchIndex) || 0));
+    if (window.router) {
+      window.router.render();
+    }
+    if (window.initCandyLevelsEvents) {
+      window.initCandyLevelsEvents();
+    }
+    setTimeout(() => {
+      const roadEl = document.querySelector('.candy-road-stage') || document.querySelector('.candy-saga-viewport');
+      if (roadEl) {
+        roadEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  }
+
+  nextBatch() {
+    const cur = (this.activeBatchIndex !== undefined && this.activeBatchIndex !== null) ? this.activeBatchIndex : 0;
+    if (cur < 4) {
+      this.setBatchIndex(cur + 1);
+      if (window.AtelierAudio?.playTap) window.AtelierAudio.playTap();
+    }
+  }
+
+  prevBatch() {
+    const cur = (this.activeBatchIndex !== undefined && this.activeBatchIndex !== null) ? this.activeBatchIndex : 0;
+    if (cur > 0) {
+      this.setBatchIndex(cur - 1);
+      if (window.AtelierAudio?.playTap) window.AtelierAudio.playTap();
+    }
   }
 
   // CORE RULE: Each level has a difference of 500 points!
@@ -372,28 +406,34 @@ class CandyLevelsEngine {
     return d;
   }
 
-  // Get authoritative road layout and waypoints for continuous Bézier curve
-  getWaypoints(compact = false) {
-    const totalLevels = this.levels.length; // 100 levels
-    const nodeSpacingY = compact ? 130 : 160;
+  // Get authoritative road layout and waypoints for continuous Bézier curve (20 levels per batch)
+  getWaypoints(compact = false, batchIndex = 0) {
+    const BATCH_SIZE = 20;
+    const startLevelIndex = Math.min(80, Math.max(0, Number(batchIndex) || 0)) * BATCH_SIZE;
+    const endLevelIndex = Math.min(this.levels.length, startLevelIndex + BATCH_SIZE);
+    const batchLevels = this.levels.slice(startLevelIndex, endLevelIndex);
+    const totalLevelsInBatch = batchLevels.length;
+
+    const nodeSpacingY = compact ? 130 : 155;
     const svgWidth = 400;
     const paddingTop = 90;
-    const paddingBottom = compact ? 260 : 295;
-    const svgHeight = paddingTop + (totalLevels - 1) * nodeSpacingY + paddingBottom;
+    const paddingBottom = compact ? 220 : 260;
+    const svgHeight = paddingTop + (totalLevelsInBatch - 1) * nodeSpacingY + paddingBottom;
 
     const nodeCoords = [];
-    for (let i = 0; i < totalLevels; i++) {
-      const lvl = this.levels[i];
+    for (let i = 0; i < totalLevelsInBatch; i++) {
+      const lvl = batchLevels[i];
       const x = (lvl.xPercent / 100) * svgWidth;
       const y = svgHeight - paddingBottom - i * nodeSpacingY;
       nodeCoords.push({ x, y, level: lvl.level, xPercent: lvl.xPercent });
     }
 
+    const firstLvl = batchLevels[0];
     const startCoord = {
-      x: (38 / 100) * svgWidth,
+      x: (firstLvl.xPercent > 50 ? 38 : 62) / 100 * svgWidth,
       y: svgHeight - 65,
-      level: 0,
-      xPercent: 38
+      level: firstLvl.level - 1,
+      xPercent: firstLvl.xPercent > 50 ? 38 : 62
     };
 
     const waypoints = [startCoord, ...nodeCoords];
@@ -406,12 +446,15 @@ class CandyLevelsEngine {
       nodeSpacingY,
       paddingTop,
       paddingBottom,
-      totalLevels
+      batchLevels,
+      startLevel: batchLevels[0].level,
+      endLevel: batchLevels[batchLevels.length - 1].level,
+      totalLevelsInBatch
     };
   }
 
-  // Render the Candy Crush Winding Road with Interactive Character Avatar
-  renderSagaMap({ compact = false, currentPoints = null, hideHeader = false, hideFooter = false } = {}) {
+  // Render the Candy Crush Winding Road with Interactive Character Avatar (20 levels at once)
+  renderSagaMap({ compact = false, currentPoints = null, hideHeader = false, hideFooter = false, batchIndex = null } = {}) {
     const store = window.AtelierStore;
     const state = store ? store.getState() : {};
     const membership = state.membership || { lifetimeVisits: 0, currentStamps: 0, points: 0 };
@@ -421,35 +464,61 @@ class CandyLevelsEngine {
     const levelProgress = this.getLevelProgress(activeMembership);
     const user = state.user || { firstName: 'Coffee Explorer' };
 
-    // Layout configuration - Authoritative single-source layout calculation
-    const { waypoints, nodeCoords, startCoord, svgWidth, svgHeight, totalLevels } = this.getWaypoints(compact);
+    // Determine 20-level batch (0: 1-20, 1: 21-40, 2: 41-60, 3: 61-80, 4: 81-100)
+    const userActiveBatchIndex = Math.min(4, Math.max(0, Math.floor((currentLevelNum - 1) / 20)));
+    const activeBatch = (batchIndex !== null && batchIndex !== undefined)
+      ? Number(batchIndex)
+      : (this.activeBatchIndex !== null && this.activeBatchIndex !== undefined ? this.activeBatchIndex : userActiveBatchIndex);
+    this.activeBatchIndex = activeBatch;
 
-    // 4. Calculate Character Continuous Position along Winding Curve
-    const charPos = this.getCharacterRoadPosition(points, waypoints, svgWidth);
+    // Layout configuration for 20 levels
+    const {
+      waypoints,
+      nodeCoords,
+      startCoord,
+      svgWidth,
+      svgHeight,
+      batchLevels,
+      startLevel,
+      endLevel,
+      totalLevelsInBatch
+    } = this.getWaypoints(compact, activeBatch);
+
+    const batchMinPts = (startLevel - 1) * 500;
+    const batchMaxPts = endLevel * 500;
+    const isPastBatch = points >= batchMaxPts;
+    const isFutureBatch = points < batchMinPts;
+    const isCurrentBatch = !isPastBatch && !isFutureBatch;
+
+    // 4. Calculate Character Continuous Position along Winding Curve within this batch
+    const relPts = Math.max(0, Math.min(totalLevelsInBatch * 500, points - batchMinPts));
+    const charPos = this.getCharacterRoadPosition(relPts, waypoints, svgWidth);
 
     // 5. Generate Road Paths
     const fullPathD = this.generatePathSvg(waypoints);
-    const completedPathD = this.generateProgressPathSvg(waypoints, charPos);
+    let completedPathD = '';
+    if (isPastBatch) {
+      completedPathD = fullPathD;
+    } else if (isCurrentBatch) {
+      completedPathD = this.generateProgressPathSvg(waypoints, charPos);
+    }
 
     // Contextual status text for character speech pill
     let charStatusText = '';
-    const maxTrackPoints = totalLevels * 500;
-    if (points >= maxTrackPoints) {
+    if (points >= 100 * 500) {
       charStatusText = 'Grand Master Roaster Summit 🏆';
     } else if (charPos.segmentPts === 0 && charPos.segmentIndex > 0) {
-      charStatusText = `Level ${charPos.segmentIndex} Achieved! 🎉`;
+      charStatusText = `Level ${startLevel + charPos.segmentIndex - 1} Achieved! 🎉`;
     } else if (charPos.t >= 0.45 && charPos.t <= 0.55) {
-      charStatusText = charPos.segmentIndex === 0
-        ? `Midway to Level 1 (${charPos.pointsLeft} pts left)`
-        : `Midway to Level ${charPos.toLevelNum} (${charPos.pointsLeft} pts left)`;
+      charStatusText = `Midway to Level ${currentLevelNum} (${charPos.pointsLeft} pts left)`;
     } else if (charPos.segmentIndex === 0) {
-      charStatusText = `${charPos.pointsLeft} pts to Level 1`;
+      charStatusText = `${charPos.pointsLeft} pts to Level ${startLevel}`;
     } else {
-      charStatusText = `${charPos.pointsLeft} pts to Level ${charPos.toLevelNum}`;
+      charStatusText = `${charPos.pointsLeft} pts to Level ${currentLevelNum}`;
     }
 
-    // Render nodes HTML
-    const nodesHtml = this.levels.map((lvl, idx) => {
+    // Render nodes HTML for the 20 levels in this batch
+    const nodesHtml = batchLevels.map((lvl, idx) => {
       const coords = nodeCoords[idx];
       const isCompleted = points >= lvl.pointsToPass;
       const isCurrent = lvl.level === currentLevelNum;
@@ -468,7 +537,7 @@ class CandyLevelsEngine {
         `;
       }
 
-      // Active Target Node Destination Pulse (Only show TARGET badge if no stars earned yet to prevent collision)
+      // Active Target Node Destination Pulse
       let targetBeaconHtml = '';
       if (isCurrent) {
         targetBeaconHtml = `
@@ -482,14 +551,21 @@ class CandyLevelsEngine {
         `;
       }
 
-      // Milestone or regular button content
       let nodeContent = '';
       if (lvl.milestone) {
-        nodeContent = `<span class="milestone-icon">${lvl.level === totalLevels ? '🏆' : '🎁'}</span>`;
+        nodeContent = `
+          <span class="milestone-icon">${lvl.level === 100 ? '🏆' : (lvl.level % 10 === 0 ? '🏆' : '🎁')}</span>
+          <span class="lvl-num-sub font-mono">${lvl.level}</span>
+        `;
       } else if (isLocked) {
-        nodeContent = `<span class="lock-icon">🔒</span><span class="lvl-num-sub">${lvl.level}</span>`;
+        nodeContent = `
+          <span class="lock-icon">🔒</span>
+          <span class="lvl-num-sub font-mono">${lvl.level}</span>
+        `;
       } else {
-        nodeContent = `<span class="lvl-number">${lvl.level}</span>`;
+        nodeContent = `
+          <span class="lvl-number font-mono">${lvl.level}</span>
+        `;
       }
 
       const nodeClass = [
@@ -523,7 +599,7 @@ class CandyLevelsEngine {
             </div>
           </button>
           <div class="candy-node-caption ${captionSide}">
-            <span class="caption-title">${lvl.title}</span>
+            <span class="caption-title">Level ${lvl.level} • ${lvl.title}</span>
             <span class="caption-card-sub">${lvl.pointsToPass} Pts Target</span>
             ${lvl.milestone ? `<span class="caption-milestone">VAULT</span>` : ''}
           </div>
@@ -531,21 +607,31 @@ class CandyLevelsEngine {
       `;
     }).join('');
 
-    // Roastery Gates HTML (Start at 0 Pts)
-    const startGateHtml = `
+    // Roastery Gates HTML or Gateway Checkpoint
+    const startGateHtml = activeBatch === 0 ? `
       <div class="candy-start-gate" style="left: ${startCoord.xPercent}%; top: ${startCoord.y}px;" title="Roastery Entrance • 0 Pts Start">
         <div class="start-gate-badge">
           <span class="start-icon">🚪</span>
           <div class="start-text-col">
             <span class="start-title">ROASTERY GATES</span>
-            <span class="start-pts font-mono">0 PTS</span>
+            <span class="start-pts font-mono">0 PTS START</span>
+          </div>
+        </div>
+      </div>
+    ` : `
+      <div class="candy-start-gate" style="left: ${startCoord.xPercent}%; top: ${startCoord.y}px;" title="Stage Gate • Entry to Levels ${startLevel}–${endLevel}">
+        <div class="start-gate-badge" style="border-color: rgba(200, 157, 75, 0.45); background: rgba(30, 20, 16, 0.95); box-shadow: 0 4px 16px rgba(0,0,0,0.35);">
+          <span class="start-icon">🏛️</span>
+          <div class="start-text-col">
+            <span class="start-title">CHAPTER ${activeBatch + 1} GATEWAY</span>
+            <span class="start-pts font-mono">LVL ${startLevel} ENTRY (${batchMinPts} PTS)</span>
           </div>
         </div>
       </div>
     `;
 
-    // Dynamic Character Avatar Mascot along the Road
-    const characterHtml = `
+    // Dynamic Character Avatar Mascot along the Road (shown when character is in this batch)
+    const characterHtml = isCurrentBatch ? `
       <div class="candy-character-container ${charPos.isFacingRight ? 'facing-right' : 'facing-left'}" 
            style="left: ${charPos.xPercent}%; top: ${charPos.y}px;"
            onclick="window.candyEngine.characterTap(event)"
@@ -641,21 +727,21 @@ class CandyLevelsEngine {
           <div class="char-sparkle char-sparkle-2">✦</div>
         </div>
       </div>
-    `;
+    ` : '';
 
     return `
       <div class="candy-saga-viewport ${compact ? 'is-compact' : ''}">
         ${hideHeader ? '' : `
-        <!-- Header Banner -->
+        <!-- Header Banner with Stage Navigator -->
         <div class="candy-saga-header">
           <div class="candy-header-info">
             <div class="candy-eyebrow">
               <span class="candy-sparkle-dot"></span>
-              <span>500 POINTS = 1 LEVEL</span>
+              <span>500 POINTS = 1 LEVEL • STAGE ${activeBatch + 1} OF 5</span>
             </div>
-            <h2 class="candy-saga-title">Roaster's Path</h2>
+            <h2 class="candy-saga-title">Roaster's Path: Levels ${startLevel}–${endLevel}</h2>
             <p class="candy-saga-desc">
-              Advance 1 level every 500 points earned from café bills.
+              Showing 20 levels at a time. Advance 1 level every 500 points earned from café bills.
             </p>
           </div>
 
@@ -677,11 +763,66 @@ class CandyLevelsEngine {
               <span class="stat-lbl">Active</span>
             </div>
           </div>
+
+          <!-- 20-Level Stage Navigator Bar -->
+          <div class="candy-chapter-nav" style="display: flex; align-items: center; justify-content: space-between; gap: 0.45rem; flex-wrap: wrap; margin-top: 1rem; padding: 0.6rem 0.8rem; background: var(--bg-canvas-subtle); border: 1px solid var(--color-cream-border); border-radius: 16px;">
+            <button class="btn-secondary candy-nav-btn" onclick="window.candyEngine.prevBatch()" ${activeBatch === 0 ? 'disabled style="opacity: 0.4; cursor: not-allowed; padding: 0.4rem 0.8rem; font-size: 0.78rem;"' : 'style="padding: 0.4rem 0.8rem; font-size: 0.78rem;"'}>
+              <span>← Prev 20</span>
+            </button>
+
+            <div class="candy-chapter-pills" style="display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center;">
+              ${[0, 1, 2, 3, 4].map(idx => {
+                const bStart = idx * 20 + 1;
+                const bEnd = (idx + 1) * 20;
+                const isActive = idx === activeBatch;
+                const isUserHere = currentLevelNum >= bStart && currentLevelNum <= bEnd;
+                return `
+                  <button class="btn-secondary candy-pill-btn ${isActive ? 'btn-terracotta' : ''}" 
+                          onclick="window.candyEngine.setBatchIndex(${idx})"
+                          style="padding: 0.38rem 0.75rem; font-size: 0.76rem; border-radius: 999px; ${isActive ? 'font-weight: 700; box-shadow: 0 2px 10px rgba(188, 90, 43, 0.25);' : ''}">
+                    <span>${bStart}–${bEnd}</span>
+                    ${isUserHere ? `<span title="Your Active Level" style="margin-left: 2px;">📍</span>` : ''}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+
+            <button class="btn-secondary candy-nav-btn" onclick="window.candyEngine.nextBatch()" ${activeBatch === 4 ? 'disabled style="opacity: 0.4; cursor: not-allowed; padding: 0.4rem 0.8rem; font-size: 0.78rem;"' : 'style="padding: 0.4rem 0.8rem; font-size: 0.78rem;"'}>
+              <span>Next 20 →</span>
+            </button>
+          </div>
+
+          <!-- Quick Return to Active Level Banner (if viewing a different batch) -->
+          ${!isCurrentBatch ? `
+            <div style="margin-top: 0.75rem; padding: 0.55rem 0.9rem; background: rgba(204, 138, 91, 0.12); border: 1px dashed rgba(204, 138, 91, 0.4); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+              <span>📍 Your active progress is at <strong>Level ${currentLevelNum}</strong></span>
+              <button class="btn-text" onclick="window.candyEngine.setBatchIndex(${userActiveBatchIndex})" style="font-size: 0.78rem; color: var(--color-terracotta); font-weight: 600;">
+                Jump to My Level →
+              </button>
+            </div>
+          ` : ''}
         </div>
         `}
 
-        <!-- The Interactive Winding S-Curve Road -->
+        <!-- The Interactive Winding S-Curve Road (20 Levels) -->
         <div class="candy-road-stage" style="height: ${svgHeight}px;">
+          
+          <!-- Top Road Navigator (Next 20 button) -->
+          ${activeBatch < 4 ? `
+            <div class="candy-stage-nav-top" style="position: absolute; top: 18px; left: 50%; transform: translateX(-50%); z-index: 10; width: 92%; max-width: 380px; text-align: center;">
+              <button class="btn-primary candy-next-batch-btn" onclick="window.candyEngine.nextBatch()" style="width: 100%; justify-content: center; padding: 0.72rem 1.4rem; font-size: 0.88rem; font-weight: 700; border-radius: 999px; box-shadow: 0 6px 20px rgba(188, 90, 43, 0.4); gap: 0.5rem; letter-spacing: 0.02em;">
+                <span>Next 20 Levels (${endLevel + 1}–${Math.min(100, endLevel + 20)})</span>
+                <span style="font-size: 1.15rem; transform: translateY(-1px);">➔</span>
+              </button>
+            </div>
+          ` : `
+            <div class="candy-stage-nav-top" style="position: absolute; top: 18px; left: 50%; transform: translateX(-50%); z-index: 10; width: 92%; max-width: 380px; text-align: center;">
+              <div style="padding: 0.65rem 1.2rem; font-size: 0.84rem; border-radius: 999px; background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(255, 215, 0, 0.15)); border: 1.5px solid var(--color-gold-foil); color: var(--color-gold-foil); font-weight: 700; box-shadow: 0 4px 16px rgba(0,0,0,0.25);">
+                🏆 Level 100 Summit • Immortal Master of Atelier
+              </div>
+            </div>
+          `}
+
           <!-- SVG Path Layer -->
           <svg class="candy-road-svg" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="none">
             <defs>
@@ -715,6 +856,16 @@ class CandyLevelsEngine {
 
           <!-- 5. Floating Dynamic Character Mascot Layer -->
           ${characterHtml}
+
+          <!-- Bottom Road Navigator (Prev 20 button) -->
+          ${activeBatch > 0 ? `
+            <div class="candy-stage-nav-bottom" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 10; width: 92%; max-width: 380px; text-align: center;">
+              <button class="btn-secondary candy-prev-batch-btn" onclick="window.candyEngine.prevBatch()" style="width: 100%; justify-content: center; padding: 0.58rem 1.2rem; font-size: 0.82rem; font-weight: 600; border-radius: 999px; background: rgba(26, 18, 14, 0.9); backdrop-filter: blur(10px); border: 1px solid var(--color-cream-border); box-shadow: 0 4px 14px rgba(0,0,0,0.3); gap: 0.4rem;">
+                <span style="font-size: 1.05rem;">⬅</span>
+                <span>Previous 20 Levels (${startLevel - 20}–${startLevel - 1})</span>
+              </button>
+            </div>
+          ` : ''}
         </div>
 
         <!-- Saga Footer Action Banner -->
@@ -724,7 +875,7 @@ class CandyLevelsEngine {
             <span class="footer-icon">💎</span>
             <div>
               <div style="font-weight: 600; font-size: 0.9rem;">
-                Level ${currentLevelNum}: ${levelProgress.pointsLeftForNextLevel} pts to Level ${Math.min(totalLevels, currentLevelNum + 1)}
+                Level ${currentLevelNum}: ${levelProgress.pointsLeftForNextLevel} pts to Level ${Math.min(100, currentLevelNum + 1)}
               </div>
               <div style="font-size: 0.78rem; color: var(--color-roast-muted);">
                 ${levelProgress.pointsInCurrentLevel} / 500 points in Level ${currentLevelNum} (${membership.points || 0} total points)
@@ -1059,9 +1210,23 @@ window.candyEngine = new CandyLevelsEngine();
 
 // Standalone dedicated page renderer for #levels
 function renderCandyLevelsPage() {
+  const store = window.AtelierStore;
+  const state = store ? store.getState() : {};
+  const membership = state.membership || {};
+  const currentLevelNum = window.candyEngine ? window.candyEngine.calculateCurrentLevel(membership) : 1;
   return `
-    <div class="candy-levels-page-root" style="padding: 2rem 0 5rem;">
+    <div class="candy-levels-page-root" style="padding: 1.2rem 0 5rem;">
       <div class="container container-narrow">
+        <!-- STICKY VIEW SELECTOR TABS -->
+        <div class="dash-view-selector-tabs">
+          <a href="#dashboard" class="dash-view-tab-btn" id="levels-tab-card">
+            <span>💳 Card</span>
+          </a>
+          <button class="dash-view-tab-btn active" id="levels-tab-candy">
+            <span>🗺️ Saga Road</span>
+            <span class="candy-mini-badge">Lvl ${currentLevelNum}</span>
+          </button>
+        </div>
         ${window.candyEngine.renderSagaMap({ compact: false })}
       </div>
     </div>

@@ -19,6 +19,97 @@ function renderDashboardPage() {
   const levelProgress = window.candyEngine ? window.candyEngine.getLevelProgress(membership) : { pointsInCurrentLevel: membership.points || 0, pointsLeftForNextLevel: 80 };
   const starsTotal = window.candyEngine ? window.candyEngine.calculateTotalStars(membership) : 4;
 
+  // Next Reward & Active Pass State
+  const rewards = state.rewards || [];
+  const activePass = state.activeRedemptionPass;
+  const readyReward = rewards.find(r => r.status === 'ready');
+  const inProgressReward = rewards.find(r => r.status === 'in-progress');
+  const nextReward = readyReward || inProgressReward || rewards.find(r => r.status !== 'redeemed') || rewards[0];
+
+  let rewardSectionHtml = '';
+  if (activePass && activePass.status === 'active') {
+    rewardSectionHtml = `
+      <div class="double-bezel" style="margin-bottom: 1.8rem; border-color: rgba(200, 157, 75, 0.45);">
+        <div class="double-bezel-inner" style="padding: 1.15rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.9rem; background: linear-gradient(135deg, rgba(200, 157, 75, 0.08), rgba(188, 90, 43, 0.05));">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div class="reward-icon-box" style="margin-bottom: 0; width: 2.9rem; height: 2.9rem; font-size: 1.3rem; background: rgba(200, 157, 75, 0.15); border: 1px solid var(--color-gold-foil);">☕</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.2rem;">
+                <span class="reward-badge ready" style="background: var(--color-forest-roast); color: #FFF; font-size: 0.65rem; padding: 2px 7px;">Pass Active</span>
+                <span style="font-size: 0.72rem; color: var(--color-roast-muted);">Show code to counter staff</span>
+              </div>
+              <h3 style="font-size: 1.05rem; margin-bottom: 2px;">${activePass.rewardTitle}</h3>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 3px;">
+                <span style="font-size: 0.75rem; color: var(--color-roast-medium);">Code:</span>
+                <span class="font-mono" style="font-size: 1.05rem; font-weight: 800; color: var(--color-espresso); letter-spacing: 0.06em; background: rgba(0,0,0,0.06); padding: 1px 7px; border-radius: 6px;">${activePass.code}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <button id="dash-copy-pass-code-btn" class="btn-primary btn-terracotta" data-code="${activePass.code}" style="padding: 0.44rem 0.95rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span id="dash-copy-label">Copy Code</span>
+            </button>
+            <button id="dash-open-active-pass-btn" class="btn-secondary" style="padding: 0.44rem 0.75rem; font-size: 0.78rem;">
+              <span>View Pass</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (readyReward) {
+    rewardSectionHtml = `
+      <div class="double-bezel" style="margin-bottom: 1.8rem;">
+        <div class="double-bezel-inner" style="padding: 1.1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.9rem;">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div class="reward-icon-box" style="margin-bottom: 0; width: 2.8rem; height: 2.8rem; font-size: 1.25rem;">${readyReward.icon || '☕'}</div>
+            <div>
+              <span class="reward-badge ready" style="margin-bottom: 0.2rem; display: inline-block; font-size: 0.65rem; padding: 2px 7px;">Ready</span>
+              <h3 style="font-size: 1.1rem; margin-bottom: 1px;">${readyReward.title}</h3>
+              <p style="font-size: 0.76rem; color: var(--color-roast-medium); margin: 0;">Complimentary Perk Unlocked</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button id="dash-redeem-now-btn" data-reward-id="${readyReward.id}" class="btn-primary btn-terracotta" style="padding: 0.44rem 0.95rem; font-size: 0.78rem;">
+              <span>Redeem</span>
+            </button>
+            <a href="#rewards" class="btn-secondary" style="padding: 0.44rem 0.75rem; font-size: 0.78rem;">All</a>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    rewardSectionHtml = `
+      <div class="double-bezel" style="margin-bottom: 1.8rem;">
+        <div class="double-bezel-inner" style="padding: 1.1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.9rem;">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div class="reward-icon-box" style="margin-bottom: 0; width: 2.8rem; height: 2.8rem; font-size: 1.25rem;">${nextReward?.icon || '🥐'}</div>
+            <div>
+              <span class="reward-badge" style="margin-bottom: 0.2rem; display: inline-block; font-size: 0.65rem; padding: 2px 7px; background: rgba(0, 184, 148, 0.12); color: #00B894; border: 1px solid rgba(0, 184, 148, 0.25);">
+                ${nextReward?.status === 'redeemed' ? 'Claimed ✓' : 'Next Perk'}
+              </span>
+              <h3 style="font-size: 1.05rem; margin-bottom: 1px;">${nextReward ? nextReward.title : 'All Rewards Unlocked'}</h3>
+              <p style="font-size: 0.76rem; color: var(--color-roast-medium); margin: 0;">
+                ${nextReward && nextReward.status !== 'redeemed'
+                  ? `${Math.max(0, nextReward.requiredVisits - stamps)} more ${Math.max(0, nextReward.requiredVisits - stamps) === 1 ? 'visit' : 'visits'} needed`
+                  : 'Reward claimed! Visit café to unlock next perk.'}
+              </p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="#rewards" class="btn-secondary" style="padding: 0.44rem 0.85rem; font-size: 0.78rem;">View Perks ➔</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   // Recent 4 activities
   const recentActivities = activities.slice(0, 4);
   let timelineHtml = recentActivities.map(act => `
@@ -168,26 +259,8 @@ function renderDashboardPage() {
           </div>
         </div>
 
-        <!-- 4. NEXT REWARD (MINIMAL) -->
-        <div class="double-bezel" style="margin-bottom: 1.8rem;">
-          <div class="double-bezel-inner" style="padding: 1.1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.9rem;">
-            <div style="display: flex; align-items: center; gap: 0.85rem;">
-              <div class="reward-icon-box" style="margin-bottom: 0; width: 2.8rem; height: 2.8rem; font-size: 1.25rem;">☕</div>
-              <div>
-                <span class="reward-badge ready" style="margin-bottom: 0.2rem; display: inline-block; font-size: 0.65rem; padding: 2px 7px;">Ready</span>
-                <h3 style="font-size: 1.1rem; margin-bottom: 1px;">Chikmagalur V60 Pour Over</h3>
-                <p style="font-size: 0.76rem; color: var(--color-roast-medium); margin: 0;">Complimentary</p>
-              </div>
-            </div>
-
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <button id="dash-redeem-now-btn" class="btn-primary btn-terracotta" style="padding: 0.44rem 0.95rem; font-size: 0.78rem;">
-                <span>Redeem</span>
-              </button>
-              <a href="#rewards" class="btn-secondary" style="padding: 0.44rem 0.75rem; font-size: 0.78rem;">All</a>
-            </div>
-          </div>
-        </div>
+        <!-- 4. NEXT REWARD / ACTIVE PASS SPOTLIGHT -->
+        ${rewardSectionHtml}
 
         <!-- 5. RECENT VISITS (MINIMAL) -->
         <div>
@@ -209,32 +282,16 @@ function renderDashboardPage() {
 function initDashboardEvents() {
   window.initLoyaltyCardInteractions();
 
-  // Tab switchers (Sticky bar on scroll)
+  // Tab switchers
   document.getElementById('dash-tab-card')?.addEventListener('click', () => {
-    if (dashboardViewMode === 'card') {
-      const cardEl = document.querySelector('.dash-card-bezel') || document.querySelector('.dashboard-page-root');
-      if (cardEl) {
-        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    } else {
-      dashboardViewMode = 'card';
-      if (window.router) window.router.render();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    dashboardViewMode = 'card';
+    if (window.router) window.router.render();
   });
 
   document.getElementById('dash-tab-candy')?.addEventListener('click', () => {
-    if (dashboardViewMode === 'candy') {
-      const sagaEl = document.querySelector('.candy-saga-viewport') || document.querySelector('.dashboard-page-root');
-      if (sagaEl) {
-        sagaEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    } else {
-      dashboardViewMode = 'candy';
-      if (window.router) window.router.render();
-      if (window.initCandyLevelsEvents) window.initCandyLevelsEvents();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    dashboardViewMode = 'candy';
+    if (window.router) window.router.render();
+    if (window.initCandyLevelsEvents) window.initCandyLevelsEvents();
   });
 
   // Teaser banner click -> switch to Candy view
@@ -267,8 +324,34 @@ function initDashboardEvents() {
   });
 
   // Redeem Now from Dashboard
-  document.getElementById('dash-redeem-now-btn')?.addEventListener('click', () => {
-    const pass = window.AtelierStore.redeemReward('rew_pourover');
+  document.getElementById('dash-redeem-now-btn')?.addEventListener('click', (e) => {
+    const rewId = e.currentTarget.getAttribute('data-reward-id') || 'rew_pourover';
+    const pass = window.AtelierStore.redeemReward(rewId);
+    if (pass) {
+      window.openRedemptionPassModal(pass);
+      if (window.router) window.router.render();
+    }
+  });
+
+  // Copy Pass Code from Dashboard
+  document.getElementById('dash-copy-pass-code-btn')?.addEventListener('click', (e) => {
+    const code = e.currentTarget.getAttribute('data-code');
+    if (code) {
+      navigator.clipboard.writeText(code).then(() => {
+        const lbl = document.getElementById('dash-copy-label');
+        if (lbl) lbl.textContent = 'Copied! ✓';
+        if (window.showToast) window.showToast(`Code ${code} copied to clipboard! 📋`);
+        if (window.AtelierAudio?.playTap) window.AtelierAudio.playTap();
+        setTimeout(() => { if (lbl) lbl.textContent = 'Copy Code'; }, 2500);
+      }).catch(() => {
+        if (window.showToast) window.showToast(`Pass Code: ${code}`);
+      });
+    }
+  });
+
+  // Open Active Pass Modal from Dashboard
+  document.getElementById('dash-open-active-pass-btn')?.addEventListener('click', () => {
+    const pass = window.AtelierStore.getState().activeRedemptionPass;
     if (pass) {
       window.openRedemptionPassModal(pass);
     }
