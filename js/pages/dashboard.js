@@ -81,15 +81,15 @@ function renderDashboardPage() {
           </button>
         </div>
 
-        <!-- 2. MAIN DISPLAY: SAGA ROAD OR LOYALTY CARD -->
+        <!-- 2. MAIN DISPLAY: SAGA ROAD OR LOYALTY CARD (CARD & SAGA LEVEL STUCK TOGETHER) -->
         ${dashboardViewMode === 'candy' ? `
           <div style="margin-bottom: 1.8rem;">
             ${window.candyEngine ? window.candyEngine.renderSagaMap({ compact: false }) : ''}
           </div>
         ` : `
-          <!-- DIGITAL LOYALTY CARD -->
-          <div class="double-bezel dash-card-bezel" style="margin-bottom: 1.2rem; background: var(--bg-canvas-subtle);">
-            <div class="double-bezel-inner dash-card-bezel-inner" style="display: flex; flex-direction: column; align-items: center;">
+          <!-- UNIFIED DIGITAL LOYALTY CARD & SAGA LEVEL CONTAINER -->
+          <div class="double-bezel dash-card-bezel dash-card-saga-unified" style="margin-bottom: 1.4rem; background: var(--bg-canvas-subtle);">
+            <div class="double-bezel-inner dash-card-bezel-inner" style="display: flex; flex-direction: column; align-items: center; padding-bottom: 0;">
               <!-- Card Action Bar: Visits Counter & Primary Collect Stamp Button -->
               <div class="card-action-bar">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -114,28 +114,28 @@ function renderDashboardPage() {
               <div style="width: 100%; max-width: 440px;">
                 ${window.renderLoyaltyCard({ interactive: true })}
               </div>
-            </div>
-          </div>
 
-          <!-- SAGA PROGRESSION TEASER BANNER (MINIMAL) -->
-          <div class="candy-dash-teaser-card" id="dash-open-candy-map-btn" style="margin-bottom: 1.4rem; cursor: pointer;">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <div class="candy-teaser-avatar-bounce" style="font-size: 1.25rem;">☕</div>
-              <div>
-                <div style="font-size: 0.68rem; color: var(--color-gold-foil); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">
-                  LEVEL ${currentLevelNum} • ${membership.points || 0} POINTS
+              <!-- SAGA LEVEL DOCKED DIRECTLY AT BASE OF CARD (STUCK TOGETHER) -->
+              <div class="candy-dash-teaser-card dash-saga-docked-strip" id="dash-open-candy-map-btn" style="cursor: pointer;" title="Click to view Saga Road map">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div class="candy-teaser-avatar-bounce" style="font-size: 1.25rem;">☕</div>
+                  <div>
+                    <div style="font-size: 0.68rem; color: var(--color-gold-foil); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">
+                      LEVEL ${currentLevelNum} • ${membership.points || 0} POINTS
+                    </div>
+                    <div style="font-size: 0.95rem; font-weight: 600; color: #FAF4EA; font-family: var(--font-serif); margin-top: 1px;">
+                      ${currentLevelObj ? currentLevelObj.title : 'Roastery Regular'}
+                    </div>
+                    <div style="font-size: 0.74rem; color: rgba(250, 244, 234, 0.7); margin-top: 2px;">
+                      ${levelProgress.pointsInCurrentLevel}/500 Pts in Level • ${levelProgress.pointsLeftForNextLevel} pts to Level ${currentLevelNum + 1}
+                    </div>
+                  </div>
                 </div>
-                <div style="font-size: 0.95rem; font-weight: 600; color: var(--color-espresso); font-family: var(--font-serif); margin-top: 1px;">
-                  ${currentLevelObj ? currentLevelObj.title : 'Roastery Regular'}
-                </div>
-                <div style="font-size: 0.74rem; color: var(--color-roast-medium); margin-top: 2px;">
-                  ${levelProgress.pointsInCurrentLevel}/500 Pts in Level • ${levelProgress.pointsLeftForNextLevel} pts to Level ${currentLevelNum + 1}
-                </div>
+                <button class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.76rem; pointer-events: none; background: rgba(255, 212, 63, 0.15); border-color: rgba(255, 212, 63, 0.45); color: #FFE8A3; font-weight: 700;">
+                  <span>Road ➔</span>
+                </button>
               </div>
             </div>
-            <button class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.76rem; pointer-events: none;">
-              <span>Road ➔</span>
-            </button>
           </div>
         `}
 
