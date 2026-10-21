@@ -2260,7 +2260,8 @@ div {
   text-align: center;
 }
 
-@media (max-width: 640px), (max-height: 800px) {
+@media (max-width: 640px),
+(max-height: 800px) {
   .auth-page-root {
     padding: 1.25rem 0.85rem 1.75rem;
     align-items: center;
@@ -2499,8 +2500,8 @@ div {
   pointer-events: none;
   transform: translateY(-8px) scale(0.97);
   transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              visibility 0.22s;
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.22s;
 }
 
 [data-theme="dark"] .atelier-calendar-popover {
@@ -3177,6 +3178,7 @@ div {
   0% {
     box-shadow: 0 4px 18px rgba(212, 175, 55, 0.15);
   }
+
   100% {
     box-shadow: 0 6px 24px rgba(212, 175, 55, 0.35);
   }
@@ -3187,10 +3189,13 @@ div {
 }
 
 @keyframes banner-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 4px 14px rgba(212, 175, 55, 0.2);
   }
+
   50% {
     transform: scale(1.015);
     box-shadow: 0 6px 20px rgba(212, 175, 55, 0.38);
@@ -4475,6 +4480,7 @@ div {
     opacity: 0;
     transform: scale(0.92) translateY(14px);
   }
+
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -5450,6 +5456,44 @@ div {
   box-shadow: 0 4px 12px rgba(24, 19, 17, 0.08), 0 1px 3px rgba(24, 19, 17, 0.04);
 }
 
+/* ==========================================================================
+   STICKY CARD & SAGA LEVEL (DASHBOARD SCROLL)
+   Pins the digital loyalty card & saga level during scroll using CSS sticky
+   so user never needs to scroll back up to check stamps, card, or saga status.
+   ========================================================================== */
+
+.dash-sticky-card-saga-wrap {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 4.85rem;
+  z-index: 35;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  background: var(--bg-canvas);
+  padding: 0.35rem 0;
+  border-radius: var(--radius-outer);
+  transition: box-shadow var(--duration-normal) var(--ease-tactile);
+}
+
+.dash-sticky-card-saga-wrap.is-stuck {
+  box-shadow: 0 16px 36px -12px rgba(24, 19, 17, 0.12);
+}
+
+.dash-sticky-card-saga-wrap .dash-card-bezel {
+  margin-bottom: 0.65rem !important;
+}
+
+.dash-sticky-card-saga-wrap .candy-dash-teaser-card {
+  margin-bottom: 0 !important;
+}
+
+@media (max-width: 640px) {
+  .dash-sticky-card-saga-wrap {
+    top: 4.25rem;
+    padding: 0.2rem 0;
+  }
+}
+
 /* Teaser Card on Dashboard */
 .candy-dash-teaser-card {
   background: linear-gradient(135deg, #2A211D 0%, #1A1310 100%);
@@ -5469,46 +5513,6 @@ div {
   transform: translateY(-2px);
   box-shadow: 0 18px 36px -8px rgba(24, 19, 17, 0.35);
   border-color: rgba(200, 157, 75, 0.6);
-}
-
-/* Docked Saga Level Strip (Stuck directly to bottom of Loyalty Card Bezel) */
-.dash-card-saga-unified {
-  padding: 8px;
-}
-
-.dash-card-saga-unified .dash-card-bezel-inner {
-  padding: 1.4rem 1.4rem 0 !important;
-}
-
-.dash-saga-docked-strip {
-  width: calc(100% + 2.8rem) !important;
-  margin: 1.25rem -1.4rem 0 -1.4rem !important;
-  border-radius: 0 0 calc(var(--radius-inner) - 1px) calc(var(--radius-inner) - 1px) !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-bottom: none !important;
-  border-top: 1px solid rgba(200, 157, 75, 0.35) !important;
-  box-shadow: none !important;
-  transition: all 0.25s var(--ease-tactile);
-}
-
-.dash-saga-docked-strip:hover {
-  transform: none !important;
-  background: linear-gradient(135deg, #322722 0%, #1F1713 100%) !important;
-  border-top-color: rgba(200, 157, 75, 0.7) !important;
-  box-shadow: inset 0 2px 10px rgba(200, 157, 75, 0.12) !important;
-}
-
-@media (max-width: 540px) {
-  .dash-card-saga-unified .dash-card-bezel-inner {
-    padding: 1rem 1rem 0 !important;
-  }
-  .dash-saga-docked-strip {
-    width: calc(100% + 2rem) !important;
-    margin: 1rem -1rem 0 -1rem !important;
-    padding: 0.9rem 1rem !important;
-    gap: 0.6rem !important;
-  }
 }
 
 .candy-dash-teaser-card .candy-teaser-avatar-bounce {
@@ -6990,7 +6994,8 @@ div {
 }
 
 /* Mobile Screen Responsive Sizing (Ensures zero-scroll visibility) */
-@media (max-width: 640px), (max-height: 840px) {
+@media (max-width: 640px),
+(max-height: 840px) {
   .candy-celebrate-card {
     padding: 1.15rem 1rem 1rem;
     border-radius: 22px;
@@ -7280,6 +7285,7 @@ div {
     transform: translateY(0) scale(0.9);
     opacity: 0.3;
   }
+
   100% {
     transform: translateY(-16px) scale(1.15);
     opacity: 0.8;
@@ -7325,13 +7331,16 @@ div {
     stroke-dashoffset: 46;
     opacity: 0;
   }
+
   20% {
     opacity: 1;
   }
+
   75% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
+
   100% {
     stroke-dashoffset: -46;
     opacity: 0;
@@ -7348,6 +7357,7 @@ div {
   0% {
     transform: translateY(0);
   }
+
   100% {
     transform: translateY(-22px);
   }
@@ -7376,10 +7386,12 @@ div {
     opacity: 0;
     transform: translateY(0) scaleY(0.7);
   }
+
   50% {
     opacity: 0.85;
     transform: translateY(-6px) scaleY(1.1);
   }
+
   100% {
     opacity: 0.25;
     transform: translateY(-14px) scaleY(1.2);
@@ -7406,6 +7418,7 @@ div {
     opacity: 0.85;
     transform: translate(-50%, -50%) scale(0.2);
   }
+
   100% {
     opacity: 0;
     transform: translate(-50%, -50%) scale(2.4);
@@ -7453,6 +7466,7 @@ div {
     opacity: 0;
     transform: translateY(12px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -8048,6 +8062,7 @@ div {
   .admin-bento-grid {
     grid-template-columns: 1fr 1fr;
   }
+
   .admin-bento-hero {
     grid-column: span 2;
   }
@@ -8057,15 +8072,19 @@ div {
   .admin-bento-grid {
     grid-template-columns: 1fr;
   }
+
   .admin-bento-hero {
     grid-column: span 1;
   }
+
   .admin-card-surface {
     padding: 1.25rem;
   }
+
   .admin-search-input {
     width: 100%;
   }
+
   .admin-ledger-controls {
     width: 100%;
   }
@@ -8676,65 +8695,3 @@ div {
 .auth-legal-link:hover {
   color: var(--color-espresso);
 }
-
-/* ==========================================================================
-   ADMIN REAL-TIME DATABASE SYNC INDICATOR & CONTROLS
-   ========================================================================== */
-.admin-realtime-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.78rem;
-  font-family: var(--font-mono, monospace);
-  font-weight: 600;
-  padding: 0.42rem 0.9rem;
-  border-radius: 999px;
-  background: rgba(39, 174, 96, 0.08);
-  border: 1px solid rgba(39, 174, 96, 0.28);
-  color: #1b7a42;
-  box-shadow: 0 2px 6px rgba(39, 174, 96, 0.06);
-  user-select: none;
-}
-
-.admin-live-pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #27ae60;
-  box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.65);
-  animation: adminPulse 2s infinite ease-in-out;
-  flex-shrink: 0;
-}
-
-@keyframes adminPulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.65);
-  }
-  70% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 7px rgba(39, 174, 96, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(39, 174, 96, 0);
-  }
-}
-
-.admin-sync-time {
-  font-size: 0.72rem;
-  font-weight: 400;
-  color: rgba(27, 122, 66, 0.85);
-  border-left: 1px solid rgba(39, 174, 96, 0.25);
-  padding-left: 0.45rem;
-  margin-left: 0.2rem;
-}
-
-.admin-sync-spin-icon.spinning {
-  animation: adminSpin 0.75s linear infinite;
-}
-
-@keyframes adminSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
