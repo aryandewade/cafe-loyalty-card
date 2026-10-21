@@ -114,7 +114,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100vw;
   width: 100%;
 }
@@ -122,7 +122,7 @@ html {
 body {
   min-height: 100vh;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100vw;
   width: 100%;
   background-color: var(--bg-canvas);
@@ -170,7 +170,7 @@ body {
 #app {
   position: relative;
   z-index: 1;
-  overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
   max-width: 100%;
 }
@@ -3123,17 +3123,38 @@ div {
 }
 
 .dash-view-selector-tabs {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 4.8rem;
+  z-index: 50;
   display: flex;
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 1.4rem;
-  background: var(--bg-canvas-subtle);
-  padding: 4px;
+  background: rgba(244, 239, 230, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 5px;
   border-radius: 9999px;
   border: 1px solid var(--color-cream-border);
   max-width: 380px;
   margin-left: auto;
   margin-right: auto;
+  box-shadow: 0 8px 24px -6px rgba(24, 19, 17, 0.14);
+  transition: all 0.2s var(--ease-tactile);
+}
+
+[data-theme="dark"] .dash-view-selector-tabs {
+  background: rgba(26, 20, 18, 0.94);
+  border-color: #382D27;
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.55);
+}
+
+@media (max-width: 640px) {
+  .dash-view-selector-tabs {
+    top: 4rem;
+    max-width: 340px;
+  }
 }
 
 .dash-view-tab-btn {
@@ -5454,44 +5475,6 @@ div {
   background: var(--bg-surface) !important;
   color: var(--color-espresso) !important;
   box-shadow: 0 4px 12px rgba(24, 19, 17, 0.08), 0 1px 3px rgba(24, 19, 17, 0.04);
-}
-
-/* ==========================================================================
-   STICKY CARD & SAGA LEVEL (DASHBOARD SCROLL)
-   Pins the digital loyalty card & saga level during scroll using CSS sticky
-   so user never needs to scroll back up to check stamps, card, or saga status.
-   ========================================================================== */
-
-.dash-sticky-card-saga-wrap {
-  position: -webkit-sticky;
-  position: sticky;
-  top: 4.85rem;
-  z-index: 35;
-  width: 100%;
-  margin-bottom: 1.5rem;
-  background: var(--bg-canvas);
-  padding: 0.35rem 0;
-  border-radius: var(--radius-outer);
-  transition: box-shadow var(--duration-normal) var(--ease-tactile);
-}
-
-.dash-sticky-card-saga-wrap.is-stuck {
-  box-shadow: 0 16px 36px -12px rgba(24, 19, 17, 0.12);
-}
-
-.dash-sticky-card-saga-wrap .dash-card-bezel {
-  margin-bottom: 0.65rem !important;
-}
-
-.dash-sticky-card-saga-wrap .candy-dash-teaser-card {
-  margin-bottom: 0 !important;
-}
-
-@media (max-width: 640px) {
-  .dash-sticky-card-saga-wrap {
-    top: 4.25rem;
-    padding: 0.2rem 0;
-  }
 }
 
 /* Teaser Card on Dashboard */

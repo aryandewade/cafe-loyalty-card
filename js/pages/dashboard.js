@@ -81,64 +81,61 @@ function renderDashboardPage() {
           </button>
         </div>
 
-        <!-- 2. MAIN DISPLAY: SAGA ROAD OR STICKY LOYALTY CARD & SAGA LEVEL -->
+        <!-- 2. MAIN DISPLAY: SAGA ROAD OR LOYALTY CARD -->
         ${dashboardViewMode === 'candy' ? `
           <div style="margin-bottom: 1.8rem;">
             ${window.candyEngine ? window.candyEngine.renderSagaMap({ compact: false }) : ''}
           </div>
         ` : `
-          <!-- STICKY CARD & SAGA LEVEL CONTAINER (POSITION: STICKY) -->
-          <div class="dash-sticky-card-saga-wrap" id="dash-sticky-card-saga-wrap">
-            <!-- DIGITAL LOYALTY CARD -->
-            <div class="double-bezel dash-card-bezel" style="margin-bottom: 0.75rem; background: var(--bg-canvas-subtle);">
-              <div class="double-bezel-inner dash-card-bezel-inner" style="display: flex; flex-direction: column; align-items: center;">
-                <!-- Card Action Bar: Visits Counter & Primary Collect Stamp Button -->
-                <div class="card-action-bar">
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span class="font-mono" style="font-size: 0.88rem; font-weight: 700; color: var(--color-espresso);">
-                      ${stamps} / ${maxStamps} Visits
-                    </span>
-                    <span style="font-size: 0.74rem; color: var(--color-roast-muted);">(${visitsLeft === 0 ? 'Full' : `${visitsLeft} left`})</span>
-                  </div>
-
-                  <button id="dash-quick-stamp-btn" class="btn-primary" style="padding: 0.42rem 0.65rem 0.42rem 1rem; font-size: 0.82rem;">
-                    <span>Collect Stamp</span>
-                    <div class="btn-icon-wrapper" style="width: 1.5rem; height: 1.5rem;">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                      </svg>
-                    </div>
-                  </button>
+          <!-- DIGITAL LOYALTY CARD -->
+          <div class="double-bezel dash-card-bezel" style="margin-bottom: 1.2rem; background: var(--bg-canvas-subtle);">
+            <div class="double-bezel-inner dash-card-bezel-inner" style="display: flex; flex-direction: column; align-items: center;">
+              <!-- Card Action Bar: Visits Counter & Primary Collect Stamp Button -->
+              <div class="card-action-bar">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="font-mono" style="font-size: 0.88rem; font-weight: 700; color: var(--color-espresso);">
+                    ${stamps} / ${maxStamps} Visits
+                  </span>
+                  <span style="font-size: 0.74rem; color: var(--color-roast-muted);">(${visitsLeft === 0 ? 'Full' : `${visitsLeft} left`})</span>
                 </div>
 
-                <!-- The Digital Loyalty Card -->
-                <div style="width: 100%; max-width: 440px;">
-                  ${window.renderLoyaltyCard({ interactive: true })}
+                <button id="dash-quick-stamp-btn" class="btn-primary" style="padding: 0.42rem 0.65rem 0.42rem 1rem; font-size: 0.82rem;">
+                  <span>Collect Stamp</span>
+                  <div class="btn-icon-wrapper" style="width: 1.5rem; height: 1.5rem;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </div>
+                </button>
+              </div>
+
+              <!-- The Digital Loyalty Card -->
+              <div style="width: 100%; max-width: 440px;">
+                ${window.renderLoyaltyCard({ interactive: true })}
+              </div>
+            </div>
+          </div>
+
+          <!-- SAGA PROGRESSION TEASER BANNER (MINIMAL) -->
+          <div class="candy-dash-teaser-card" id="dash-open-candy-map-btn" style="margin-bottom: 1.4rem; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div class="candy-teaser-avatar-bounce" style="font-size: 1.25rem;">☕</div>
+              <div>
+                <div style="font-size: 0.68rem; color: var(--color-gold-foil); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">
+                  LEVEL ${currentLevelNum} • ${membership.points || 0} POINTS
+                </div>
+                <div style="font-size: 0.95rem; font-weight: 600; color: var(--color-espresso); font-family: var(--font-serif); margin-top: 1px;">
+                  ${currentLevelObj ? currentLevelObj.title : 'Roastery Regular'}
+                </div>
+                <div style="font-size: 0.74rem; color: var(--color-roast-medium); margin-top: 2px;">
+                  ${levelProgress.pointsInCurrentLevel}/500 Pts in Level • ${levelProgress.pointsLeftForNextLevel} pts to Level ${currentLevelNum + 1}
                 </div>
               </div>
             </div>
-
-            <!-- SAGA PROGRESSION TEASER BANNER (MINIMAL) -->
-            <div class="candy-dash-teaser-card dash-sticky-saga-card" id="dash-open-candy-map-btn" style="margin-bottom: 1.25rem; cursor: pointer;" title="Click to view Saga Road map">
-              <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <div class="candy-teaser-avatar-bounce" style="font-size: 1.25rem;">☕</div>
-                <div>
-                  <div style="font-size: 0.68rem; color: var(--color-gold-foil); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">
-                    LEVEL ${currentLevelNum} • ${membership.points || 0} POINTS
-                  </div>
-                  <div style="font-size: 0.95rem; font-weight: 600; color: #FAF4EA; font-family: var(--font-serif); margin-top: 1px;">
-                    ${currentLevelObj ? currentLevelObj.title : 'Roastery Regular'}
-                  </div>
-                  <div style="font-size: 0.74rem; color: rgba(250, 244, 234, 0.7); margin-top: 2px;">
-                    ${levelProgress.pointsInCurrentLevel}/500 Pts in Level • ${levelProgress.pointsLeftForNextLevel} pts to Level ${currentLevelNum + 1}
-                  </div>
-                </div>
-              </div>
-              <button class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.76rem; pointer-events: none; background: rgba(255, 212, 63, 0.15); border-color: rgba(255, 212, 63, 0.45); color: #FFE8A3; font-weight: 700;">
-                <span>Road ➔</span>
-              </button>
-            </div>
+            <button class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.76rem; pointer-events: none;">
+              <span>Road ➔</span>
+            </button>
           </div>
         `}
 
@@ -212,16 +209,32 @@ function renderDashboardPage() {
 function initDashboardEvents() {
   window.initLoyaltyCardInteractions();
 
-  // Tab switchers
+  // Tab switchers (Sticky bar on scroll)
   document.getElementById('dash-tab-card')?.addEventListener('click', () => {
-    dashboardViewMode = 'card';
-    if (window.router) window.router.render();
+    if (dashboardViewMode === 'card') {
+      const cardEl = document.querySelector('.dash-card-bezel') || document.querySelector('.dashboard-page-root');
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else {
+      dashboardViewMode = 'card';
+      if (window.router) window.router.render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   });
 
   document.getElementById('dash-tab-candy')?.addEventListener('click', () => {
-    dashboardViewMode = 'candy';
-    if (window.router) window.router.render();
-    if (window.initCandyLevelsEvents) window.initCandyLevelsEvents();
+    if (dashboardViewMode === 'candy') {
+      const sagaEl = document.querySelector('.candy-saga-viewport') || document.querySelector('.dashboard-page-root');
+      if (sagaEl) {
+        sagaEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      dashboardViewMode = 'candy';
+      if (window.router) window.router.render();
+      if (window.initCandyLevelsEvents) window.initCandyLevelsEvents();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   });
 
   // Teaser banner click -> switch to Candy view
@@ -271,20 +284,6 @@ function initDashboardEvents() {
       }
     });
   });
-
-  // Dynamic elevation shadow when sticky container pins during scroll
-  const stickyWrap = document.getElementById('dash-sticky-card-saga-wrap');
-  if (stickyWrap) {
-    const handleScroll = () => {
-      if (window.scrollY > 80) {
-        stickyWrap.classList.add('is-stuck');
-      } else {
-        stickyWrap.classList.remove('is-stuck');
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-  }
 }
 
 window.renderDashboardPage = renderDashboardPage;
