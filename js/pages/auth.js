@@ -219,8 +219,8 @@ function initAuthEvents() {
   const regDobInput = document.getElementById('reg-dob');
   if (regDobInput && window.attachAtelierDatePicker) {
     window.attachAtelierDatePicker(regDobInput, {
-      topLabel: 'DATE OF BIRTH * (MANDATORY)',
-      placeholder: 'dd-mm-yyyy *',
+      topLabel: 'DATE OF BIRTH',
+      placeholder: 'dd-mm-yyyy',
       format: 'dd-mm-yyyy',
       defaultYear: 1998
     });
