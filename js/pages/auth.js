@@ -109,7 +109,7 @@ function renderLoginForm() {
 
 function renderRegisterForm() {
   return `
-    <form id="register-form" class="auth-clean-form">
+    <form id="register-form" class="auth-clean-form" novalidate>
       <!-- Error Message Banner -->
       <div id="register-error-banner" class="auth-error-banner" role="alert"></div>
 
@@ -126,7 +126,7 @@ function renderRegisterForm() {
       <!-- Row 2: Date of Birth & Mobile (2 cols) -->
       <div class="auth-grid-2col">
         <div class="auth-input-group auth-dob-group">
-          <input type="text" id="reg-dob" class="auth-clean-input" placeholder="dd-mm-yyyy" readonly autocomplete="off">
+          <input type="text" id="reg-dob" class="auth-clean-input" placeholder="dd-mm-yyyy *" required readonly autocomplete="off">
         </div>
         <div class="auth-input-group">
           <span class="auth-input-icon" title="WhatsApp Number" style="color: #25D366;">
@@ -219,8 +219,8 @@ function initAuthEvents() {
   const regDobInput = document.getElementById('reg-dob');
   if (regDobInput && window.attachAtelierDatePicker) {
     window.attachAtelierDatePicker(regDobInput, {
-      topLabel: 'DATE OF BIRTH',
-      placeholder: 'dd-mm-yyyy',
+      topLabel: 'DATE OF BIRTH * (MANDATORY)',
+      placeholder: 'dd-mm-yyyy *',
       format: 'dd-mm-yyyy',
       defaultYear: 1998
     });
@@ -318,12 +318,47 @@ function initAuthEvents() {
       const errorBanner = document.getElementById('register-error-banner');
       const submitBtn = document.getElementById('register-submit-btn');
       const labelSpan = submitBtn?.querySelector('.btn-label');
-
-      if (!email || !password || !firstName) {
+      if (!firstName) {
+        const errorMsg = 'Please enter your first name.';
         if (errorBanner) {
-          errorBanner.textContent = 'Please complete all required fields.';
+          errorBanner.textContent = errorMsg;
           errorBanner.style.display = 'block';
         }
+        window.showToast(errorMsg);
+        document.getElementById('reg-firstname')?.focus();
+        return;
+      }
+
+      if (!dob || !dob.trim()) {
+        const errorMsg = 'Date of Birth is mandatory. Please select your birth date.';
+        if (errorBanner) {
+          errorBanner.textContent = errorMsg;
+          errorBanner.style.display = 'block';
+        }
+        window.showToast(errorMsg);
+        document.getElementById('reg-dob')?.click();
+        return;
+      }
+
+      if (!email) {
+        const errorMsg = 'Please enter your email address.';
+        if (errorBanner) {
+          errorBanner.textContent = errorMsg;
+          errorBanner.style.display = 'block';
+        }
+        window.showToast(errorMsg);
+        document.getElementById('reg-email')?.focus();
+        return;
+      }
+
+      if (!password) {
+        const errorMsg = 'Please enter a password.';
+        if (errorBanner) {
+          errorBanner.textContent = errorMsg;
+          errorBanner.style.display = 'block';
+        }
+        window.showToast(errorMsg);
+        document.getElementById('reg-password')?.focus();
         return;
       }
 

@@ -958,6 +958,9 @@ class Store {
     if (!window.AtelierSupabase) {
       throw new Error('Supabase Client is not initialized.');
     }
+    if (!userData || !userData.dob || !userData.dob.trim()) {
+      throw new Error('Date of Birth is mandatory for registration.');
+    }
     const result = await window.AtelierSupabase.signUp(userData);
     this.applyUserData(result.user, result.membership, result.transactions);
     return result;
@@ -965,19 +968,22 @@ class Store {
 
   async updateUserProfile(updates) {
     if (!this.state.user) return;
+    const safeUpdates = { ...updates };
+    // Date of Birth is permanent and locked for account security
+    delete safeUpdates.dob;
+
     this.state.user = {
       ...this.state.user,
-      ...updates
+      ...safeUpdates
     };
     this.saveState();
 
     // Persist to Supabase if configured
     if (window.AtelierSupabase && this.state.user.id) {
       const dbUpdates = {};
-      if (updates.dob !== undefined) dbUpdates.dob = updates.dob;
-      if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
-      if (updates.firstName !== undefined) dbUpdates.first_name = updates.firstName;
-      if (updates.lastName !== undefined) dbUpdates.last_name = updates.lastName;
+      if (safeUpdates.phone !== undefined) dbUpdates.phone = safeUpdates.phone;
+      if (safeUpdates.firstName !== undefined) dbUpdates.first_name = safeUpdates.firstName;
+      if (safeUpdates.lastName !== undefined) dbUpdates.last_name = safeUpdates.lastName;
 
       try {
         await window.AtelierSupabase.update('users', dbUpdates, 'id', this.state.user.id);
@@ -991,7 +997,7 @@ class Store {
       await fetch('/api/user/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: this.state.user.id, ...updates })
+        body: JSON.stringify({ userId: this.state.user.id, ...safeUpdates })
       });
     } catch (e) { }
 

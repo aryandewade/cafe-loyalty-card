@@ -194,6 +194,9 @@
       if (!normalizedEmail || !password) {
         throw new Error('Email and password are required.');
       }
+      if (!dob || !dob.trim()) {
+        throw new Error('Date of birth is mandatory for registration.');
+      }
       if (password.length < 6) {
         throw new Error('Password must be at least 6 characters long.');
       }

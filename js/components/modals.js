@@ -1819,86 +1819,11 @@ function openSagaLevelAdvanceModal({ oldPoints = 0, newPoints = 0, pointsEarned 
   });
 }
 
-// 11. Update Date of Birth Modal
+// 11. Update Date of Birth Modal (Locked for Membership Security)
 function openEditDobModal() {
-  closeAllModals();
-  const container = document.getElementById('modal-root');
-  if (!container) return;
-
-  const user = window.AtelierStore?.getState()?.user || {};
-  const currentDob = user.dob || '';
-
-  container.innerHTML = `
-    <div class="modal-backdrop is-active" id="edit-dob-backdrop">
-      <div class="modal-card" style="max-width: 420px; padding: 2rem;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem;">
-          <div>
-            <h3 style="font-size: 1.4rem; font-family: var(--font-serif);">Date of Birth (DOB)</h3>
-            <p style="font-size: 0.85rem; color: var(--color-roast-medium); margin-top: 3px;">
-              Set your actual birth date for annual reserve gifts & tasting perks 🎂
-            </p>
-          </div>
-          <button class="btn-text" id="close-edit-dob-btn" style="font-size: 1.2rem;">✕</button>
-        </div>
-
-        <form id="edit-dob-form" style="display: flex; flex-direction: column; gap: 1.2rem;">
-          <div>
-            <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem; color: var(--color-espresso);">
-              Your Birth Date
-            </label>
-            <input type="date" id="edit-dob-input" required class="auth-input" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--color-cream-border); font-family: var(--font-sans); font-size: 0.95rem; background: var(--bg-surface); color: var(--color-espresso); box-sizing: border-box;" value="${currentDob}">
-            <div style="font-size: 0.75rem; color: var(--color-roast-muted); margin-top: 0.4rem; line-height: 1.4;">
-              ✦ Unlocks a complimentary Estate Reserve Pour-Over & bonus reward points during your birthday week.
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
-            <button type="button" class="btn-secondary" id="cancel-edit-dob-btn" style="flex: 1; justify-content: center; padding: 0.75rem;">
-              Cancel
-            </button>
-            <button type="submit" class="btn-primary" id="save-dob-btn" style="flex: 1; justify-content: center; padding: 0.75rem;">
-              <span>Save Date</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  `;
-
-  // Initialize Bespoke Atelier Theme Calendar
-  const dobInput = document.getElementById('edit-dob-input');
-  if (dobInput && window.attachAtelierDatePicker) {
-    window.attachAtelierDatePicker(dobInput, {
-      inline: true,
-      defaultYear: 1998
-    });
+  if (window.showToast) {
+    window.showToast('Date of Birth is verified and locked for membership security 🔒');
   }
-
-  document.getElementById('close-edit-dob-btn')?.addEventListener('click', closeAllModals);
-  document.getElementById('cancel-edit-dob-btn')?.addEventListener('click', closeAllModals);
-  document.getElementById('edit-dob-backdrop')?.addEventListener('click', (e) => {
-    if (e.target.id === 'edit-dob-backdrop') closeAllModals();
-  });
-
-  document.getElementById('edit-dob-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const newDob = document.getElementById('edit-dob-input')?.value;
-    if (!newDob) {
-      window.showToast('Please select your date of birth 🎂');
-      return;
-    }
-
-    if (window.AtelierStore?.updateUserProfile) {
-      await window.AtelierStore.updateUserProfile({ dob: newDob });
-    }
-
-    closeAllModals();
-    window.showToast('Date of birth updated successfully! 🎂');
-
-    if (window.router?.currentRoute === 'profile') {
-      window.router.render();
-    }
-  });
 }
 
 // 12. Update Contact Phone Modal

@@ -88,13 +88,7 @@ function renderProfilePage() {
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--color-cream-border-subtle);">
               <div>
                 <div style="font-weight: 600; font-size: 0.95rem;">Date of Birth</div>
-                <div style="font-size: 0.85rem; color: var(--color-roast-medium);">
-                  ${user.dob ? `${user.dob} • Birthday Perk Active 🎂` : 'Add birth date for birthday perks 🎂'}
-                </div>
-              </div>
-              <div style="display: flex; align-items: center; gap: 0.6rem;">
-                ${user.dob ? '<span class="badge" style="font-size: 0.72rem; background: rgba(200, 157, 75, 0.15); color: #C89D4B; border-radius: 999px; padding: 2px 8px;">Active</span>' : ''}
-                <button class="btn-text" id="edit-dob-btn">${user.dob ? 'Edit' : 'Add DOB'}</button>
+                <div style="font-size: 0.85rem; color: var(--color-roast-medium);">${user.dob || 'Not set'}</div>
               </div>
             </div>
 
@@ -131,12 +125,6 @@ function renderProfilePage() {
 }
 
 function initProfileEvents() {
-  document.getElementById('edit-dob-btn')?.addEventListener('click', () => {
-    if (window.openEditDobModal) {
-      window.openEditDobModal();
-    }
-  });
-
   document.getElementById('edit-phone-btn')?.addEventListener('click', () => {
     if (window.openEditPhoneModal) {
       window.openEditPhoneModal();
